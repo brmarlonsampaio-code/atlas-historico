@@ -2225,18 +2225,41 @@
       }
 
       async carregarDados() {
-        const stored = await this.db.getPoints();
-        if (stored && stored.length > 0) {
-          this.data = stored;
-        } else {
-          this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
-          for (const pt of this.data) {
-            pt.status = 'Aprovado'; // Originais são aprovados
-            await this.db.savePoint(pt);
-          }
-        }
-      }
+  // 1. Tenta carregar do IndexedDB
+  const stored = await this.db.getPoints();
+  if (stored && stored.length > 0) {
+    this.data = stored;
+    console.log('✅ ' + this.data.length + ' registros carregados do IndexedDB');
+    return;
+  }
 
+  // 2. Tenta carregar do arquivo dados.json
+  try {
+    console.log('📂 Carregando dados do arquivo dados.json...');
+    const response = await fetch('dados.json');
+    const dados = await response.json();
+    
+    if (dados && dados.length > 0) {
+      this.data = dados;
+      for (const pt of this.data) {
+        pt.status = 'Aprovado';
+        await this.db.savePoint(pt);
+      }
+      console.log('✅ ' + this.data.length + ' registros carregados do dados.json');
+      return;
+    }
+  } catch (e) {
+    console.log('📂 dados.json não encontrado, usando dados embutidos');
+  }
+
+  // 3. Fallback: dados embutidos no código
+  this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
+  for (const pt of this.data) {
+    pt.status = 'Aprovado';
+    await this.db.savePoint(pt);
+  }
+  console.log('✅ ' + this.data.length + ' registros carregados (fallback)');
+}
       async salvarPonto(point) {
         await this.db.savePoint(point);
         await this.db.addLog(this.activeUserRole, 'Inserção/Edição de Ponto', point.nome);
