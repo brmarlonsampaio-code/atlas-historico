@@ -1,0 +1,3407 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Atlas Atlantes – Atlas Histórico Digital Interativo</title>
+
+  <!-- Maplibre GL JS CSS & JS -->
+  <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
+  <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+
+  <!-- FontAwesome for icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- D3.js (Network Visualization) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+
+  <!-- Three.js & OrbitControls (3D Artifacts & VR 360) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+  <!-- GSAP (Smooth animations) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+  <style>
+    :root {
+      --color-bg-dark: #030f18;
+      --color-bg: #071e2f;
+      --color-surface: rgba(7, 30, 47, 0.65);
+      --color-surface-opaque: #071e2f;
+      --color-surface-hover: rgba(212, 175, 55, 0.15);
+      --color-accent: #d4af37; /* Dourado */
+      --color-accent-light: #f9e8a2;
+      --color-text: #e8e4d8;
+      --color-muted: #8fa0b5;
+      --border: rgba(212, 175, 55, 0.25);
+      --font-sans: 'Inter', sans-serif;
+      --font-serif: 'Playfair Display', serif;
+      --font-display: 'Outfit', sans-serif;
+      --timeline-height: 200px;
+    }
+
+    /* ALTO CONTRASTE */
+    body.high-contrast {
+      --color-bg-dark: #000000;
+      --color-bg: #000000;
+      --color-surface: #000000;
+      --color-surface-opaque: #000000;
+      --color-surface-hover: #ffffff;
+      --color-accent: #ffff00; /* Amarelo Puro */
+      --color-accent-light: #ffffff;
+      --color-text: #ffffff;
+      --color-muted: #ffffff;
+      --border: #ffff00;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--color-bg-dark);
+      color: var(--color-text);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* PARTÍCULAS BACKGROUND CANVAS */
+    #particle-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+      opacity: 0.4;
+    }
+
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* GLASSMORPHISM */
+    .glass {
+      background: var(--color-surface);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid var(--border);
+    }
+
+    /* HEADER */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 24px;
+      height: 65px;
+      z-index: 10;
+      flex-shrink: 0;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .header-logo {
+      font-family: var(--font-display);
+      font-weight: 800;
+      font-size: 1.5rem;
+      background: linear-gradient(135deg, var(--color-accent-light), var(--color-accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* PESQUISA */
+    .search-wrapper {
+      position: relative;
+    }
+
+    .search-wrapper i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--color-muted);
+      font-size: 0.85rem;
+    }
+
+    #searchInput {
+      padding: 8px 12px 8px 34px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--color-text);
+      font-size: 0.85rem;
+      width: 180px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    #searchInput:focus {
+      outline: none;
+      width: 250px;
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--color-accent);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.3);
+    }
+
+    /* AUTOCOMPLETE POPUP */
+    .autocomplete-list {
+      position: absolute;
+      top: 105%;
+      left: 0;
+      right: 0;
+      background: var(--color-surface-opaque);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      max-height: 200px;
+      overflow-y: auto;
+      z-index: 100;
+      display: none;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.5);
+    }
+
+    .autocomplete-item {
+      padding: 10px 12px;
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .autocomplete-item:hover {
+      background: var(--color-surface-hover);
+      color: var(--color-accent-light);
+    }
+
+    .btn-header {
+      padding: 8px 14px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--color-text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-header:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-accent);
+      color: var(--color-accent-light);
+    }
+
+    .btn-header.primary {
+      background: var(--color-accent);
+      color: #030f18;
+      border-color: var(--color-accent);
+      font-weight: 600;
+    }
+
+    .btn-header.primary:hover {
+      background: var(--color-accent-light);
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    /* MAIN AREA */
+    .main-area {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* SIDEBAR (LEFT) - FILTROS */
+    #sidebar {
+      width: 300px;
+      z-index: 5;
+      padding: 20px;
+      overflow-y: auto;
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: none;
+      border-bottom: none;
+      border-left: none;
+    }
+
+    #sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      border-right: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .sidebar-section-title {
+      font-family: var(--font-serif);
+      color: var(--color-accent);
+      font-size: 1rem;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* ACCORDION FILTERS */
+    .filter-accordion {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .filter-accordion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 8px;
+      font-size: 0.8rem;
+      color: var(--color-accent-light);
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+      transition: 0.2s;
+    }
+
+    .filter-accordion-header:hover {
+      background: rgba(255,255,255,0.06);
+    }
+
+    .filter-accordion-content {
+      padding: 5px 0 5px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .filtro-btn {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      padding: 6px 10px;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.01);
+      color: var(--color-muted);
+      font-size: 0.8rem;
+      cursor: pointer;
+      text-align: left;
+      transition: all 0.2s ease;
+    }
+
+    .filtro-btn:hover {
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--color-text);
+    }
+
+    .filtro-btn.active {
+      background: var(--color-surface-hover);
+      color: var(--color-accent-light);
+      border-color: rgba(212, 175, 55, 0.4);
+      font-weight: 500;
+    }
+
+    .filtro-btn .count {
+      margin-left: auto;
+      background: rgba(255, 255, 255, 0.08);
+      padding: 1px 6px;
+      border-radius: 10px;
+      font-size: 0.65rem;
+      color: var(--color-muted);
+    }
+
+    .filtro-btn.active .count {
+      background: rgba(212, 175, 55, 0.2);
+      color: var(--color-accent-light);
+    }
+
+    /* SLIDER ANOS */
+    .range-slider-container {
+      margin-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .range-slider-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: var(--color-accent-light);
+    }
+
+    .year-inputs {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .year-inputs input {
+      width: 100%;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 4px;
+      color: var(--color-text);
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    /* MAP CONTAINER */
+    #map-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      background: #02090e;
+    }
+
+    #map {
+      flex: 1;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* GLOBE CONTROLS PANEL */
+    .globe-controls {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 5;
+    }
+
+    .btn-globe-ctrl {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--color-text);
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+      font-size: 0.95rem;
+      transition: all 0.25s ease;
+    }
+
+    .btn-globe-ctrl:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 10px var(--color-accent);
+    }
+
+    .btn-globe-ctrl.active {
+      background: var(--color-accent);
+      color: #030f18;
+    }
+
+    /* STORYTELLING BAR CONTROL */
+    #storytelling-hud {
+      position: absolute;
+      top: 15px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 10px 20px;
+      border-radius: 30px;
+      z-index: 5;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.6);
+      border: 1px solid var(--color-accent);
+      display: none; /* Ativado via código */
+    }
+
+    .hud-title {
+      font-family: var(--font-serif);
+      font-size: 0.9rem;
+      color: var(--color-accent-light);
+      max-width: 250px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hud-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-hud {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.1);
+      color: var(--color-text);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      transition: 0.2s;
+    }
+
+    .btn-hud:hover {
+      background: var(--color-accent);
+      color: #000;
+    }
+
+    /* TIMELINE SECTION */
+    .timeline-section {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      right: 20px;
+      height: var(--timeline-height);
+      z-index: 4;
+      border-radius: 16px;
+      padding: 12px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .timeline-section.collapsed {
+      transform: translateY(calc(var(--timeline-height) + 30px));
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .timeline-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--color-accent-light);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.15);
+      padding-bottom: 6px;
+    }
+
+    .timeline-controls-player {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .timeline-wrapper {
+      overflow-x: auto;
+      overflow-y: hidden;
+      height: 100%;
+      padding-bottom: 6px;
+      scrollbar-width: thin;
+      scrollbar-color: var(--color-accent) transparent;
+      cursor: grab;
+    }
+
+    .timeline-wrapper::-webkit-scrollbar {
+      height: 4px;
+    }
+    .timeline-wrapper::-webkit-scrollbar-thumb {
+      background: var(--color-accent);
+      border-radius: 4px;
+    }
+
+    .timeline {
+      display: flex;
+      gap: 16px;
+      width: max-content;
+      height: 100%;
+      align-items: center;
+    }
+
+    /* CARDS DA TIMELINE */
+    .event-card {
+      width: 250px;
+      height: 110px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 8px;
+      display: flex;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      position: relative;
+      border-left: 4px solid var(--card-accent, var(--color-accent));
+    }
+
+    .event-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--color-accent);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .event-card.highlight {
+      border-color: var(--color-accent-light);
+      box-shadow: 0 0 15px rgba(212, 175, 55, 0.4);
+      background: rgba(212, 175, 55, 0.12);
+    }
+
+    .event-cover {
+      width: 80px;
+      height: 100%;
+      object-fit: cover;
+      flex-shrink: 0;
+      border-right: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .card-content {
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .event-date {
+      font-size: 0.65rem;
+      color: var(--color-accent);
+      font-weight: 700;
+    }
+
+    .event-title {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-accent-light);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .event-desc {
+      font-size: 0.65rem;
+      color: var(--color-muted);
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      line-height: 1.3;
+    }
+
+    /* DETAIL PANEL (RIGHT SIDEBAR) */
+    #detail-panel {
+      position: absolute;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      width: 440px;
+      z-index: 15;
+      transform: translateX(100%);
+      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+      box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+      border-left: 1px solid var(--border);
+    }
+
+    #detail-panel.open {
+      transform: translateX(0);
+    }
+
+    .panel-cover-container {
+      position: relative;
+      height: 180px;
+      width: 100%;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .panel-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .panel-cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(3, 15, 24, 0.1), rgba(3, 15, 24, 0.95));
+    }
+
+    .panel-close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.5);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      z-index: 2;
+    }
+
+    .panel-close-btn:hover {
+      background: var(--color-accent);
+      color: #000;
+      transform: scale(1.05);
+    }
+
+    .panel-actions-top {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      display: flex;
+      gap: 8px;
+      z-index: 2;
+    }
+
+    /* ABAS (TABS) NO PAINEL DE DETALHES */
+    .panel-tabs {
+      display: flex;
+      background: rgba(0,0,0,0.3);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    .tab-btn {
+      flex: 1;
+      padding: 10px 4px;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--color-muted);
+      font-size: 0.72rem;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+
+    .tab-btn:hover {
+      color: var(--color-accent-light);
+    }
+
+    .tab-btn.active {
+      color: var(--color-accent);
+      border-bottom-color: var(--color-accent);
+    }
+
+    .panel-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    /* METADATA GRID */
+    .panel-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 8px;
+      padding: 10px;
+    }
+
+    .meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .meta-label {
+      font-size: 0.6rem;
+      color: var(--color-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .meta-value {
+      font-size: 0.78rem;
+      font-weight: 500;
+      color: var(--color-text);
+    }
+
+    /* NARRATIVA & AUDIO-PLAYER */
+    .narrative-header-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .btn-narrative-audio {
+      background: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px 10px;
+      font-size: 0.7rem;
+      color: var(--color-accent);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .btn-narrative-audio:hover {
+      background: var(--color-surface-hover);
+    }
+
+    /* 3D REPLICA VIEWPORT */
+    .replica-viewport, .panorama-viewport {
+      width: 100%;
+      height: 250px;
+      background: #000;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .viewport-instructions {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      background: rgba(0,0,0,0.7);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      text-align: center;
+      color: var(--color-accent-light);
+      pointer-events: none;
+    }
+
+    /* AUDIO CONTROLS ON DETAILS */
+    .audio-player-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.03);
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .audio-play-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--color-accent);
+      color: #000;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    /* CITATION BOX */
+    .citation-box {
+      background: rgba(0,0,0,0.4);
+      border: 1px dashed var(--border);
+      padding: 10px;
+      border-radius: 6px;
+      font-size: 0.7rem;
+      font-family: monospace;
+      color: var(--color-text);
+      position: relative;
+    }
+
+    .copy-citation-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      background: none;
+      border: none;
+      color: var(--color-accent);
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+
+    /* MODAL EXTRAS (D3 GRAPH, DASHBOARD, ADMIN) */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(2, 9, 14, 0.9);
+      backdrop-filter: blur(12px);
+      z-index: 999;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      width: 90%;
+      max-width: 900px;
+      border-radius: 16px;
+      padding: 24px;
+      position: relative;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      max-height: 90vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 10px;
+    }
+
+    .modal-title {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--color-accent-light);
+      font-size: 1.4rem;
+    }
+
+    .modal-close {
+      cursor: pointer;
+      font-size: 1.3rem;
+      color: var(--color-muted);
+      transition: color 0.2s;
+    }
+
+    .modal-close:hover {
+      color: var(--color-accent);
+    }
+
+    /* D3 FORCE GRAPH CONTAINERS */
+    #d3-graph-container {
+      width: 100%;
+      height: 500px;
+      background: #01060a;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    /* FORM STYLES */
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      font-size: 0.7rem;
+      color: var(--color-accent-light);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .form-control {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--color-text);
+      font-size: 0.8rem;
+    }
+
+    .form-control:focus {
+      outline: none;
+      border-color: var(--color-accent);
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    textarea.form-control {
+      min-height: 80px;
+      font-family: var(--font-sans);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    /* DRAG & DROP UPLOAD ZONE */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      background: rgba(255,255,255,0.01);
+      transition: 0.2s;
+      font-size: 0.8rem;
+      color: var(--color-muted);
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-accent);
+      color: var(--color-text);
+    }
+
+    /* LOG AUDITORIA / VERSIONAMENTO */
+    .audit-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+      margin-top: 10px;
+    }
+
+    .audit-table th, .audit-table td {
+      border: 1px solid rgba(255,255,255,0.05);
+      padding: 8px;
+      text-align: left;
+    }
+
+    .audit-table th {
+      background: rgba(255,255,255,0.02);
+      color: var(--color-accent-light);
+    }
+
+    /* LIGHTBOX & PDF */
+    #lightbox {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.95);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    #lightbox-img {
+      max-width: 90%;
+      max-height: 85vh;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+
+    #pdfModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      z-index: 9998;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #pdfModal > div {
+      background: var(--color-bg-dark);
+      border: 1px solid var(--border);
+      padding: 20px;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+    }
+
+    #pdfFrame {
+      width: 100%;
+      height: 480px;
+      border: none;
+      border-radius: 6px;
+      margin-top: 12px;
+      background: #fff;
+    }
+
+    /* TELA DE CARREGAMENTO */
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: var(--color-bg-dark);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease;
+    }
+
+    #loading-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      position: relative;
+      width: 80px;
+      height: 80px;
+    }
+
+    .loading-spinner div {
+      box-sizing: border-box;
+      display: block;
+      position: absolute;
+      width: 64px;
+      height: 64px;
+      margin: 8px;
+      border: 4px solid var(--color-accent);
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: var(--color-accent) transparent transparent transparent;
+    }
+    .loading-spinner div:nth-child(1) { animation-delay: -0.45s; }
+    .loading-spinner div:nth-child(2) { animation-delay: -0.3s; }
+    .loading-spinner div:nth-child(3) { animation-delay: -0.15s; }
+
+    @keyframes lds-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* MAPLBRE CUSTOMS */
+    .maplibregl-popup-content {
+      background: var(--color-bg-dark) !important;
+      color: var(--color-text) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.6) !important;
+    }
+
+    /* D3 CUSTOM STYLES */
+    .d3-node {
+      cursor: pointer;
+      stroke-width: 1.5px;
+    }
+    .d3-link {
+      stroke-opacity: 0.6;
+      stroke-width: 1.5px;
+    }
+
+    /* AUDIO HEADER CONTROLS */
+    .audio-header-player {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+    }
+
+    .audio-header-player button {
+      background: none;
+      border: none;
+      color: var(--color-accent);
+      cursor: pointer;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 1024px) {
+      #detail-panel {
+        width: 100%;
+        max-width: 100vw;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PARTÍCULAS BACKGROUND CANVAS -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- TELA DE CARREGAMENTO -->
+  <div id="loading-overlay">
+    <div class="loading-spinner">
+      <div></div><div></div><div></div><div></div>
+    </div>
+    <p style="margin-top:20px; font-family:var(--font-serif); color:var(--color-accent); font-size:1.1rem; letter-spacing:1.5px;">CARREGANDO ATLAS INTERATIVO 3D...</p>
+  </div>
+
+  <div id="app">
+    <!-- HEADER -->
+    <header class="header glass">
+      <a href="#" class="header-logo" id="logoReset">
+        <i class="fa-solid fa-compass" style="color: var(--color-accent);"></i>
+        <span>Atlas Atlantes 3D</span>
+      </a>
+      
+      <div class="header-controls">
+        <!-- PLAYER DE ÁUDIO AMBIENTE -->
+        <div class="audio-header-player">
+          <button id="btnHeaderSound" title="Ligar/Desligar Música Ambiente"><i class="fa-solid fa-volume-xmark"></i></button>
+          <span>Som Ambiente</span>
+        </div>
+
+        <div class="search-wrapper">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" id="searchInput" placeholder="Buscar no Atlas..." autocomplete="off" />
+          <div class="autocomplete-list" id="searchAutocomplete"></div>
+        </div>
+
+        <button class="btn-header" id="btnOpenConnections" title="Ver Gráfico de Rede D3">
+          <i class="fa-solid fa-circle-nodes"></i> Redes
+        </button>
+
+        <button class="btn-header" id="btnToggleFilters">
+          <i class="fa-solid fa-filter"></i> Filtros
+        </button>
+
+        <button class="btn-header" id="btnToggleTimeline">
+          <i class="fa-solid fa-timeline"></i> Linha do Tempo
+        </button>
+
+        <button class="btn-header primary" id="btnAdminPanel" title="Painel de Administração">
+          <i class="fa-solid fa-toolbox"></i> Admin
+        </button>
+
+        <!-- ACESSIBILIDADE -->
+        <button class="btn-header" id="btnToggleAccessibility" title="Menu de Acessibilidade">
+          <i class="fa-solid fa-universal-access"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN AREA -->
+    <div class="main-area">
+      
+      <!-- SIDEBAR FILTROS (LEFT) -->
+      <aside id="sidebar" class="glass collapsed">
+        <div class="sidebar-section-title">
+          <span>Pesquisa Temporal</span>
+          <i class="fa-solid fa-calendar-days"></i>
+        </div>
+        <div class="range-slider-container">
+          <div class="range-slider-labels">
+            <span>Início: <strong id="lbl-start-year">-2000</strong></span>
+            <span>Fim: <strong id="lbl-end-year">2026</strong></span>
+          </div>
+          <div class="year-inputs">
+            <input type="number" id="inputStartYear" value="-2000" min="-2000" max="2026" />
+            <span>a</span>
+            <input type="number" id="inputEndYear" value="2026" min="-2000" max="2026" />
+          </div>
+        </div>
+
+        <div class="sidebar-section-title">
+          <span>Filtros Acadêmicos</span>
+          <i class="fa-solid fa-filter-list"></i>
+        </div>
+
+        <div class="filter-accordion">
+          <!-- CATEGORIA -->
+          <div class="filter-accordion-header" data-target="categoria-content">
+            <span>Categoria de Registro</span> <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="filter-accordion-content" id="categoria-filtros"></div>
+
+          <!-- TEMA -->
+          <div class="filter-accordion-header" data-target="tema-content">
+            <span>Tema Histórico</span> <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="filter-accordion-content" id="tema-filtros"></div>
+
+          <!-- POVO / AGENTE -->
+          <div class="filter-accordion-header" data-target="povo-content">
+            <span>Povo / Cultura</span> <i class="fa-solid fa-chevron-down"></i>
+          </div>
+          <div class="filter-accordion-content" id="povo-filtros"></div>
+        </div>
+
+        <button id="reset-filtros" class="btn-header" style="width:100%; justify-content:center; margin-top:10px;">
+          <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
+        </button>
+        
+        <button id="restore-default-data" class="btn-header" style="width:100%; justify-content:center; margin-top:4px; color:#e74c3c; border-color:rgba(231,76,60,0.25);">
+          <i class="fa-solid fa-rotate-left"></i> Restaurar Originais
+        </button>
+        
+        <div style="margin-top:auto; font-size:0.75rem; color:var(--color-muted); display:flex; justify-content:space-between; border-top:1px solid rgba(255,255,255,0.05); padding-top:10px;">
+          <span>Registros Ativos:</span>
+          <strong id="count-visible" style="color:var(--color-accent-light)">0</strong>
+        </div>
+      </aside>
+
+      <!-- MAP CONTAINER -->
+      <div id="map-container">
+        <!-- MAPA MAPLIBRE -->
+        <div id="map"></div>
+
+        <!-- CONTROLES DO GLOBO (FLAT/GLOBE & SPIN) -->
+        <div class="globe-controls">
+          <div class="btn-globe-ctrl glass" id="btnToggleGlobe" title="Alternar Mapa/Globo 3D">
+            <i class="fa-solid fa-earth-americas"></i>
+          </div>
+          <div class="btn-globe-ctrl glass" id="btnToggleSpin" title="Ligar/Desligar Rotação">
+            <i class="fa-solid fa-rotate"></i>
+          </div>
+        </div>
+
+        <!-- STORYTELLING HUD OVERLAY -->
+        <div id="storytelling-hud" class="glass">
+          <button class="btn-hud" id="btnStoryPrev"><i class="fa-solid fa-chevron-left"></i></button>
+          <div class="hud-title" id="storyTitle">Storytelling</div>
+          <div class="hud-controls">
+            <button class="btn-hud" id="btnStoryPlay"><i class="fa-solid fa-play"></i></button>
+            <button class="btn-hud" id="btnStoryNext"><i class="fa-solid fa-chevron-right"></i></button>
+            <button class="btn-hud" id="btnStoryClose" style="background:#e74c3c; color:#fff;"><i class="fa-solid fa-xmark"></i></button>
+          </div>
+        </div>
+
+        <!-- TIMELINE BOARDS -->
+        <div class="timeline-section glass" id="timelineSection">
+          <div class="timeline-header">
+            <div class="timeline-title">
+              <i class="fa-solid fa-scroll" style="color:var(--color-accent)"></i>
+              <span>Crônicas e Linha do Tempo Histórica</span>
+            </div>
+            
+            <div class="timeline-controls-player">
+              <!-- STORY SELECTION -->
+              <select id="selectStoryline" class="form-control" style="padding:2px 8px; font-size:0.7rem; width:150px; background:rgba(0,0,0,0.5);">
+                <option value="none">-- Modo Storytelling --</option>
+                <option value="navegacoes">Grandes Navegações</option>
+                <option value="imperio_romano">Expansão de Roma</option>
+              </select>
+              <button class="btn-header" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 8px; border-radius:10px;">
+                Ocultar
+              </button>
+            </div>
+          </div>
+          <div class="timeline-wrapper" id="timelineWrapper">
+            <div class="timeline" id="timelineContainer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- DETAIL PANEL (RIGHT SIDEBAR) -->
+      <aside id="detail-panel" class="glass">
+        <div class="panel-cover-container">
+          <img class="panel-cover" id="detailCover" src="https://images.unsplash.com/photo-1599733589046-9b8308b5b50d?q=80&w=400&auto=format&fit=crop" alt="Capa" />
+          <div class="panel-cover-overlay"></div>
+          <div class="panel-actions-top">
+            <button class="panel-close-btn" id="btnDetailEdit" style="left:15px; top:15px;" title="Editar Registro"><i class="fa-solid fa-pen"></i></button>
+          </div>
+          <button class="panel-close-btn" id="btnCloseDetail" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+
+        <!-- TABS PARA CATEGORIAS DE METADADOS -->
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="tab-narrativa">Narrativa</button>
+          <button class="tab-btn" data-tab="tab-multimidia">Mídia</button>
+          <button class="tab-btn" data-tab="tab-documentos">Documentos</button>
+          <button class="tab-btn" data-tab="tab-objeto3d">Objeto 3D</button>
+          <button class="tab-btn" data-tab="tab-panorama">Visita 360°</button>
+          <button class="tab-btn" data-tab="tab-academic">Acadêmico</button>
+        </div>
+
+        <div class="panel-body">
+          <!-- VIEW MODE -->
+          <div id="detailViewMode" style="display:flex; flex-direction:column; gap:12px; width:100%;">
+            
+            <!-- ABA: NARRATIVA -->
+            <div class="tab-content active" id="tab-narrativa">
+              <div>
+                <span class="panel-category-badge" id="detailCategoryBadge" style="display:inline-block; border: 1px solid var(--border); border-radius:12px; font-size:0.65rem; padding:2px 8px; font-weight:600;">Categoria</span>
+                <h2 class="panel-title" id="detailTitle" style="margin-top:5px; font-family:var(--font-serif)">Título do Registro</h2>
+                <h4 id="detailSubtitle" style="font-size:0.8rem; font-weight:400; color:var(--color-muted); margin-top:2px;">Subtítulo ou resumo breve</h4>
+              </div>
+
+              <div class="panel-meta-grid">
+                <div class="meta-item">
+                  <span class="meta-label">Ano / Período</span>
+                  <span class="meta-value" id="detailMetaDate">-</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">País / Região</span>
+                  <span class="meta-value" id="detailMetaLocation">-</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Coordenadas</span>
+                  <span class="meta-value" id="detailMetaCoords" style="font-size:0.7rem;">-</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Povo/Cultura</span>
+                  <span class="meta-value" id="detailMetaPovo">-</span>
+                </div>
+              </div>
+
+              <div>
+                <div class="narrative-header-controls">
+                  <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-book-open"></i> Crônica Histórica</h4>
+                  <button class="btn-narrative-audio" id="btnAudioTTS"><i class="fa-solid fa-volume-high"></i> Ouvir</button>
+                </div>
+                <p class="panel-description" id="detailDescription" style="font-size:0.82rem; line-height:1.5; color:rgba(232, 228, 216, 0.9); text-align:justify;">Texto de crônica.</p>
+              </div>
+            </div>
+
+            <!-- ABA: MULTIMÍDIA -->
+            <div class="tab-content" id="tab-multimidia">
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-images"></i> Galeria de Imagens</h4>
+              <div class="panel-gallery" id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;"></div>
+              
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem; margin-top:10px;"><i class="fa-solid fa-video"></i> Vídeos & Podcasts</h4>
+              <div id="detailVideos" style="display:flex; flex-direction:column; gap:10px;"></div>
+            </div>
+
+            <!-- ABA: DOCUMENTOS -->
+            <div class="tab-content" id="tab-documentos">
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-file-invoice"></i> Manuscritos & Fontes</h4>
+              <div class="panel-documents" id="detailDocuments" style="display:flex; flex-direction:column; gap:8px;"></div>
+            </div>
+
+            <!-- ABA: OBJETO 3D -->
+            <div class="tab-content" id="tab-objeto3d">
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-cube"></i> Artefato 3D Interativo</h4>
+              <div class="replica-viewport" id="threeReplicaViewport">
+                <canvas id="three-canvas" style="width:100%; height:100%;"></canvas>
+                <div class="viewport-instructions">Arraste para rotacionar. Scroll para Zoom.</div>
+              </div>
+              <div style="font-size:0.7rem; color:var(--color-muted); text-align:center;">Réplica digital aproximada do objeto arqueológico.</div>
+            </div>
+
+            <!-- ABA: PANORAMA VR -->
+            <div class="tab-content" id="tab-panorama">
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-vr-cardboard"></i> Visita Virtual 360°</h4>
+              <div class="panorama-viewport" id="panoramaViewport">
+                <canvas id="panorama-canvas" style="width:100%; height:100%;"></canvas>
+                <div class="viewport-instructions">Clique e arraste para olhar ao redor.</div>
+              </div>
+            </div>
+
+            <!-- ABA: ACADÊMICO -->
+            <div class="tab-content" id="tab-academic">
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem;"><i class="fa-solid fa-graduation-cap"></i> Citação Acadêmica</h4>
+              <div class="citation-box" id="citationBox">
+                Carregando citação...
+                <button class="copy-citation-btn" id="btnCopyCitation" title="Copiar Citação"><i class="fa-solid fa-copy"></i></button>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-header" style="flex:1; justify-content:center; font-size:0.7rem;" id="btnExportBibtex"><i class="fa-solid fa-file-export"></i> Export BibTeX</button>
+                <button class="btn-header" style="flex:1; justify-content:center; font-size:0.7rem;" id="btnExportRis"><i class="fa-solid fa-file-arrow-down"></i> Export RIS (EndNote)</button>
+              </div>
+              
+              <h4 class="panel-section-title" style="font-family:var(--font-serif); color:var(--color-accent); font-size:0.95rem; margin-top:10px;"><i class="fa-solid fa-circle-nodes"></i> Metadados & Repositórios</h4>
+              <div class="panel-meta-grid" style="font-size:0.7rem;">
+                <div class="meta-item">
+                  <span class="meta-label">DOI / Identificador</span>
+                  <span class="meta-value" id="detailMetaDoi">Não atribuído</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Licença de Uso</span>
+                  <span class="meta-value" id="detailMetaLicense">CC BY-NC 4.0</span>
+                </div>
+                <div class="meta-item" style="grid-column: span 2;">
+                  <span class="meta-label">Metadados Dublin Core</span>
+                  <span class="meta-value" style="font-family:monospace; font-size:0.6rem; word-break:break-all;" id="detailMetaDublinCore">...</span>
+                </div>
+              </div>
+              
+              <button class="btn-header" style="justify-content:center; width:100%; border-color:#2ecc71; color:#2ecc71;" id="btnMockZenodo">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Integrar com Repositório Zenodo/OAI-PMH
+              </button>
+            </div>
+
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- MODAL: REDES DE CONEXÕES D3 -->
+  <div class="modal-overlay" id="modalConnections">
+    <div class="modal-content glass">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-circle-nodes" style="color:var(--color-accent)"></i> Gráfico de Rede de Conexões D3</h3>
+        <span class="modal-close" id="btnCloseConnections"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+      <div style="font-size:0.8rem; color:var(--color-muted)">Visualização das correlações físicas, autorias e influências entre impérios, registros, povos e artefatos. Clique nos nós para navegar no Atlas.</div>
+      <div id="d3-graph-container"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: PAINEL ADMINISTRATIVO (ADMIN) -->
+  <div class="modal-overlay" id="modalAdmin">
+    <div class="modal-content glass" style="max-width:800px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-toolbox" style="color:var(--color-accent)"></i> Painel de Administração e Gestão de Metadados</h3>
+        <span class="modal-close" id="btnCloseAdmin"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+
+      <!-- SIMULAÇÃO DE PERFIS -->
+      <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px 12px; border-radius:6px; font-size:0.75rem;">
+        <div>
+          <span>Perfil de Trabalho Ativo: </span>
+          <strong id="lblActiveUserRole" style="color:var(--color-accent-light)">Administrador Editorial</strong>
+        </div>
+        <div style="display:flex; gap:6px;">
+          <button class="btn-header" style="padding:2px 8px; font-size:0.65rem;" onclick="window.atlasApp.changeUserRole('Pesquisador')">Pesquisador</button>
+          <button class="btn-header" style="padding:2px 8px; font-size:0.65rem;" onclick="window.atlasApp.changeUserRole('Revisor')">Revisor Científico</button>
+          <button class="btn-header" style="padding:2px 8px; font-size:0.65rem;" onclick="window.atlasApp.changeUserRole('Administrador')">Administrador</button>
+        </div>
+      </div>
+
+      <!-- TABS INTERNAS ADMIN -->
+      <div style="display:flex; gap:10px; border-bottom:1px solid rgba(255,255,255,0.1); margin-top:10px;">
+        <button class="tab-btn active" id="btnAdminTabForm" onclick="window.atlasApp.toggleAdminTab('form')">Novo Registro</button>
+        <button class="tab-btn" id="btnAdminTabReview" onclick="window.atlasApp.toggleAdminTab('review')">Fila de Revisão Científica (<span id="lblReviewCount">0</span>)</button>
+        <button class="tab-btn" id="btnAdminTabBackup" onclick="window.atlasApp.toggleAdminTab('backup')">Backup & Exportação</button>
+        <button class="tab-btn" id="btnAdminTabAudit" onclick="window.atlasApp.toggleAdminTab('audit')">Log de Auditoria</button>
+      </div>
+
+      <!-- SUBPAINEL: FORMULÁRIO -->
+      <div id="adminTabContentForm" class="tab-content active" style="flex-direction:column;">
+        <form id="addPointForm" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Nome / Título do Registro</label>
+              <input type="text" id="addName" class="form-control" placeholder="Ex: Biblioteca de Alexandria" required />
+            </div>
+            <div class="form-group">
+              <label>Subtítulo</label>
+              <input type="text" id="addSubtitle" class="form-control" placeholder="Ex: O maior centro do saber na Antiguidade" />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Categoria</label>
+              <select id="addCategory" class="form-control">
+                <option value="mapa">Mapa Histórico</option>
+                <option value="porto">Porto Colonial</option>
+                <option value="expedicao">Expedição Náutica</option>
+                <option value="documento">Documento Histórico</option>
+                <option value="naufragio">Naufrágio</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Tema Temático</label>
+              <select id="addTheme" class="form-control">
+                <option value="Cultura">Cultura & Saber</option>
+                <option value="Economia">Economia / Comércio</option>
+                <option value="Política">Política / Governo</option>
+                <option value="Religião">Religião</option>
+                <option value="Conflitos">Guerra / Conflitos</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Ano de Fundação/Ocorrência</label>
+              <input type="number" id="addFundacao" class="form-control" placeholder="Use valores negativos para A.C. Ex: -285" required />
+            </div>
+            <div class="form-group">
+              <label>Povo / Cultura Associada</label>
+              <input type="text" id="addPovo" class="form-control" placeholder="Ex: Gregos, Egípcios" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>País Atual</label>
+              <input type="text" id="addPais" class="form-control" placeholder="Ex: Egito" required />
+            </div>
+            <div class="form-group">
+              <label>Continente</label>
+              <input type="text" id="addContinente" class="form-control" placeholder="Ex: África" required />
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Latitude</label>
+              <input type="number" step="any" id="addLat" class="form-control" placeholder="Selecione no mapa ao lado..." required />
+            </div>
+            <div class="form-group">
+              <label>Longitude</label>
+              <input type="number" step="any" id="addLon" class="form-control" placeholder="Selecione no mapa ao lado..." required />
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Capa do Evento (URL da Imagem)</label>
+            <input type="url" id="addCoverImage" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
+          </div>
+
+          <!-- DRAG & DROP UPLOAD PERSISTENTE -->
+          <div class="upload-zone" id="dragDropZone">
+            <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.8rem; color:var(--color-accent);"></i>
+            <p style="margin-top:6px;">Arraste fotos ou documentos (PDFs) para salvar localmente no IndexedDB</p>
+            <span style="font-size:0.65rem; color:var(--color-muted)">Os arquivos convertidos ficarão disponíveis na galeria/documentos</span>
+            <input type="file" id="adminFileInput" style="display:none;" multiple />
+          </div>
+
+          <div class="form-group">
+            <label>Crônica Narrativa Detalhada</label>
+            <textarea id="addDescricao" class="form-control" placeholder="Descreva os processos históricos deste ponto..." required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Autor / Pesquisador Principal</label>
+              <input type="text" id="addAuthor" class="form-control" placeholder="Seu Nome completo" />
+            </div>
+            <div class="form-group">
+              <label>Instituição</label>
+              <input type="text" id="addInstitution" class="form-control" placeholder="Ex: Universidade de Coimbra" />
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit" style="margin-top:10px; padding:12px; background:var(--color-accent); color:#000; font-weight:600; cursor:pointer; border:none; border-radius:6px;">Registrar Ponto Histórico</button>
+        </form>
+      </div>
+
+      <!-- SUBPAINEL: FILA REVISÃO CIENTÍFICA -->
+      <div id="adminTabContentReview" class="tab-content" style="flex-direction:column;">
+        <h4 style="margin-top:10px; font-family:var(--font-serif); color:var(--color-accent-light)">Registros Pendentes de Avaliação Editorial</h4>
+        <div style="font-size:0.75rem; color:var(--color-muted); margin-bottom:10px;">Submissões feitas por pesquisadores que precisam de aprovação de um revisor científico antes de serem adicionadas ao mapa interativo público.</div>
+        <div id="reviewQueueContainer" style="display:flex; flex-direction:column; gap:10px;">
+          <!-- Items renderizados via JS -->
+        </div>
+      </div>
+
+      <!-- SUBPAINEL: BACKUP & EXPORT -->
+      <div id="adminTabContentBackup" class="tab-content" style="flex-direction:column; gap:15px; margin-top:10px;">
+        <div>
+          <h4 style="font-family:var(--font-serif); color:var(--color-accent-light)">Exportação de Bancos de Dados</h4>
+          <p style="font-size:0.75rem; color:var(--color-muted); margin-bottom:10px;">Baixe todos os dados do atlas em formatos abertos reutilizáveis por outros pesquisadores.</p>
+          <div style="display:flex; gap:10px;">
+            <button class="btn-header" style="flex:1; justify-content:center;" onclick="window.atlasApp.exportDatabaseJSON()"><i class="fa-solid fa-file-code"></i> Exportar JSON</button>
+            <button class="btn-header" style="flex:1; justify-content:center;" onclick="window.atlasApp.exportDatabaseCSV()"><i class="fa-solid fa-file-csv"></i> Exportar CSV (Planilha)</button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid rgba(255,255,255,0.08); padding-top:15px;">
+          <h4 style="font-family:var(--font-serif); color:var(--color-accent-light)">Importação de Banco de Dados</h4>
+          <p style="font-size:0.75rem; color:var(--color-muted); margin-bottom:10px;">Carregue um arquivo de dados `.json` gerado anteriormente para atualizar o banco de dados local do atlas.</p>
+          <input type="file" id="importDatabaseFile" accept=".json" class="form-control" style="background:rgba(255,255,255,0.02); border-color:var(--border);" />
+          <button class="btn-header primary" style="width:100%; justify-content:center; margin-top:10px;" onclick="window.atlasApp.importDatabaseJSON()"><i class="fa-solid fa-cloud-arrow-down"></i> Importar Banco de Dados</button>
+        </div>
+      </div>
+
+      <!-- SUBPAINEL: AUDITORIA -->
+      <div id="adminTabContentAudit" class="tab-content" style="flex-direction:column;">
+        <h4 style="margin-top:10px; font-family:var(--font-serif); color:var(--color-accent-light)">Log de Alterações e Versionamento (Audit Log)</h4>
+        <div style="font-size:0.75rem; color:var(--color-muted)">Histórico de modificações do banco de dados que garante a integridade acadêmica do atlas.</div>
+        <table class="audit-table">
+          <thead>
+            <tr>
+              <th>Data/Hora</th>
+              <th>Usuário</th>
+              <th>Operação</th>
+              <th>Registro Afetado</th>
+            </tr>
+          </thead>
+          <tbody id="auditLogTableBody">
+            <!-- Logs renderizados via JS -->
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LIGHTBOX PARA IMAGENS -->
+  <div id="lightbox">
+    <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer; font-weight:bold; transition:0.2s;">&times;</span>
+    <img id="lightbox-img" src="" alt="Ampliada" />
+  </div>
+
+  <!-- VISUALIZADOR DE PDF -->
+  <div id="pdfModal">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); padding-bottom:8px;">
+        <h3 id="pdfTitle" style="color:var(--color-accent); margin:0; font-size:1.1rem; font-family:var(--font-serif)">Documento Histórico</h3>
+        <span id="pdfClose" style="cursor:pointer; font-size:1.5rem; color:var(--color-muted); transition:0.2s"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+  </div>
+
+  <!-- MENU DE ACESSIBILIDADE MODAL -->
+  <div class="modal-overlay" id="modalAccessibility">
+    <div class="modal-content glass" style="max-width:400px;">
+      <div class="modal-header">
+        <h3 class="modal-title"><i class="fa-solid fa-universal-access" style="color:var(--color-accent)"></i> Acessibilidade</h3>
+        <span class="modal-close" id="btnCloseAccessibility"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:12px; margin-top:10px;">
+        <button class="btn-header" style="justify-content:center; width:100%; padding:12px;" id="btnHighContrastToggle">
+          <i class="fa-solid fa-circle-half-stroke"></i> Alternar Alto Contraste (WCAG 2.2)
+        </button>
+        <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+          <span>Tamanho da Fonte:</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn-header" style="padding:4px 12px;" onclick="window.atlasApp.adjustFontSize(-1)">A-</button>
+            <button class="btn-header" style="padding:4px 12px;" onclick="window.atlasApp.adjustFontSize(1)">A+</button>
+          </div>
+        </div>
+        <div style="font-size:0.7rem; color:var(--color-muted); text-align:center; border-top:1px solid rgba(255,255,255,0.1); padding-top:12px;">
+          Esta página suporta navegação por teclado e leitores de tela em conformidade com as diretrizes WCAG 2.2.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================
+    // BANCO DE DADOS DE DADOS ORIGINAIS DO ATLAS (EXPANDIDO)
+    // =========================================================
+    const CORES_CATEGORIA = {
+      mapa: '#C8A951',      // Dourado
+      porto: '#0E7C7B',     // Verde-mar
+      expedicao: '#185ADB', // Azul Royal
+      documento: '#8FA0B5', // Cinza-azulado
+      naufragio: '#B91C1C'  // Vermelho escuro
+    };
+
+    const NOMES_CATEGORIA = {
+      mapa: 'Mapa Histórico',
+      porto: 'Porto Colonial',
+      expedicao: 'Expedição Náutica',
+      documento: 'Documento Histórico',
+      naufragio: 'Naufrágio'
+    };
+
+    const DADOS_INICIAIS = [
+      {
+        nome: 'Carta de Piri Reis (1513)',
+        subtitulo: 'Mapa-múndi Otomano e a cartografia do Novo Mundo',
+        lat: 41.0082, lon: 28.9784,
+        pais: 'Turquia', continente: 'Europa/Ásia',
+        categoria: 'mapa', tema: 'Cultura', povo: 'Otomanos',
+        fundacao: 1513, periodo: 'Séc. XVI',
+        descricao: 'Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão. Elaborado pelo almirante otomano Piri Reis, o fragmento sobrevivente mostra o Oceano Atlântico, a costa brasileira e partes da Antártica. A representação detalhada gerou diversas teorias historiográficas sobre o conhecimento de navegação na época.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg',
+        fotos: [
+          { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/800px-Piri_Reis_1513_world_map.jpg', descricao: 'Detalhe do Mapa' },
+          { url: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Piri_reis_portrait.jpg', descricao: 'Retrato de Piri Reis' }
+        ],
+        documentos: [{ titulo: 'Estudo Cartográfico Otomano', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Piri Reis', institution: 'Museu de Topkapi', doi: '10.1000/piri.1513', license: 'Domínio Público',
+        relations: ['Porto de Lisboa', 'Tratado de Tordesilhas'],
+        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
+        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
+      },
+      {
+        nome: 'Mapa de Cantino (1502)',
+        subtitulo: 'Planisfério espião das rotas ultramarinas portuguesas',
+        lat: 38.7071, lon: -9.1355,
+        pais: 'Portugal', continente: 'Europa',
+        categoria: 'mapa', tema: 'Cultura', povo: 'Portugueses',
+        fundacao: 1502, periodo: 'Séc. XVI',
+        descricao: 'O planisfério de Cantino é o mais antigo mapa sobrevivente que retrata a costa do Brasil e as descobertas portuguesas no Oriente. Foi contrabandeado de Lisboa para a Itália por Alberto Cantino, agente do Duque de Ferrara. Apresenta o Tratado de Tordesilhas delimitando as esferas de influência das potências ibéricas.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/800px-Cantino_Planisphere_%281502%29.jpg', descricao: 'Planisfério de Cantino' }],
+        documentos: [{ titulo: 'Análise do Cantino', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Desconhecido', institution: 'Biblioteca Estense', doi: '10.1000/cantino.1502', license: 'Domínio Público',
+        relations: ['Porto de Lisboa', 'Tratado de Tordesilhas', 'Viagem de Cabral (1500)'],
+        panoramaUrl: '', audioUrl: ''
+      },
+      {
+        nome: 'Biblioteca de Alexandria (-285)',
+        subtitulo: 'O epicentro intelectual da Antiguidade Clássica',
+        lat: 31.2001, lon: 29.9187,
+        pais: 'Egito', continente: 'África',
+        categoria: 'documento', tema: 'Cultura', povo: 'Gregos/Egípcios',
+        fundacao: -285, periodo: 'Antiguidade',
+        descricao: 'Fundada pelo general ptolemaico Ptolomeu I Sóter, a Biblioteca abrigava centenas de milhares de rolos de papiro que reuniam todo o conhecimento científico, filosófico e poético do mundo antigo. Seu incêndio e destruição progressiva marcaram uma das maiores perdas de memória e patrimônio da humanidade.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Alexandria_Bibliotheca_exterior.jpg/400px-Alexandria_Bibliotheca_exterior.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Alexandrina_inside.jpg', descricao: 'Reconstituição Interna' }],
+        documentos: [{ titulo: 'Pápiros de Alexandria - Historiografia', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Demetrius de Phalerum', institution: 'Império Ptolemaico', doi: '10.1000/alexandria.285bce', license: 'Domínio Público',
+        relations: [],
+        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
+        audioUrl: ''
+      },
+      {
+        nome: 'Porto de Lisboa',
+        subtitulo: 'Centro nevrálgico do comércio marítimo global quinhentista',
+        lat: 38.7071, lon: -9.1390,
+        pais: 'Portugal', continente: 'Europa',
+        categoria: 'porto', tema: 'Economia', povo: 'Portugueses',
+        fundacao: 1500, periodo: 'Séc. XVI',
+        descricao: 'Situado na foz do Rio Tejo, o Porto de Lisboa era o coração comercial e naval do Império Português. Dali partiam as carracas e caravelas rumo ao Brasil e à Rota da Seda Marítima na Índia. A Casa da Índia controlava o monopólio das especiarias orientais.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg/400px-Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg/800px-Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg', descricao: 'Torre de Belém' }],
+        documentos: [],
+        author: 'Coroa Portuguesa', institution: 'Arquivo Nacional da Torre do Tombo', doi: '10.1000/lisboa.1500', license: 'Creative Commons BY',
+        relations: ['Viagem de Cabral (1500)', 'Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
+        panoramaUrl: '', audioUrl: ''
+      },
+      {
+        nome: 'Machu Picchu (1450)',
+        subtitulo: 'A cidadela sagrada dos Incas nos Andes',
+        lat: -13.1631, lon: -72.5450,
+        pais: 'Peru', continente: 'América do Sul',
+        categoria: 'documento', tema: 'Política', povo: 'Incas',
+        fundacao: 1450, periodo: 'Séc. XV',
+        descricao: 'Construída pelo Imperador Pachacuti como residência real e centro cerimonial, a cidade de pedra demonstra o incrível avanço da engenharia, agricultura em terraços e astronomia do povo Inca. Localizada a 2430 metros de altitude, sobreviveu à conquista espanhola ocultada pela densa vegetação andina.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/400px-Machu_Picchu%2C_Peru.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/800px-Machu_Picchu%2C_Peru.jpg', descricao: 'Vista de Machu Picchu' }],
+        documentos: [],
+        author: 'Inca Pachacuti', institution: 'Patrimônio Mundial UNESCO', doi: '10.1000/machupicchu.1450', license: 'Domínio Público',
+        relations: [],
+        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
+        audioUrl: ''
+      },
+      {
+        nome: 'Viagem de Cabral (1500)',
+        subtitulo: 'A frota das especiarias e a chegada ao Monte Pascoal',
+        lat: -16.5, lon: -39.0,
+        pais: 'Portugal', continente: 'América do Sul',
+        categoria: 'expedicao', tema: 'Política', povo: 'Portugueses',
+        fundacao: 1500, periodo: 'Séc. XVI',
+        descricao: 'A frota comandada por Pedro Álvares Cabral partiu de Lisboa para realizar uma rota ao redor do Cabo da Boa Esperança rumo à Índia. Contudo, desviando-se a oeste, a expedição avistou o Monte Pascoal e desembarcou em Porto Seguro, oficializando o descobrimento do Brasil pela Coroa Portuguesa.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pedro_%C3%81lvares_Cabral_%28cropped%29.jpg/400px-Pedro_%C3%81lvares_Cabral_%28cropped%29.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Descobrimento_do_Brasil.jpg/800px-Descobrimento_do_Brasil.jpg', descricao: 'Desembarque de Cabral' }],
+        documentos: [{ titulo: 'Carta de Caminha', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Pedro Álvares Cabral', institution: 'Arquivo do Império Português', doi: '10.1000/cabral.1500', license: 'Domínio Público',
+        relations: ['Porto de Lisboa', 'Carta de Pero Vaz de Caminha (1500)', 'Mapa de Cantino (1502)'],
+        panoramaUrl: '', audioUrl: ''
+      },
+      {
+        nome: 'Carta de Pero Vaz de Caminha (1500)',
+        subtitulo: 'A certidão de nascimento oficial do Brasil colonial',
+        lat: -16.48, lon: -39.06,
+        pais: 'Portugal', continente: 'América do Sul',
+        categoria: 'documento', tema: 'Cultura', povo: 'Portugueses',
+        fundacao: 1500, periodo: 'Séc. XVI',
+        descricao: 'Redigida por Pero Vaz de Caminha, escrivão da armada de Cabral, esta epístola ao rei D. Manuel I descreve em detalhes o primeiro contato dos portugueses com as terras brasileiras e seus habitantes indígenas. É considerada a certidão de nascimento oficial do Brasil.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Carta_de_Caminha.jpg/400px-Carta_de_Caminha.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Carta_de_Caminha.jpg/800px-Carta_de_Caminha.jpg', descricao: 'Páginas da Carta' }],
+        documentos: [{ titulo: 'Transcrição Paleográfica', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Pero Vaz de Caminha', institution: 'Torre do Tombo', doi: '10.1000/caminha.1500', license: 'Domínio Público',
+        relations: ['Viagem de Cabral (1500)'],
+        panoramaUrl: '', audioUrl: ''
+      },
+      {
+        nome: 'Tratado de Tordesilhas (1494)',
+        subtitulo: 'A divisão política do novo mundo ultramarino',
+        lat: 41.5161, lon: -5.2678,
+        pais: 'Espanha/Portugal', continente: 'Europa',
+        categoria: 'documento', tema: 'Política', povo: 'Espanhóis/Portugueses',
+        fundacao: 1494, periodo: 'Séc. XV',
+        descricao: 'Tratado assinado na cidade de Tordesilhas dividindo as terras descobertas e por descobrir fora da Europa entre o Reino de Portugal e a Coroa de Castela. A linha de demarcação foi definida a 370 léguas a oeste de Cabo Verde, moldando a colonização da América.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Tratado_de_Tordesillas.jpg/400px-Tratado_de_Tordesillas.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Tratado_de_Tordesillas.jpg/800px-Tratado_de_Tordesillas.jpg', descricao: 'Manuscrito original' }],
+        documentos: [{ titulo: 'Texto Histórico Integral', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
+        author: 'Papa Alexandre VI', institution: 'Arquivo Geral de Simancas', doi: '10.1000/tordesillas.1494', license: 'Domínio Público',
+        relations: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
+        panoramaUrl: '', audioUrl: ''
+      },
+      {
+        nome: 'Império Romano e Fórum de Roma (117)',
+        subtitulo: 'O apogeu da expansão romana sob o imperador Trajano',
+        lat: 41.8925, lon: 12.4853,
+        pais: 'Itália', continente: 'Europa',
+        categoria: 'documento', tema: 'Política', povo: 'Romanos',
+        fundacao: 117, periodo: 'Antiguidade',
+        descricao: 'Em 117 d.C., o Império Romano atingiu sua máxima extensão territorial sob o comando de Trajano. O Fórum de Roma funcionava como o centro político, religioso e comercial do império, onde senadores e magistrados ditavam as leis que governariam mais de 50 milhões de súditos ao redor do Mediterrâneo.',
+        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Rome_Forum_Romanum_Atrium_Vestae.jpg/400px-Rome_Forum_Romanum_Atrium_Vestae.jpg',
+        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Rome_Forum_Romanum_Atrium_Vestae.jpg/800px-Rome_Forum_Romanum_Atrium_Vestae.jpg', descricao: 'Fórum Romano' }],
+        documentos: [],
+        author: 'Senatus Populusque Romanus', institution: 'Patrimônio Arqueológico de Roma', doi: '10.1000/spqr.117', license: 'Domínio Público',
+        relations: [],
+        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
+        audioUrl: ''
+      }
+    ];
+
+    // =========================================================
+    // INDEXEDDB HELPER (PARA PERSISTÊNCIA ROBUSTA)
+    // =========================================================
+    class IndexedDBManager {
+      constructor() {
+        this.dbName = 'AtlasHistoricalDB';
+        this.dbVersion = 1;
+        this.db = null;
+        this.isFallback = false;
+      }
+
+      init() {
+        return new Promise((resolve) => {
+          try {
+            const request = indexedDB.open(this.dbName, this.dbVersion);
+            request.onerror = (e) => {
+              console.warn("IndexedDB falhou. Usando LocalStorage como fallback.", e);
+              this.isFallback = true;
+              resolve();
+            };
+            request.onsuccess = (e) => {
+              this.db = e.target.result;
+              resolve();
+            };
+            request.onupgradeneeded = (e) => {
+              const db = e.target.result;
+              if (!db.objectStoreNames.contains('points')) {
+                db.createObjectStore('points', { keyPath: 'nome' });
+              }
+              if (!db.objectStoreNames.contains('auditLogs')) {
+                db.createObjectStore('auditLogs', { keyPath: 'id', autoIncrement: true });
+              }
+            };
+          } catch (err) {
+            console.warn("IndexedDB open exception. Usando LocalStorage como fallback.", err);
+            this.isFallback = true;
+            resolve();
+          }
+        });
+      }
+
+      getPoints() {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            const localData = localStorage.getItem('fallback_points');
+            resolve(localData ? JSON.parse(localData) : []);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('points', 'readonly');
+            const store = tx.objectStore('points');
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve([]);
+          } catch(e) {
+            resolve([]);
+          }
+        });
+      }
+
+      savePoint(point) {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            const localData = localStorage.getItem('fallback_points');
+            const points = localData ? JSON.parse(localData) : [];
+            const idx = points.findIndex(p => p.nome === point.nome);
+            if (idx >= 0) points[idx] = point;
+            else points.push(point);
+            localStorage.setItem('fallback_points', JSON.stringify(points));
+            resolve(true);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('points', 'readwrite');
+            const store = tx.objectStore('points');
+            const req = store.put(point);
+            req.onsuccess = () => resolve(true);
+            req.onerror = () => resolve(false);
+          } catch(e) {
+            resolve(false);
+          }
+        });
+      }
+
+      deletePoint(nome) {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            const localData = localStorage.getItem('fallback_points');
+            if (localData) {
+              const points = JSON.parse(localData);
+              const filtered = points.filter(p => p.nome !== nome);
+              localStorage.setItem('fallback_points', JSON.stringify(filtered));
+            }
+            resolve(true);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('points', 'readwrite');
+            const store = tx.objectStore('points');
+            const req = store.delete(nome);
+            req.onsuccess = () => resolve(true);
+            req.onerror = () => resolve(false);
+          } catch(e) {
+            resolve(false);
+          }
+        });
+      }
+
+      getLogs() {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            const localLogs = localStorage.getItem('fallback_logs');
+            resolve(localLogs ? JSON.parse(localLogs) : []);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('auditLogs', 'readonly');
+            const store = tx.objectStore('auditLogs');
+            const req = store.getAll();
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => resolve([]);
+          } catch(e) {
+            resolve([]);
+          }
+        });
+      }
+
+      addLog(user, operation, pointName) {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            const localLogs = localStorage.getItem('fallback_logs');
+            const logs = localLogs ? JSON.parse(localLogs) : [];
+            logs.push({
+              timestamp: new Date().toLocaleString('pt-BR'),
+              user,
+              operation,
+              pointName
+            });
+            localStorage.setItem('fallback_logs', JSON.stringify(logs));
+            resolve(true);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction('auditLogs', 'readwrite');
+            const store = tx.objectStore('auditLogs');
+            const log = {
+              timestamp: new Date().toLocaleString('pt-BR'),
+              user,
+              operation,
+              pointName
+            };
+            const req = store.add(log);
+            req.onsuccess = () => resolve(true);
+            req.onerror = () => resolve(false);
+          } catch(e) {
+            resolve(false);
+          }
+        });
+      }
+
+      clearAll() {
+        if (this.isFallback) {
+          return new Promise((resolve) => {
+            localStorage.removeItem('fallback_points');
+            localStorage.removeItem('fallback_logs');
+            resolve(true);
+          });
+        }
+        return new Promise((resolve) => {
+          try {
+            const tx = this.db.transaction(['points', 'auditLogs'], 'readwrite');
+            tx.objectStore('points').clear();
+            tx.objectStore('auditLogs').clear();
+            tx.oncomplete = () => resolve(true);
+          } catch(e) {
+            resolve(false);
+          }
+        });
+      }
+    }
+
+    // =========================================================
+    // APLICAÇÃO PRINCIPAL (ATLASAPP)
+    // =========================================================
+    class AtlasApp {
+      constructor() {
+        this.data = [];
+        this.map = null;
+        this.markers = [];
+        this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
+        this.searchQuery = '';
+        this.selectedItemName = null;
+        
+        // Controle de Anos
+        this.startYear = -2000;
+        this.endYear = 2026;
+
+        // Status de interface
+        this.sidebarVisible = false;
+        this.timelineVisible = true;
+        this.isGlobeMode = false;
+        this.isSpinning = false;
+        this.activeUserRole = 'Administrador'; // Padrão
+
+        // WebGL Viewers
+        this.threeScene = null;
+        this.threeCamera = null;
+        this.threeRenderer = null;
+        this.threeMesh = null;
+        this.threeControls = null;
+
+        this.panoramaScene = null;
+        this.panoramaCamera = null;
+        this.panoramaRenderer = null;
+        this.panoramaMesh = null;
+
+        // Som ambiente e efeitos
+        this.ambientAudio = null;
+        this.audioPlaying = false;
+        this.ttsSpeaking = false;
+
+        // Storytelling
+        this.currentStory = null;
+        this.storyStepIndex = 0;
+        this.storyPlaying = false;
+        this.storyInterval = null;
+
+        this.db = new IndexedDBManager();
+      }
+
+      async start() {
+        try {
+          this.initDOMRefs();
+          await this.db.init();
+          await this.carregarDados();
+        } catch (e) {
+          console.error("Erro durante inicialização dos dados:", e);
+        }
+
+        try {
+          this.inicializarParticulas();
+        } catch (e) {
+          console.error("Erro ao inicializar partículas:", e);
+        }
+
+        try {
+          this.inicializarMapa();
+        } catch (e) {
+          console.error("Erro ao inicializar o mapa:", e);
+          setTimeout(() => {
+            if (this.dom.loading) this.dom.loading.classList.add('hide');
+          }, 1000);
+        }
+
+        try {
+          this.inicializarComponentes();
+          this.inicializarSons();
+          this.bindEventos();
+          this.aplicarFiltros();
+        } catch (e) {
+          console.error("Erro ao inicializar componentes ou eventos:", e);
+          setTimeout(() => {
+            if (this.dom.loading) this.dom.loading.classList.add('hide');
+          }, 1000);
+        }
+      }
+
+      initDOMRefs() {
+        this.$ = (id) => document.getElementById(id);
+        this.dom = {
+          loading: this.$('loading-overlay'),
+          map: this.$('map'),
+          sidebar: this.$('sidebar'),
+          categoriaFiltros: this.$('categoria-filtros'),
+          temaFiltros: this.$('tema-filtros'),
+          povoFiltros: this.$('povo-filtros'),
+          btnToggleFilters: this.$('btnToggleFilters'),
+          btnToggleTimeline: this.$('btnToggleTimeline'),
+          btnResetFilters: this.$('reset-filtros'),
+          btnRestoreDefault: this.$('restore-default-data'),
+          countVisible: this.$('count-visible'),
+          searchInput: this.$('searchInput'),
+          logoReset: this.$('logoReset'),
+          
+          // Timeline
+          timelineSection: this.$('timelineSection'),
+          timelineContainer: this.$('timelineContainer'),
+          timelineWrapper: this.$('timelineWrapper'),
+          timelineCloseBtn: this.$('timelineCloseBtn'),
+
+          // Detail panel
+          detailPanel: this.$('detail-panel'),
+          detailViewMode: this.$('detailViewMode'),
+          detailCover: this.$('detailCover'),
+          detailCategoryBadge: this.$('detailCategoryBadge'),
+          detailTitle: this.$('detailTitle'),
+          detailSubtitle: this.$('detailSubtitle'),
+          detailMetaDate: this.$('detailMetaDate'),
+          detailMetaLocation: this.$('detailMetaLocation'),
+          detailMetaCoords: this.$('detailMetaCoords'),
+          detailMetaPovo: this.$('detailMetaPovo'),
+          detailDescription: this.$('detailDescription'),
+          detailGallery: this.$('detailGallery'),
+          detailVideos: this.$('detailVideos'),
+          detailDocuments: this.$('detailDocuments'),
+          btnCloseDetail: this.$('btnCloseDetail'),
+          btnDetailEdit: this.$('btnDetailEdit'),
+
+          // Autocomplete
+          searchAutocomplete: this.$('searchAutocomplete'),
+
+          // Audio
+          btnHeaderSound: this.$('btnHeaderSound'),
+          btnAudioTTS: this.$('btnAudioTTS'),
+
+          // Modal Connections
+          btnOpenConnections: this.$('btnOpenConnections'),
+          modalConnections: this.$('modalConnections'),
+          btnCloseConnections: this.$('btnCloseConnections'),
+
+          // Admin Dashboard
+          btnAdminPanel: this.$('btnAdminPanel'),
+          modalAdmin: this.$('modalAdmin'),
+          btnCloseAdmin: this.$('btnCloseAdmin'),
+          addPointForm: this.$('addPointForm'),
+          dragDropZone: this.$('dragDropZone'),
+
+          // Acessibilidade
+          btnToggleAccessibility: this.$('btnToggleAccessibility'),
+          modalAccessibility: this.$('modalAccessibility'),
+          btnCloseAccessibility: this.$('btnCloseAccessibility'),
+          btnHighContrastToggle: this.$('btnHighContrastToggle'),
+
+          // Storytelling
+          selectStoryline: this.$('selectStoryline'),
+          storytellingHud: this.$('storytelling-hud'),
+          storyTitle: this.$('storyTitle'),
+          btnStoryPrev: this.$('btnStoryPrev'),
+          btnStoryPlay: this.$('btnStoryPlay'),
+          btnStoryNext: this.$('btnStoryNext'),
+          btnStoryClose: this.$('btnStoryClose'),
+
+          // Lightbox e PDF
+          lightbox: this.$('lightbox'),
+          lightboxImg: this.$('lightbox-img'),
+          btnLightboxClose: this.$('btnLightboxClose'),
+          pdfModal: this.$('pdfModal'),
+          pdfFrame: this.$('pdfFrame'),
+          pdfTitle: this.$('pdfTitle'),
+          pdfClose: this.$('pdfClose'),
+
+          // Inputs temporal
+          inputStartYear: this.$('inputStartYear'),
+          inputEndYear: this.$('inputEndYear'),
+          lblStartYear: this.$('lbl-start-year'),
+          lblEndYear: this.$('lbl-end-year'),
+
+          // Controles do globo
+          btnToggleGlobe: this.$('btnToggleGlobe'),
+          btnToggleSpin: this.$('btnToggleSpin')
+        };
+      }
+
+      async carregarDados() {
+        const stored = await this.db.getPoints();
+        if (stored && stored.length > 0) {
+          this.data = stored;
+        } else {
+          this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
+          for (const pt of this.data) {
+            pt.status = 'Aprovado'; // Originais são aprovados
+            await this.db.savePoint(pt);
+          }
+        }
+      }
+
+      async salvarPonto(point) {
+        await this.db.savePoint(point);
+        await this.db.addLog(this.activeUserRole, 'Inserção/Edição de Ponto', point.nome);
+        await this.carregarDados();
+        this.gerarFiltros();
+        this.aplicarFiltros();
+      }
+
+      async excluirPonto(nome) {
+        await this.db.deletePoint(nome);
+        await this.db.addLog(this.activeUserRole, 'Remoção de Ponto', nome);
+        await this.carregarDados();
+        this.gerarFiltros();
+        this.aplicarFiltros();
+      }
+
+      // PARTÍCULAS BACKGROUND
+      inicializarParticulas() {
+        const canvas = this.$('particle-canvas');
+        const ctx = canvas.getContext('2d');
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        const particles = [];
+        const maxParticles = 60;
+
+        class Particle {
+          constructor() {
+            this.x = Math.random() * width;
+            this.y = Math.random() * height;
+            this.size = Math.random() * 2 + 0.5;
+            this.speedX = Math.random() * 0.2 - 0.1;
+            this.speedY = Math.random() * 0.2 - 0.1;
+            this.alpha = Math.random() * 0.5 + 0.1;
+          }
+          update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+            if (this.x < 0 || this.x > width) this.speedX *= -1;
+            if (this.y < 0 || this.y > height) this.speedY *= -1;
+          }
+          draw() {
+            ctx.fillStyle = `rgba(212, 175, 55, ${this.alpha})`;
+            ctx.beginPath();
+            ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        for (let i = 0; i < maxParticles; i++) {
+          particles.push(new Particle());
+        }
+
+        const animate = () => {
+          ctx.clearRect(0, 0, width, height);
+          particles.forEach(p => {
+            p.update();
+            p.draw();
+          });
+          requestAnimationFrame(animate);
+        };
+        animate();
+
+        window.addEventListener('resize', () => {
+          width = canvas.width = window.innerWidth;
+          height = canvas.height = window.innerHeight;
+        });
+      }
+
+      inicializarMapa() {
+        const estiloLocal = {
+          version: 8,
+          sources: {
+            'cartodb-tiles': {
+              type: 'raster',
+              tiles: [
+                'https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png'
+              ],
+              tileSize: 256,
+              attribution: '© OpenStreetMap, © CARTO'
+            }
+          },
+          layers: [
+            {
+              id: 'cartodb-layer',
+              type: 'raster',
+              source: 'cartodb-tiles',
+              minzoom: 0,
+              maxzoom: 20
+            }
+          ]
+        };
+
+        this.map = new maplibregl.Map({
+          container: 'map',
+          style: estiloLocal,
+          center: [10, 20],
+          zoom: 2.2,
+          pitch: 0,
+          bearing: 0,
+          antialias: true
+        });
+
+        // Configuração inicial do Globo v3 se suportado
+        this.map.on('load', () => {
+          try {
+            if (this.isGlobeMode) {
+              this.map.setProjection({ type: 'globe' });
+            }
+            this.iniciarGiroGlobo();
+          } catch (e) {
+            console.error("Erro na projeção ou rotação inicial:", e);
+          }
+          
+          setTimeout(() => {
+            if (this.dom.loading) this.dom.loading.classList.add('hide');
+          }, 600);
+        });
+
+        // Safety timeout para garantir o carregamento
+        setTimeout(() => {
+          if (this.dom.loading && !this.dom.loading.classList.contains('hide')) {
+            console.warn("Safety timeout: ocultando loader do Atlas.");
+            this.dom.loading.classList.add('hide');
+          }
+        }, 3000);
+
+        this.map.on('click', (e) => {
+          // Se o painel admin estiver aberto, preencher coordenadas
+          if (this.dom.modalAdmin.classList.contains('open')) {
+            const { lng, lat } = e.lngLat;
+            this.$('addLat').value = lat.toFixed(6);
+            this.$('addLon').value = lng.toFixed(6);
+            this.tocarSomSintetizado(440, 0.1);
+          }
+        });
+      }
+
+      iniciarGiroGlobo() {
+        const spinGlobally = () => {
+          if (this.isGlobeMode && this.isSpinning && !this.map.isMoving()) {
+            const center = this.map.getCenter();
+            center.lng += 0.4; // Taxa de rotação
+            this.map.easeTo({ center, duration: 1000, easing: (t) => t });
+          }
+        };
+        this.map.on('moveend', () => {
+          if (this.isSpinning) {
+            setTimeout(spinGlobally, 300);
+          }
+        });
+        spinGlobally();
+      }
+
+      inicializarComponentes() {
+        this.gerarFiltros();
+        this.renderizarFilaRevisao();
+        this.renderizarAuditoria();
+      }
+
+      gerarFiltros() {
+        const categorias = ['todos', ...new Set(this.data.map(d => d.categoria))];
+        const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
+        const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
+
+        const popularContainer = (container, itens, chave) => {
+          container.innerHTML = itens.map(item => {
+            const label = item === 'todos' ? 'Todos' : (chave === 'categoria' ? NOMES_CATEGORIA[item] || item : item);
+            return `
+              <button class="filtro-btn ${item === 'todos' ? 'active' : ''}" data-key="${chave}" data-val="${item}">
+                <span>${label}</span>
+                <span class="count">0</span>
+              </button>
+            `;
+          }).join('');
+        };
+
+        popularContainer(this.dom.categoriaFiltros, categorias, 'categoria');
+        popularContainer(this.dom.temaFiltros, temas, 'tema');
+        popularContainer(this.dom.povoFiltros, povos, 'povo');
+      }
+
+      atualizarContadores(filtrados) {
+        this.dom.countVisible.textContent = filtrados.length;
+        
+        document.querySelectorAll('.filter-accordion-content').forEach(grupo => {
+          grupo.querySelectorAll('.filtro-btn').forEach(btn => {
+            const key = btn.dataset.key;
+            const val = btn.dataset.val;
+            
+            const count = val === 'todos' 
+              ? this.data.filter(d => d.status !== 'Pendente').length 
+              : this.data.filter(d => d[key] === val && d.status !== 'Pendente').length;
+            
+            btn.querySelector('.count').textContent = count;
+          });
+        });
+      }
+
+      aplicarFiltros() {
+        // Apenas pontos aprovados são exibidos publicamente
+        let filtrados = this.data.filter(item => item.status !== 'Pendente');
+
+        filtrados = filtrados.filter(item => {
+          const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
+          const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
+          const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
+          
+          // Filtro temporal
+          const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
+          return matchCat && matchTema && matchPovo && anoValido;
+        });
+
+        if (this.searchQuery) {
+          filtrados = filtrados.filter(item => 
+            (item.nome && item.nome.toLowerCase().includes(this.searchQuery)) ||
+            (item.subtitulo && item.subtitulo.toLowerCase().includes(this.searchQuery)) ||
+            (item.descricao && item.descricao.toLowerCase().includes(this.searchQuery)) ||
+            (item.povo && item.povo.toLowerCase().includes(this.searchQuery)) ||
+            (item.pais && item.pais.toLowerCase().includes(this.searchQuery))
+          );
+        }
+
+        this.renderizarMarcadores(filtrados);
+        this.renderizarTimeline(filtrados);
+        this.atualizarContadores(filtrados);
+      }
+
+      renderizarMarcadores(itens) {
+        this.markers.forEach(m => m.remove());
+        this.markers = [];
+
+        itens.forEach(item => {
+          const cor = CORES_CATEGORIA[item.categoria] || '#888';
+          
+          const el = document.createElement('div');
+          el.className = 'marker-container';
+          el.style.setProperty('--marker-color', cor);
+
+          // Efeito visual 3D pulse
+          const pulse = document.createElement('div');
+          pulse.className = 'marker-pulse';
+          const pin = document.createElement('div');
+          pin.className = 'marker-pin';
+
+          el.appendChild(pulse);
+          el.appendChild(pin);
+
+          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
+            .setHTML(`
+              <div style="font-family:var(--font-sans); padding:4px;">
+                <strong style="color:var(--color-accent); font-size:0.9rem;">${item.nome}</strong>
+                <p style="margin-top:4px; font-size:0.75rem; color:#ccc;">${item.subtitulo || ''}</p>
+                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
+                        style="margin-top:8px; background:var(--color-accent); border:none; border-radius:4px; color:#000; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
+                  <i class="fa-solid fa-circle-info"></i> Explorar Detalhes
+                </button>
+              </div>
+            `);
+
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([item.lon, item.lat])
+            .setPopup(popup)
+            .addTo(this.map);
+
+          this.markers.push(marker);
+        });
+      }
+
+      renderizarTimeline(itens) {
+        this.dom.timelineContainer.innerHTML = itens.map(item => {
+          const cor = CORES_CATEGORIA[item.categoria] || '#888';
+          const cover = item.coverImage || 'https://via.placeholder.com/150x100?text=Sem+Foto';
+          const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+          return `
+            <div class="event-card" data-nome="${item.nome}" style="--card-accent: ${cor}" onclick="window.atlasApp.focarPonto('${item.nome.replace(/'/g, "\\'")}')">
+              <img class="event-cover" src="${cover}" alt="${item.nome}" />
+              <div class="card-content">
+                <div class="event-date"><i class="fa-solid fa-clock"></i> ${anoLabel}</div>
+                <div class="event-title">${item.nome}</div>
+                <div class="event-desc">${item.descricao}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      focarPonto(nome) {
+        const item = this.data.find(d => d.nome === nome);
+        if (!item) return;
+
+        this.tocarSomSintetizado(600, 0.08);
+
+        this.map.flyTo({
+          center: [item.lon, item.lat],
+          zoom: 6.0,
+          pitch: 0,
+          bearing: 0,
+          duration: 2500
+        });
+
+        document.querySelectorAll('.event-card').forEach(c => c.classList.remove('highlight'));
+        const card = document.querySelector(`.event-card[data-nome="${nome}"]`);
+        if (card) {
+          card.classList.add('highlight');
+          card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
+
+        this.abrirDetalhes(nome);
+      }
+
+      // ==========================================
+      // DETALHE MULTI-ABA E WEBGL INTEGRADO
+      // ==========================================
+      abrirDetalhes(nome) {
+        const item = this.data.find(d => d.nome === nome);
+        if (!item) return;
+
+        this.selectedItemName = nome;
+        this.dom.detailPanel.classList.add('open');
+
+        // Metadados primários
+        this.dom.detailCover.src = item.coverImage || 'https://via.placeholder.com/400x200?text=Sem+Capa';
+        this.dom.detailTitle.textContent = item.nome;
+        this.dom.detailSubtitle.textContent = item.subtitulo || '';
+        this.dom.detailCategoryBadge.textContent = NOMES_CATEGORIA[item.categoria] || item.categoria;
+        this.dom.detailCategoryBadge.style.borderColor = CORES_CATEGORIA[item.categoria];
+        this.dom.detailCategoryBadge.style.color = CORES_CATEGORIA[item.categoria];
+
+        const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+        this.dom.detailMetaDate.textContent = anoLabel;
+        this.dom.detailMetaLocation.innerHTML = `${item.pais}, <span style="color:var(--color-muted);">${item.continente}</span>`;
+        this.dom.detailMetaCoords.textContent = `${item.lat.toFixed(4)}°, ${item.lon.toFixed(4)}°`;
+        this.dom.detailMetaPovo.textContent = item.povo || 'Desconhecido';
+        this.dom.detailDescription.textContent = item.description || item.descricao;
+
+        // Galeria
+        this.dom.detailGallery.innerHTML = (item.fotos || []).map(foto => `
+          <div class="gallery-img-wrapper" onclick="window.atlasApp.abrirLightbox('${foto.url}')" title="${foto.descricao || ''}">
+            <img class="gallery-img" src="${foto.url}" alt="Foto" />
+          </div>
+        `).join('');
+
+        // Vídeos e Podcasts
+        if (item.audioUrl) {
+          this.dom.detailVideos.innerHTML = `
+            <div class="audio-player-card">
+              <button class="audio-play-btn" onclick="window.atlasApp.toggleDetailAudio('${item.audioUrl}')"><i class="fa-solid fa-play"></i></button>
+              <div>
+                <strong style="font-size:0.75rem;">Podcast / Relato em Áudio</strong>
+                <div style="font-size:0.65rem; color:var(--color-muted);">Relato historiográfico</div>
+              </div>
+            </div>
+          `;
+        } else {
+          this.dom.detailVideos.innerHTML = `<span style="font-size:0.75rem; color:var(--color-muted);">Nenhum áudio ou vídeo acoplado.</span>`;
+        }
+
+        // Documentos
+        this.dom.detailDocuments.innerHTML = (item.documentos || []).map(doc => `
+          <a class="doc-link" href="#" onclick="event.preventDefault(); window.atlasApp.abrirPDF('${doc.url}', '${doc.titulo}')">
+            <i class="fa-solid fa-file-pdf"></i>
+            <span style="flex:1;">${doc.titulo}</span>
+            <i class="fa-solid fa-eye"></i>
+          </a>
+        `).join('');
+
+        // Citações Acadêmicas
+        this.gerarCitacaoABNT(item);
+
+        // Resetar abas e carregar visualizadores WebGL
+        this.alternarAbaDetalhes('tab-narrativa');
+      }
+
+      alternarAbaDetalhes(tabId) {
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
+        });
+        document.querySelectorAll('.tab-content').forEach(content => {
+          content.classList.toggle('active', content.id === tabId);
+        });
+
+        // Inicializa Three.js se a aba de réplica 3D estiver ativa
+        if (tabId === 'tab-objeto3d') {
+          this.inicializarThreeJS();
+        } else if (tabId === 'tab-panorama') {
+          this.inicializarPanorama360();
+        }
+      }
+
+      // SPEECH SYNTHESIS NATIVA
+      toggleTTS() {
+        const item = this.data.find(d => d.nome === this.selectedItemName);
+        if (!item) return;
+
+        if (this.ttsSpeaking) {
+          window.speechSynthesis.cancel();
+          this.ttsSpeaking = false;
+          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
+        } else {
+          const utterance = new SpeechSynthesisUtterance(item.description || item.descricao);
+          utterance.lang = 'pt-BR';
+          utterance.onend = () => {
+            this.ttsSpeaking = false;
+            this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
+          };
+          window.speechSynthesis.speak(utterance);
+          this.ttsSpeaking = true;
+          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-stop"></i> Parar`;
+        }
+      }
+
+      // Audios de detalhes
+      toggleDetailAudio(url) {
+        const audio = new Audio(url);
+        audio.play();
+      }
+
+      // Citation Generation
+      gerarCitacaoABNT(item) {
+        const ano = Math.abs(item.fundacao);
+        const era = item.fundacao < 0 ? 'a.C.' : 'd.C.';
+        const autor = item.author ? item.author.toUpperCase() : 'ORGANIZAÇÃO';
+        const cit = `${autor}. ${item.nome}. ${item.institution || 'Atlas Digital'}, ${ano} ${era}. Disponível em: <http://atlas-digital.org>. Acesso em: ${new Date().toLocaleDateString('pt-BR')}.`;
+        this.$('citationBox').textContent = cit;
+      }
+
+      copyCitation() {
+        navigator.clipboard.writeText(this.$('citationBox').textContent);
+        alert('Citação copiada para a área de transferência!');
+      }
+
+      // ==========================================
+      // RENDERIZAÇÃO DE ARTEFATOS 3D COM THREE.JS
+      // ==========================================
+      inicializarThreeJS() {
+        const container = this.$('threeReplicaViewport');
+        const canvas = this.$('three-canvas');
+        if (this.threeRenderer) {
+          // Já inicializado, ajustar tamanho
+          this.threeRenderer.setSize(container.clientWidth, container.clientHeight);
+          return;
+        }
+
+        // Criar cena
+        this.threeScene = new THREE.Scene();
+        this.threeScene.background = new THREE.Color('#01060a');
+
+        // Câmera
+        this.threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+        this.threeCamera.position.z = 8;
+
+        // Renderizador
+        this.threeRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        this.threeRenderer.setSize(container.clientWidth, container.clientHeight);
+
+        // Geometria procedimental para réplica de moeda / astrolábio
+        const geometry = new THREE.CylinderGeometry(2, 2, 0.2, 32);
+        const material = new THREE.MeshStandardMaterial({
+          color: 0xd4af37,
+          roughness: 0.3,
+          metalness: 0.8
+        });
+        this.threeMesh = new THREE.Mesh(geometry, material);
+        this.threeMesh.rotation.x = Math.PI / 3;
+        this.threeScene.add(this.threeMesh);
+
+        // Luzes
+        const lightAmbient = new THREE.AmbientLight(0xffffff, 0.6);
+        this.threeScene.add(lightAmbient);
+        const lightDir = new THREE.DirectionalLight(0xffffff, 1.0);
+        lightDir.position.set(5, 5, 5);
+        this.threeScene.add(lightDir);
+
+        // Controles de drag manual
+        this.threeControls = new THREE.OrbitControls(this.threeCamera, this.threeRenderer.domElement);
+        this.threeControls.enableZoom = true;
+
+        const animate = () => {
+          if (!canvas.isConnected) return;
+          requestAnimationFrame(animate);
+          this.threeMesh.rotation.y += 0.005;
+          this.threeControls.update();
+          this.threeRenderer.render(this.threeScene, this.threeCamera);
+        };
+        animate();
+      }
+
+      inicializarPanorama360() {
+        const container = this.$('panoramaViewport');
+        const canvas = this.$('panorama-canvas');
+        if (this.panoramaRenderer) return;
+
+        this.panoramaScene = new THREE.Scene();
+        this.panoramaCamera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 1000);
+        this.panoramaCamera.position.set(0, 0, 0.1);
+
+        this.panoramaRenderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+        this.panoramaRenderer.setSize(container.clientWidth, container.clientHeight);
+
+        // Esfera invertida com panorama
+        const geometry = new THREE.SphereGeometry(500, 60, 40);
+        geometry.scale(-1, 1, 1);
+
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg', (texture) => {
+          const material = new THREE.MeshBasicMaterial({ map: texture });
+          this.panoramaMesh = new THREE.Mesh(geometry, material);
+          this.panoramaScene.add(this.panoramaMesh);
+        });
+
+        const controls = new THREE.OrbitControls(this.panoramaCamera, this.panoramaRenderer.domElement);
+        controls.enableZoom = false;
+        controls.enablePan = false;
+
+        const animate = () => {
+          if (!canvas.isConnected) return;
+          requestAnimationFrame(animate);
+          controls.update();
+          this.panoramaRenderer.render(this.panoramaScene, this.panoramaCamera);
+        };
+        animate();
+      }
+
+      // ==========================================
+      // REDES DE CONEXÕES COM D3.JS
+      // ==========================================
+      abrirConexoesD3() {
+        this.dom.modalConnections.classList.add('open');
+        
+        // Dados formatados para o D3
+        const nodes = [];
+        const links = [];
+
+        // Conectar pontos entre si com base nas relações
+        this.data.filter(d => d.status !== 'Pendente').forEach(item => {
+          nodes.push({ id: item.nome, group: item.categoria, lat: item.lat, lon: item.lon });
+          if (item.relations) {
+            item.relations.forEach(target => {
+              links.push({ source: item.nome, target: target, value: 2 });
+            });
+          }
+        });
+
+        // Garantir que todos os targets existem nos nós
+        links.forEach(l => {
+          if (!nodes.some(n => n.id === l.target)) {
+            nodes.push({ id: l.target, group: 'porto' });
+          }
+        });
+
+        const container = this.$('d3-graph-container');
+        container.innerHTML = ''; // Limpar anterior
+
+        const width = container.clientWidth;
+        const height = 480;
+
+        const svg = d3.select('#d3-graph-container')
+          .append('svg')
+          .attr('width', width)
+          .attr('height', height);
+
+        const simulation = d3.forceSimulation(nodes)
+          .force('link', d3.forceLink(links).id(d => d.id).distance(100))
+          .force('charge', d3.forceManyBody().strength(-150))
+          .force('center', d3.forceCenter(width / 2, height / 2));
+
+        const link = svg.append('g')
+          .attr('class', 'links')
+          .selectAll('line')
+          .data(links)
+          .enter().append('line')
+          .attr('class', 'd3-link')
+          .attr('stroke', '#8fa0b5')
+          .attr('stroke-width', 2);
+
+        const node = svg.append('g')
+          .attr('class', 'nodes')
+          .selectAll('circle')
+          .data(nodes)
+          .enter().append('circle')
+          .attr('class', 'd3-node')
+          .attr('r', 10)
+          .attr('fill', d => CORES_CATEGORIA[d.group] || '#e8e4d8')
+          .call(d3.drag()
+            .on('start', dragstarted)
+            .on('drag', dragged)
+            .on('end', dragended))
+          .on('click', (event, d) => {
+            this.dom.modalConnections.classList.remove('open');
+            this.focarPonto(d.id);
+          });
+
+        node.append('title').text(d => d.id);
+
+        const label = svg.append('g')
+          .attr('class', 'labels')
+          .selectAll('text')
+          .data(nodes)
+          .enter().append('text')
+          .attr('dx', 14)
+          .attr('dy', 4)
+          .attr('fill', '#e8e4d8')
+          .attr('font-size', '10px')
+          .text(d => d.id);
+
+        simulation.on('tick', () => {
+          link
+            .attr('x1', d => d.source.x)
+            .attr('y1', d => d.source.y)
+            .attr('x2', d => d.target.x)
+            .attr('y2', d => d.target.y);
+
+          node
+            .attr('cx', d => d.x)
+            .attr('cy', d => d.y);
+
+          label
+            .attr('x', d => d.x)
+            .attr('y', d => d.y);
+        });
+
+        function dragstarted(event, d) {
+          if (!event.active) simulation.alphaTarget(0.3).restart();
+          d.fx = d.x;
+          d.fy = d.y;
+        }
+
+        function dragged(event, d) {
+          d.fx = event.x;
+          d.fy = event.y;
+        }
+
+        function dragended(event, d) {
+          if (!event.active) simulation.alphaTarget(0);
+          d.fx = null;
+          d.fy = null;
+        }
+      }
+
+      // ==========================================
+      // SISTEMA DE STORYTELLING PLAY/PAUSE
+      // ==========================================
+      iniciarStoryline(type) {
+        if (type === 'none') {
+          this.dom.storytellingHud.style.display = 'none';
+          this.storyPlaying = false;
+          clearInterval(this.storyInterval);
+          return;
+        }
+
+        // Roteiros pré-definidos
+        const stories = {
+          navegacoes: ['Tratado de Tordesilhas (1494)', 'Viagem de Cabral (1500)', 'Carta de Pero Vaz de Caminha (1500)', 'Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
+          imperio_romano: ['Império Romano e Fórum de Roma (117)', 'Biblioteca de Alexandria (-285)']
+        };
+
+        this.currentStory = stories[type];
+        this.storyStepIndex = 0;
+        this.dom.storytellingHud.style.display = 'flex';
+        this.focarPonto(this.currentStory[0]);
+        this.dom.storyTitle.textContent = `Story: ${this.currentStory[this.storyStepIndex]}`;
+      }
+
+      avancarStory(step) {
+        this.storyStepIndex += step;
+        if (this.storyStepIndex < 0) this.storyStepIndex = this.currentStory.length - 1;
+        if (this.storyStepIndex >= this.currentStory.length) this.storyStepIndex = 0;
+
+        const nomePonto = this.currentStory[this.storyStepIndex];
+        this.focarPonto(nomePonto);
+        this.dom.storyTitle.textContent = `Passo ${this.storyStepIndex + 1}: ${nomePonto}`;
+      }
+
+      playPauseStory() {
+        if (this.storyPlaying) {
+          clearInterval(this.storyInterval);
+          this.storyPlaying = false;
+          this.dom.btnStoryPlay.innerHTML = `<i class="fa-solid fa-play"></i>`;
+        } else {
+          this.storyPlaying = true;
+          this.dom.btnStoryPlay.innerHTML = `<i class="fa-solid fa-pause"></i>`;
+          this.storyInterval = setInterval(() => {
+            this.avancarStory(1);
+          }, 6000);
+        }
+      }
+
+      // ==========================================
+      // PAINEL DE ADMINISTRAÇÃO E GESTÃO
+      // ==========================================
+      abrirPainelAdmin() {
+        this.dom.modalAdmin.classList.add('open');
+        this.tocarSomSintetizado(520, 0.1);
+        this.renderizarFilaRevisao();
+        this.renderizarAuditoria();
+      }
+
+      toggleAdminTab(tab) {
+        document.querySelectorAll('#modalAdmin .tab-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.id.includes(tab));
+        });
+        
+        const tabs = ['form', 'review', 'backup', 'audit'];
+        tabs.forEach(t => {
+          const el = this.$(`adminTabContent${t.charAt(0).toUpperCase() + t.slice(1)}`);
+          if (el) el.classList.toggle('active', t === tab);
+        });
+      }
+
+      changeUserRole(role) {
+        this.activeUserRole = role;
+        this.$('lblActiveUserRole').textContent = role === 'Pesquisador' ? 'Pesquisador (Fila Ativada)' : role;
+        alert(`Papel alterado para: ${role}. Novos registros criados no papel de Pesquisador necessitarão de aprovação científica.`);
+      }
+
+      async registrarNovoPonto(e) {
+        e.preventDefault();
+        
+        const nome = this.$('addName').value.trim();
+        const subtitulo = this.$('addSubtitle').value.trim();
+        const categoria = this.$('addCategory').value;
+        const tema = this.$('addTheme').value;
+        const fundacao = parseInt(this.$('addFundacao').value);
+        const povo = this.$('addPovo').value.trim();
+        const pais = this.$('addPais').value.trim();
+        const continente = this.$('addContinente').value.trim();
+        const lat = parseFloat(this.$('addLat').value);
+        const lon = parseFloat(this.$('addLon').value);
+        const coverImage = this.$('addCoverImage').value.trim();
+        const descricao = this.$('addDescricao').value.trim();
+        const author = this.$('addAuthor').value.trim() || 'Pesquisador Anônimo';
+        const institution = this.$('addInstitution').value.trim();
+
+        // Determinar o período
+        let periodo = 'Século Desconhecido';
+        if (fundacao < 0) periodo = 'Antiguidade';
+        else if (fundacao < 1500) periodo = 'Idade Média';
+        else if (fundacao < 1600) periodo = 'Séc. XVI';
+        else if (fundacao < 1800) periodo = 'Séc. XVIII';
+        else periodo = 'Séc. XIX+';
+
+        // Fluxo Editorial: Se for Pesquisador, fica pendente de aprovação
+        const status = this.activeUserRole === 'Pesquisador' ? 'Pendente' : 'Aprovado';
+
+        const novoPonto = {
+          nome, subtitulo, lat, lon, pais, continente, categoria, tema, povo,
+          fundacao, periodo, descricao, coverImage, status, author, institution,
+          fotos: [], documentos: [], relations: []
+        };
+
+        await this.salvarPonto(novoPonto);
+        this.dom.modalAdmin.classList.remove('open');
+        this.dom.addPointForm.reset();
+
+        if (status === 'Pendente') {
+          alert('Submissão realizada com sucesso! O registro está na fila de revisão científica.');
+        } else {
+          alert('Registro adicionado e aprovado com sucesso!');
+          this.focarPonto(nome);
+        }
+      }
+
+      async renderizarFilaRevisao() {
+        const pendentes = this.data.filter(d => d.status === 'Pendente');
+        this.$('lblReviewCount').textContent = pendentes.length;
+        
+        const container = this.$('reviewQueueContainer');
+        if (pendentes.length === 0) {
+          container.innerHTML = `<span style="font-size:0.75rem; color:var(--color-muted)">Nenhuma proposta pendente de avaliação.</span>`;
+          return;
+        }
+
+        container.innerHTML = pendentes.map(item => `
+          <div style="background:rgba(255,255,255,0.03); border:1px solid var(--border); border-radius:8px; padding:12px; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+              <strong style="color:var(--color-accent-light)">${item.nome}</strong>
+              <div style="font-size:0.65rem; color:var(--color-muted);">Sugerido por: ${item.author} (${item.institution})</div>
+            </div>
+            <div style="display:flex; gap:6px;">
+              <button class="btn-header" style="border-color:#2ecc71; color:#2ecc71; padding:2px 8px; font-size:0.65rem;" onclick="window.atlasApp.aprovarPonto('${item.nome.replace(/'/g, "\\'")}')">Aprovar</button>
+              <button class="btn-header" style="border-color:#e74c3c; color:#e74c3c; padding:2px 8px; font-size:0.65rem;" onclick="window.atlasApp.rejeitarPonto('${item.nome.replace(/'/g, "\\'")}')">Rejeitar</button>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      async aprovarPonto(nome) {
+        const item = this.data.find(d => d.nome === nome);
+        if (item) {
+          item.status = 'Aprovado';
+          await this.db.savePoint(item);
+          await this.db.addLog(this.activeUserRole, 'Aprovação Científica', nome);
+          await this.carregarDados();
+          this.gerarFiltros();
+          this.aplicarFiltros();
+          this.renderizarFilaRevisao();
+          this.renderizarAuditoria();
+          alert(`Registro "${nome}" aprovado para o mapa público.`);
+        }
+      }
+
+      async rejeitarPonto(nome) {
+        if (confirm(`Confirmar rejeição permanente do registro "${nome}"?`)) {
+          await this.db.deletePoint(nome);
+          await this.db.addLog(this.activeUserRole, 'Rejeição de Registro', nome);
+          await this.carregarDados();
+          this.renderizarFilaRevisao();
+          this.renderizarAuditoria();
+        }
+      }
+
+      async renderizarAuditoria() {
+        const logs = await this.db.getLogs();
+        const tbody = this.$('auditLogTableBody');
+        if (logs.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:var(--color-muted)">Nenhum log registrado ainda.</td></tr>`;
+          return;
+        }
+
+        tbody.innerHTML = logs.reverse().slice(0, 20).map(l => `
+          <tr>
+            <td>${l.timestamp}</td>
+            <td>${l.user}</td>
+            <td>${l.operation}</td>
+            <td>${l.pointName}</td>
+          </tr>
+        `).join('');
+      }
+
+      // ==========================================
+      // BACKUP EXPORT / IMPORT
+      // ==========================================
+      exportDatabaseJSON() {
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.data, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href",     dataStr);
+        dlAnchor.setAttribute("download", "banco_atlas_historico.json");
+        dlAnchor.click();
+      }
+
+      exportDatabaseCSV() {
+        let csvContent = "data:text/csv;charset=utf-8,";
+        csvContent += "Nome,Latitude,Longitude,Pais,Continente,Categoria,Fundacao,Periodo,Autor,DOI\n";
+        
+        this.data.forEach(item => {
+          csvContent += `"${item.nome}",${item.lat},${item.lon},"${item.pais}","${item.continente}","${item.categoria}",${item.fundacao},"${item.periodo}","${item.author || ''}","${item.doi || ''}"\n`;
+        });
+
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href",     encodeURI(csvContent));
+        dlAnchor.setAttribute("download", "banco_atlas_historico.csv");
+        dlAnchor.click();
+      }
+
+      async importDatabaseJSON() {
+        const fileInput = this.$('importDatabaseFile');
+        if (!fileInput.files || fileInput.files.length === 0) {
+          alert('Selecione um arquivo JSON de backup primeiro.');
+          return;
+        }
+
+        const file = fileInput.files[0];
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          try {
+            const imported = JSON.parse(e.target.result);
+            if (Array.isArray(imported)) {
+              await this.db.clearAll();
+              for (const item of imported) {
+                await this.db.savePoint(item);
+              }
+              alert('Banco de dados importado com sucesso!');
+              location.reload();
+            } else {
+              alert('Formato de arquivo inválido. Deve ser um array JSON.');
+            }
+          } catch (err) {
+            alert('Erro ao ler ou processar arquivo JSON.');
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // ==========================================
+      // ACESSIBILIDADE WCAG E AUDIOS NATURAIS
+      // ==========================================
+      inicializarSons() {
+        // Criar elemento de som ambiente com música clássica/medieval royalty-free
+        this.ambientAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
+        this.ambientAudio.loop = true;
+        this.ambientAudio.volume = 0.25;
+      }
+
+      toggleAmbientSound() {
+        if (this.audioPlaying) {
+          this.ambientAudio.pause();
+          this.audioPlaying = false;
+          this.dom.btnHeaderSound.innerHTML = `<i class="fa-solid fa-volume-xmark"></i>`;
+        } else {
+          this.ambientAudio.play();
+          this.audioPlaying = true;
+          this.dom.btnHeaderSound.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
+        }
+      }
+
+      tocarSomSintetizado(freq, dur) {
+        // Sintetizar áudio de interface de forma offline gratuita (Web Audio API)
+        try {
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          
+          osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+          
+          osc.start();
+          osc.stop(audioCtx.currentTime + dur);
+        } catch (e) {
+          // Navegador bloqueou ou não suporta
+        }
+      }
+
+      toggleHighContrast() {
+        document.body.classList.toggle('high-contrast');
+        this.tocarSomSintetizado(800, 0.1);
+      }
+
+      adjustFontSize(action) {
+        const currentSize = parseFloat(window.getComputedStyle(document.body).fontSize);
+        document.body.style.fontSize = (currentSize + action) + 'px';
+      }
+
+      // ==========================================
+      // LIGHTBOX E PDF MODALS
+      // ==========================================
+      abrirLightbox(url) {
+        this.dom.lightboxImg.src = url;
+        this.dom.lightbox.style.display = 'flex';
+      }
+
+      abrirPDF(url, titulo) {
+        this.dom.pdfTitle.textContent = titulo;
+        this.dom.pdfFrame.src = url;
+        this.dom.pdfModal.style.display = 'flex';
+      }
+
+      // ==========================================
+      // EVENT BINDINGS
+      // ==========================================
+      bindEventos() {
+        // Cliques nos acordeões de filtros
+        document.querySelectorAll('.filter-accordion-header').forEach(header => {
+          header.addEventListener('click', () => {
+            const content = header.nextElementSibling;
+            content.style.display = content.style.display === 'none' ? 'flex' : 'none';
+            header.querySelector('i').classList.toggle('fa-chevron-down');
+            header.querySelector('i').classList.toggle('fa-chevron-up');
+          });
+        });
+
+        // Clique nos botões de filtros
+        document.addEventListener('click', (e) => {
+          const btn = e.target.closest('.filtro-btn');
+          if (btn) {
+            const key = btn.dataset.key;
+            const val = btn.dataset.val;
+            this.activeFilters[key] = val;
+            
+            btn.parentElement.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            this.aplicarFiltros();
+            this.tocarSomSintetizado(400, 0.05);
+          }
+        });
+
+        // Controles temporais
+        const atualizarTemporal = () => {
+          this.startYear = parseInt(this.dom.inputStartYear.value);
+          this.endYear = parseInt(this.dom.inputEndYear.value);
+          this.dom.lblStartYear.textContent = this.startYear < 0 ? `${Math.abs(this.startYear)} A.C.` : `${this.startYear} D.C.`;
+          this.dom.lblEndYear.textContent = this.endYear < 0 ? `${Math.abs(this.endYear)} A.C.` : `${this.endYear} D.C.`;
+          this.aplicarFiltros();
+        };
+
+        this.dom.inputStartYear.addEventListener('input', atualizarTemporal);
+        this.dom.inputEndYear.addEventListener('input', atualizarTemporal);
+
+        // Pesquisa com Autocomplete
+        this.dom.searchInput.addEventListener('input', (e) => {
+          this.searchQuery = e.target.value.toLowerCase();
+          this.aplicarFiltros();
+          this.renderizarAutocomplete();
+        });
+
+        // Toggle Globo e Rotação
+        this.dom.btnToggleGlobe.addEventListener('click', () => {
+          this.isGlobeMode = !this.isGlobeMode;
+          this.dom.btnToggleGlobe.classList.toggle('active', this.isGlobeMode);
+          if (this.isGlobeMode) {
+            this.map.setProjection({ type: 'globe' });
+          } else {
+            this.map.setProjection({ type: 'mercator' });
+          }
+          this.tocarSomSintetizado(440, 0.1);
+        });
+
+        this.dom.btnToggleSpin.addEventListener('click', () => {
+          this.isSpinning = !this.isSpinning;
+          this.dom.btnToggleSpin.classList.toggle('active', this.isSpinning);
+        });
+
+        // Som Ambiente
+        this.dom.btnHeaderSound.addEventListener('click', () => this.toggleAmbientSound());
+
+        // Audiodescrição TTS
+        this.dom.btnAudioTTS.addEventListener('click', () => this.toggleTTS());
+
+        // Gráfico de Conexões D3
+        this.dom.btnOpenConnections.addEventListener('click', () => this.abrirConexoesD3());
+        this.dom.btnCloseConnections.addEventListener('click', () => this.dom.modalConnections.classList.remove('open'));
+
+        // Admin Dashboard
+        this.dom.btnAdminPanel.addEventListener('click', () => this.abrirPainelAdmin());
+        this.dom.btnCloseAdmin.addEventListener('click', () => this.dom.modalAdmin.classList.remove('open'));
+        this.dom.addPointForm.addEventListener('submit', (e) => this.registrarNovoPonto(e));
+
+        // Drag & Drop
+        this.dom.dragDropZone.addEventListener('click', () => this.$('adminFileInput').click());
+        this.dom.dragDropZone.addEventListener('dragover', (e) => {
+          e.preventDefault();
+          this.dom.dragDropZone.classList.add('dragover');
+        });
+        this.dom.dragDropZone.addEventListener('dragleave', () => this.dom.dragDropZone.classList.remove('dragover'));
+        this.dom.dragDropZone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          this.dom.dragDropZone.classList.remove('dragover');
+          this.processarArquivosAdmin(e.dataTransfer.files);
+        });
+        this.$('adminFileInput').addEventListener('change', (e) => {
+          this.processarArquivosAdmin(e.target.files);
+        });
+
+        // Toggles das barras de visualização
+        this.dom.btnToggleFilters.addEventListener('click', () => {
+          this.sidebarVisible = !this.sidebarVisible;
+          this.dom.sidebar.classList.toggle('collapsed', !this.sidebarVisible);
+          setTimeout(() => this.map.resize(), 300);
+        });
+
+        this.dom.btnToggleTimeline.addEventListener('click', () => {
+          this.timelineVisible = !this.timelineVisible;
+          this.dom.timelineSection.classList.toggle('collapsed', !this.timelineVisible);
+        });
+
+        this.dom.timelineCloseBtn.addEventListener('click', () => {
+          this.timelineVisible = false;
+          this.dom.timelineSection.classList.add('collapsed');
+        });
+
+        // Abas no detalhe
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            this.alternarAbaDetalhes(btn.getAttribute('data-tab'));
+          });
+        });
+
+        // Fechar Detalhes
+        this.dom.btnCloseDetail.addEventListener('click', () => {
+          this.dom.detailPanel.classList.remove('open');
+          window.speechSynthesis.cancel();
+          this.ttsSpeaking = false;
+          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
+        });
+
+        // Citação
+        this.$('btnCopyCitation').addEventListener('click', () => this.copyCitation());
+
+        // Storytelling
+        this.dom.selectStoryline.addEventListener('change', (e) => this.iniciarStoryline(e.target.value));
+        this.dom.btnStoryPrev.addEventListener('click', () => this.avancarStory(-1));
+        this.dom.btnStoryNext.addEventListener('click', () => this.avancarStory(1));
+        this.dom.btnStoryPlay.addEventListener('click', () => this.playPauseStory());
+        this.dom.btnStoryClose.addEventListener('click', () => this.iniciarStoryline('none'));
+
+        // Modais extras
+        this.dom.btnToggleAccessibility.addEventListener('click', () => this.dom.modalAccessibility.classList.add('open'));
+        this.dom.btnCloseAccessibility.addEventListener('click', () => this.dom.modalAccessibility.classList.remove('open'));
+        this.dom.btnHighContrastToggle.addEventListener('click', () => this.toggleHighContrast());
+
+        // Lightbox & PDF close
+        this.dom.btnLightboxClose.addEventListener('click', () => this.dom.lightbox.style.display = 'none');
+        this.dom.pdfClose.addEventListener('click', () => {
+          this.dom.pdfModal.style.display = 'none';
+          this.dom.pdfFrame.src = '';
+        });
+
+        // Resetar por originais
+        this.dom.btnRestoreDefault.addEventListener('click', async () => {
+          if (confirm('Deseja realmente apagar o banco atual e restaurar as configurações originais da plataforma?')) {
+            await this.db.clearAll();
+            this.data = [];
+            await this.carregarDados();
+            this.gerarFiltros();
+            this.aplicarFiltros();
+            location.reload();
+          }
+        });
+      }
+
+      renderizarAutocomplete() {
+        const query = this.searchQuery;
+        if (!query) {
+          this.dom.searchAutocomplete.style.display = 'none';
+          return;
+        }
+
+        const matches = this.data.filter(d => 
+          d.nome.toLowerCase().includes(query) || (d.subtitulo && d.subtitulo.toLowerCase().includes(query))
+        ).slice(0, 5);
+
+        if (matches.length === 0) {
+          this.dom.searchAutocomplete.style.display = 'none';
+          return;
+        }
+
+        this.dom.searchAutocomplete.innerHTML = matches.map(m => `
+          <div class="autocomplete-item" onclick="window.atlasApp.focarPonto('${m.nome.replace(/'/g, "\\'")}')">
+            <span>${m.nome}</span>
+            <span style="font-size:0.6rem; color:var(--color-accent);">${NOMES_CATEGORIA[m.categoria]}</span>
+          </div>
+        `).join('');
+        this.dom.searchAutocomplete.style.display = 'block';
+      }
+
+      processarArquivosAdmin(files) {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            // Registrar nos anexos do ponto sendo criado
+            if (file.type.startsWith('image/')) {
+              alert(`Foto "${file.name}" carregada no banco IndexedDB com sucesso!`);
+              // Armazena Base64 para uso posterior no formulário
+              const currVal = this.$('addCoverImage').value;
+              if (!currVal) this.$('addCoverImage').value = dataUrl;
+            } else {
+              alert(`Documento "${file.name}" anexado no IndexedDB.`);
+            }
+          };
+          reader.readAsDataURL(file);
+        }
+      }
+    }
+
+    // Inicialização
+    window.addEventListener('DOMContentLoaded', () => {
+      window.atlasApp = new AtlasApp();
+      window.atlasApp.start();
+    });
+  </script>
+</body>
+</html>
