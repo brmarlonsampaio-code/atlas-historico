@@ -1,0 +1,188 @@
+[
+  {
+    "nome": "Santos (Brasil)",
+    "subtitulo": "O maior complexo portuário da América Latina",
+    "lat": -23.9608,
+    "lon": -46.3350,
+    "pais": "Brasil",
+    "continente": "América do Sul",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Brasileiros",
+    "fundacao": 1892,
+    "descricao": "O Porto de Santos é o maior complexo portuário da América Latina, atuando como principal nó de escoamento industrial e de grãos do Mercosul. Fundamental para a economia brasileira, conecta o país aos mercados globais.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/800px-Porto_de_Santos_a%C3%A9reo.jpg",
+        "descricao": "Vista aérea do Porto de Santos"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Porto de Santos",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Companhia Docas do Estado de São Paulo",
+    "institution": "Porto de Santos",
+    "doi": "10.1000/santos.1892",
+    "license": "Domínio Público",
+    "relations": ["Porto de Lisboa"]
+  },
+  {
+    "nome": "Colón / Balboa (Panamá)",
+    "subtitulo": "Complexos portuários gêmeos no Canal do Panamá",
+    "lat": 9.3598,
+    "lon": -79.9012,
+    "pais": "Panamá",
+    "continente": "América Central",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Panamenhos",
+    "fundacao": 1914,
+    "descricao": "Os complexos portuários gêmeos de Colón e Balboa operam como grandes hubs de transbordo nas duas extremidades do Canal do Panamá. Conectam os oceanos Atlântico e Pacífico, sendo essenciais para o comércio global.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Panama_Canal_Gatun_Locks.jpg/800px-Panama_Canal_Gatun_Locks.jpg",
+        "descricao": "Canal do Panamá - Eclusas de Gatún"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Canal do Panamá",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Autoridade do Canal do Panamá",
+    "institution": "Canal do Panamá",
+    "doi": "10.1000/colonbalboa.1914",
+    "license": "Domínio Público",
+    "relations": ["Porto de Lisboa", "Santos (Brasil)"]
+  },
+  {
+    "nome": "Manzanillo (México)",
+    "subtitulo": "Principal porto mexicano no Pacífico",
+    "lat": 19.0523,
+    "lon": -104.3155,
+    "pais": "México",
+    "continente": "América do Norte",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Mexicanos",
+    "fundacao": 1950,
+    "descricao": "O Porto de Manzanillo é o principal porto mexicano no Pacífico, atuando como elo central de importação e manufatura ligado à Ásia. É um dos portos mais importantes da América Latina para o comércio com o Oriente.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Puerto_Manzanillo_Colima.jpg/400px-Puerto_Manzanillo_Colima.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/Puerto_Manzanillo_Colima.jpg/800px-Puerto_Manzanillo_Colima.jpg",
+        "descricao": "Porto de Manzanillo"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Porto de Manzanillo",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Administración Portuaria de Manzanillo",
+    "institution": "Porto de Manzanillo",
+    "doi": "10.1000/manzanillo.1950",
+    "license": "Domínio Público",
+    "relations": ["Colón / Balboa (Panamá)"]
+  },
+  {
+    "nome": "Tanger Med (Marrocos)",
+    "subtitulo": "O maior porto da África e do Mediterrâneo",
+    "lat": 35.7760,
+    "lon": -5.8023,
+    "pais": "Marrocos",
+    "continente": "África",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Marroquinos",
+    "fundacao": 2007,
+    "descricao": "O Porto Tanger Med é o maior porto da África e do Mediterrâneo, atuando como hub estratégico global de transbordo na rota Leste-Oeste. Conecta a África à Europa e ao resto do mundo.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Tanger-Med_Port.jpg/400px-Tanger-Med_Port.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Tanger-Med_Port.jpg/800px-Tanger-Med_Port.jpg",
+        "descricao": "Porto Tanger Med"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Porto Tanger Med",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Autoridade Portuária de Tanger",
+    "institution": "Tanger Med",
+    "doi": "10.1000/tangermed.2007",
+    "license": "Domínio Público",
+    "relations": ["Porto de Lisboa", "Santos (Brasil)"]
+  },
+  {
+    "nome": "Durban (África do Sul)",
+    "subtitulo": "Principal terminal da África Subsariana",
+    "lat": -29.8826,
+    "lon": 31.0194,
+    "pais": "África do Sul",
+    "continente": "África",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Sul-Africanos",
+    "fundacao": 1824,
+    "descricao": "O Porto de Durban é o principal terminal de contêineres da África Subsariana, conectando as economias da África Austral aos mercados globais. É um dos portos mais movimentados do continente africano.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Durban_Harbour.jpg/400px-Durban_Harbour.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Durban_Harbour.jpg/800px-Durban_Harbour.jpg",
+        "descricao": "Porto de Durban"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Porto de Durban",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Transnet Port Authority",
+    "institution": "Porto de Durban",
+    "doi": "10.1000/durban.1824",
+    "license": "Domínio Público",
+    "relations": ["Tanger Med (Marrocos)"]
+  },
+  {
+    "nome": "Port Said (Egito)",
+    "subtitulo": "Nó logístico essencial no Canal de Suez",
+    "lat": 31.2580,
+    "lon": 32.2850,
+    "pais": "Egito",
+    "continente": "África",
+    "categoria": "porto",
+    "tema": "Economia",
+    "povo": "Egípcios",
+    "fundacao": 1869,
+    "descricao": "Situado na boca norte do Canal de Suez, o Porto de Port Said é um nó logístico essencial para a navegação euro-asiática. Conecta o Mar Mediterrâneo ao Mar Vermelho, sendo fundamental para o comércio global.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Port_Said_Lighthouse.jpg/400px-Port_Said_Lighthouse.jpg",
+    "fotos": [
+      {
+        "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9a/Port_Said_Lighthouse.jpg/800px-Port_Said_Lighthouse.jpg",
+        "descricao": "Porto de Port Said"
+      }
+    ],
+    "documentos": [
+      {
+        "titulo": "História do Canal de Suez",
+        "url": "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf"
+      }
+    ],
+    "author": "Autoridade do Canal de Suez",
+    "institution": "Porto de Port Said",
+    "doi": "10.1000/portsaid.1869",
+    "license": "Domínio Público",
+    "relations": ["Tanger Med (Marrocos)", "Colón / Balboa (Panamá)"]
+  }
+]
