@@ -121,144 +121,6 @@
       box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
     }
 
-    /* ========== RADIO (mantido) ========== */
-    .radio-player-container { position: relative; }
-    .radio-player-btn {
-      padding: 8px 16px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: #f8f9fa;
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-    .radio-player-btn:hover {
-      background: rgba(66,133,244,0.1);
-      border-color: var(--color-accent);
-      color: var(--color-accent);
-    }
-    .radio-player-btn.playing {
-      background: var(--color-accent);
-      color: #fff;
-      border-color: var(--color-accent);
-    }
-    .radio-dropdown {
-      position: absolute;
-      top: 110%;
-      right: 0;
-      width: 340px;
-      background: #fff;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-      display: none;
-      z-index: 100;
-      padding: 16px;
-      max-height: 420px;
-      overflow-y: auto;
-    }
-    .radio-dropdown.open { display: block; }
-    .radio-section-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      color: var(--color-muted);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin: 12px 0 8px 0;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
-    }
-    .radio-station {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-    }
-    .radio-station:hover {
-      background: rgba(66,133,244,0.1);
-      border-color: var(--border);
-    }
-    .radio-station.active {
-      background: rgba(26,115,232,0.08);
-      border-color: var(--color-accent);
-    }
-    .radio-station-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--color-accent);
-      color: #fff;
-      font-size: 0.8rem;
-      flex-shrink: 0;
-    }
-    .radio-station-info { flex: 1; min-width: 0; }
-    .radio-station-name {
-      font-size: 0.8rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .radio-station-desc {
-      font-size: 0.65rem;
-      color: var(--color-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .radio-station-badge {
-      font-size: 0.55rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: #e8eaed;
-      color: var(--color-muted);
-      font-weight: 600;
-    }
-    .radio-station.active .radio-station-badge {
-      background: var(--color-accent);
-      color: #fff;
-    }
-    .radio-player-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-top: 1px solid var(--border);
-      margin-top: 8px;
-    }
-    .radio-volume-slider { flex: 1; accent-color: var(--color-accent); }
-    .radio-now-playing {
-      font-size: 0.7rem;
-      color: var(--color-muted);
-      text-align: center;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-    .radio-pulse {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4CAF50;
-      animation: radioPulse 1.5s ease-in-out infinite;
-    }
-    @keyframes radioPulse {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.6); }
-    }
-
     /* ========== MAIN AREA ========== */
     .main-area {
       display: flex;
@@ -945,7 +807,6 @@
       #detail-panel { width: 100%; max-width: 100vw; }
       #searchInput { width: 140px; }
       #searchInput:focus { width: 200px; }
-      .radio-dropdown { width: 280px; right: -80px; }
       .btn-toggle-routes, .btn-center-points { right: 10px; }
       .btn-toggle-routes { bottom: calc(var(--timeline-height) + 20px); }
       .btn-center-points { bottom: calc(var(--timeline-height) + 70px); }
@@ -961,7 +822,6 @@
       .event-cover { width: 50px; }
       .event-title { font-size: 0.65rem; }
       .event-desc { display: none; }
-      .radio-dropdown { width: 250px; right: -120px; }
       .btn-toggle-routes, .btn-center-points { padding: 6px 12px; font-size: 0.7rem; }
       .btn-toggle-routes { bottom: calc(var(--timeline-height) + 10px); }
       .btn-center-points { bottom: calc(var(--timeline-height) + 50px); }
@@ -981,33 +841,13 @@
       <i class="fa-solid fa-compass"></i><span>Atlas Atlantes</span>
     </a>
     <div class="header-controls">
-      <div class="radio-player-container">
-        <button class="radio-player-btn" id="radioPlayerBtn">
-          <i class="fa-solid fa-radio"></i>
-          <span id="radioStatusText">Rádio</span>
-          <i class="fa-solid fa-chevron-down" style="font-size:0.6rem;"></i>
-        </button>
-        <div class="radio-dropdown" id="radioDropdown">
-          <div class="radio-now-playing" id="radioNowPlaying"><i class="fa-solid fa-music"></i> <span>Nenhuma estação selecionada</span></div>
-          <div class="radio-section-title"><i class="fa-solid fa-microphone"></i> Rádios Históricas</div>
-          <div id="radioStationsList"></div>
-          <div class="radio-section-title"><i class="fa-solid fa-headphones"></i> Playlists Temáticas</div>
-          <div id="radioPlaylistsList"></div>
-          <div class="radio-player-controls">
-            <button class="btn-header" id="radioVolumeDown"><i class="fa-solid fa-volume-low"></i></button>
-            <input type="range" class="radio-volume-slider" id="radioVolumeSlider" min="0" max="1" step="0.05" value="0.3" />
-            <button class="btn-header" id="radioVolumeUp"><i class="fa-solid fa-volume-high"></i></button>
-            <button class="btn-header" id="radioStopBtn"><i class="fa-solid fa-stop"></i></button>
-          </div>
-        </div>
-      </div>
+      <!-- Rádio removido -->
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
       </div>
       <button class="btn-header" id="btnToggleFilters"><i class="fa-solid fa-filter"></i> Filtros</button>
       <button class="btn-header" id="btnToggleTimeline"><i class="fa-solid fa-timeline"></i> Linha do Tempo</button>
-      <!-- Botão Nova Rota removido -->
     </div>
   </header>
 
@@ -1037,14 +877,22 @@
           <span>Categoria</span> <i class="fa-solid fa-chevron-down"></i>
         </div>
         <div class="filter-accordion-content" id="categoria-filtros"></div>
+
         <div class="filter-accordion-header" data-target="tema-content">
           <span>Tema</span> <i class="fa-solid fa-chevron-down"></i>
         </div>
         <div class="filter-accordion-content" id="tema-filtros"></div>
+
         <div class="filter-accordion-header" data-target="povo-content">
           <span>Cultura</span> <i class="fa-solid fa-chevron-down"></i>
         </div>
         <div class="filter-accordion-content" id="povo-filtros"></div>
+
+        <!-- NOVO FILTRO: PRODUTO -->
+        <div class="filter-accordion-header" data-target="produto-content">
+          <span>Produto</span> <i class="fa-solid fa-chevron-down"></i>
+        </div>
+        <div class="filter-accordion-content" id="produto-filtros"></div>
       </div>
       <button id="reset-filtros" class="btn-header" style="width:100%; justify-content:center; margin-top:10px;">
         <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
@@ -1236,6 +1084,7 @@ const DADOS_INICIAIS = [
     lat: 41.0082, lon: 28.9784,
     pais: "Turquia", continente: "Europa/Ásia",
     categoria: "mapa", tema: "Cultura", povo: "Otomanos",
+    produto: null,
     fundacao: 1513,
     descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg",
@@ -1247,6 +1096,7 @@ const DADOS_INICIAIS = [
     lat: 38.7071, lon: -9.1355,
     pais: "Portugal", continente: "Europa",
     categoria: "mapa", tema: "Cultura", povo: "Portugueses",
+    produto: null,
     fundacao: 1502,
     descricao: "O mais antigo mapa a retratar a costa do Brasil.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
@@ -1258,6 +1108,7 @@ const DADOS_INICIAIS = [
     lat: 19.2029, lon: -96.1382,
     pais: "México", continente: "América do Norte",
     categoria: "porto", tema: "Colonização", povo: "Espanhóis e Nahuas",
+    produto: "prata",
     fundacao: 1519,
     descricao: "Fundado por Hernán Cortés em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg",
@@ -1269,6 +1120,7 @@ const DADOS_INICIAIS = [
     lat: 23.1136, lon: -82.3666,
     pais: "Cuba", continente: "América do Norte",
     categoria: "porto", tema: "Comércio e Defesa", povo: "Espanhóis e Cubanos",
+    produto: "tabaco",
     fundacao: 1515,
     descricao: "O Porto de Havana foi o ponto de encontro da Frota das Índias, sendo o porto mais estratégico do Caribe durante os séculos XVI-XVIII.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg",
@@ -1280,6 +1132,7 @@ const DADOS_INICIAIS = [
     lat: -8.0476, lon: -34.8770,
     pais: "Brasil", continente: "América do Sul",
     categoria: "porto", tema: "Economia Colonial", povo: "Portugueses, Holandeses e Africanos",
+    produto: "açúcar",
     fundacao: 1537,
     descricao: "O Porto do Recife foi o centro da economia açucareira do Nordeste brasileiro.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
@@ -1291,8 +1144,9 @@ const DADOS_INICIAIS = [
     lat: -23.9608, lon: -46.3350,
     pais: "Brasil", continente: "América do Sul",
     categoria: "porto", tema: "Economia", povo: "Brasileiros",
+    produto: "café",
     fundacao: 1892,
-    descricao: "O Porto de Santos é o maior complexo portuário da América Latina.",
+    descricao: "O Porto de Santos é o maior complexo portuário da América Latina, responsável por grande parte do escoamento de café do Brasil.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
     fotos: [], documentos: [], author: "Companhia Docas", institution: "Porto de Santos"
   },
@@ -1302,6 +1156,7 @@ const DADOS_INICIAIS = [
     lat: 10.3910, lon: -75.4824,
     pais: "Colômbia", continente: "América do Sul",
     categoria: "porto", tema: "Defesa e Comércio", povo: "Espanhóis, Africanos e Indígenas",
+    produto: "ouro",
     fundacao: 1533,
     descricao: "Cartagena foi o principal porto da costa norte da América do Sul para o comércio de escravizados e ouro.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
@@ -1313,6 +1168,7 @@ const DADOS_INICIAIS = [
     lat: 31.2001, lon: 29.9187,
     pais: "Egito", continente: "África",
     categoria: "porto", tema: "Antiguidade", povo: "Gregos, Romanos e Egípcios",
+    produto: null,
     fundacao: -331,
     descricao: "Fundado por Alexandre, o Grande em 331 a.C., o Porto de Alexandria foi o maior e mais importante porto do mundo antigo.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
@@ -1324,6 +1180,7 @@ const DADOS_INICIAIS = [
     lat: 35.7595, lon: -5.8340,
     pais: "Marrocos", continente: "África",
     categoria: "porto", tema: "Comércio Mediterrâneo", povo: "Fenícios, Romanos, Árabes e Berberes",
+    produto: null,
     fundacao: -500,
     descricao: "Tânger é um dos portos mais antigos do mundo, fundado pelos fenícios por volta de 500 a.C.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg",
@@ -1335,12 +1192,13 @@ const DADOS_INICIAIS = [
     lat: -33.9249, lon: 18.4241,
     pais: "África do Sul", continente: "África",
     categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses, Malaios e Africanos",
+    produto: "especiarias",
     fundacao: 1652,
-    descricao: "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento.",
+    descricao: "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento e centro de comércio de especiarias.",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
     fotos: [], documentos: [], author: "Iziko Museums", institution: "Porto da Cidade do Cabo"
   },
-  // ROTAS
+  // ROTAS com produto
   {
     nome: "Rota do Atlântico Sul",
     subtitulo: "Lisboa ↔ Santos",
@@ -1354,6 +1212,7 @@ const DADOS_INICIAIS = [
     categoria: "rota",
     tema: "Comércio",
     povo: "Portugueses e Brasileiros",
+    produto: "açúcar",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
     fotos: [], documentos: [], author: "Companhia de Navegação", institution: "Porto de Santos"
   },
@@ -1363,13 +1222,14 @@ const DADOS_INICIAIS = [
     tipo: "rota",
     pontos: [{ lat: 9.3598, lon: -79.9012 }, { lat: -23.9608, lon: -46.3350 }],
     cor: "#2ecc71",
-    descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.",
+    descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá, escoando café e outras mercadorias.",
     fundacao: 1914,
     pais: "Panamá/Brasil",
     continente: "América Central/América do Sul",
     categoria: "rota",
     tema: "Comércio",
     povo: "Panamenhos e Brasileiros",
+    produto: "café",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
     fotos: [], documentos: [], author: "Canal do Panamá", institution: "Administração do Canal do Panamá"
   },
@@ -1379,26 +1239,34 @@ const DADOS_INICIAIS = [
     tipo: "rota",
     pontos: [{ lat: 35.7595, lon: -5.8340 }, { lat: 36.0, lon: 0.0 }, { lat: 31.2001, lon: 29.9187 }],
     cor: "#3498db",
-    descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.",
+    descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo, rota de especiarias e produtos orientais.",
     fundacao: -500,
     pais: "Marrocos/Egito",
     continente: "África",
     categoria: "rota",
     tema: "Comércio",
     povo: "Fenícios, Romanos, Árabes",
+    produto: "especiarias",
     coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
     fotos: [], documentos: [], author: "Patrimônio Mediterrâneo", institution: "UNESCO"
+  },
+  {
+    nome: "Rota do Ouro",
+    subtitulo: "Cartagena ↔ Sevilha",
+    tipo: "rota",
+    pontos: [{ lat: 10.3910, lon: -75.4824 }, { lat: 22.0, lon: -60.0 }, { lat: 37.3828, lon: -5.9963 }],
+    cor: "#f1c40f",
+    descricao: "Rota do ouro e prata da América Espanhola para a Europa.",
+    fundacao: 1540,
+    pais: "Colômbia/Espanha",
+    continente: "América do Sul/Europa",
+    categoria: "rota",
+    tema: "Comércio",
+    povo: "Espanhóis, Africanos e Indígenas",
+    produto: "ouro",
+    coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
+    fotos: [], documentos: [], author: "Arquivo das Índias", institution: "Sevilha"
   }
-];
-
-const RADIO_STATIONS = [
-  { id: 'classic-fm', name: 'Classic FM', desc: 'Música Clássica e Erudita', url: 'https://icecast.omroep.nl/radio4-bb-mp3', icon: 'fa-solid fa-music', badge: 'Clássica' },
-  { id: 'radio-batuta', name: 'Rádio Batuta', desc: 'Música Brasileira Histórica', url: 'https://radio.radio-batuta.com.br/radio-batuta.mp3', icon: 'fa-solid fa-guitar', badge: 'Brasil' },
-  { id: 'antena-2', name: 'Antena 2', desc: 'Rádio Clássica Portuguesa', url: 'https://streaming-live.rtp.pt/antena2', icon: 'fa-solid fa-landmark', badge: 'Portugal' }
-];
-const RADIO_PLAYLISTS = [
-  { id: 'medieval', name: 'Música Medieval', desc: 'Cantos Gregorianos e Trovadores', tracks: ['https://upload.wikimedia.org/wikipedia/commons/d/df/Canto_Gregoriano_-_Kyrie.ogg'], icon: 'fa-solid fa-church', badge: 'Medieval' },
-  { id: 'renaissance', name: 'Renascimento', desc: 'Polifonia e Música Instrumental', tracks: ['https://upload.wikimedia.org/wikipedia/commons/a/a6/Palestrina_-_Missa_Papae_Marcelli_-_Kyrie.ogg'], icon: 'fa-solid fa-palette', badge: 'Renasc.' }
 ];
 
 // ================================================================
@@ -1410,7 +1278,7 @@ class AtlasApp {
     this.map = null;
     this.markers = [];
     this.routeLayers = [];
-    this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
+    this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos', produto: 'todos' };
     this.searchQuery = '';
     this.selectedItemName = null;
     this.startYear = -2000;
@@ -1433,12 +1301,6 @@ class AtlasApp {
     this.storyStepIndex = 0;
     this.storyPlaying = false;
     this.storyInterval = null;
-    this.currentAudio = null;
-    this.isRadioPlaying = false;
-    this.radioVolume = 0.3;
-    this.isPlaylistMode = false;
-    this.playlistTracks = [];
-    this.currentPlaylistIndex = 0;
     this.routesVisible = false;
   }
 
@@ -1447,7 +1309,6 @@ class AtlasApp {
     await this.carregarDados();
     this.inicializarMapa();
     this.inicializarComponentes();
-    this.inicializarRadio();
     this.bindEventos();
     this.aplicarFiltros();
     setTimeout(() => {
@@ -1464,6 +1325,7 @@ class AtlasApp {
       categoriaFiltros: this.$('categoria-filtros'),
       temaFiltros: this.$('tema-filtros'),
       povoFiltros: this.$('povo-filtros'),
+      produtoFiltros: this.$('produto-filtros'),
       btnToggleFilters: this.$('btnToggleFilters'),
       btnToggleTimeline: this.$('btnToggleTimeline'),
       btnResetFilters: this.$('reset-filtros'),
@@ -1511,16 +1373,6 @@ class AtlasApp {
       inputEndYear: this.$('inputEndYear'),
       lblStartYear: this.$('lbl-start-year'),
       lblEndYear: this.$('lbl-end-year'),
-      radioPlayerBtn: this.$('radioPlayerBtn'),
-      radioDropdown: this.$('radioDropdown'),
-      radioStationsList: this.$('radioStationsList'),
-      radioPlaylistsList: this.$('radioPlaylistsList'),
-      radioNowPlaying: this.$('radioNowPlaying'),
-      radioStatusText: this.$('radioStatusText'),
-      radioVolumeSlider: this.$('radioVolumeSlider'),
-      radioVolumeDown: this.$('radioVolumeDown'),
-      radioVolumeUp: this.$('radioVolumeUp'),
-      radioStopBtn: this.$('radioStopBtn'),
       btnToggleRoutes: this.$('btnToggleRoutes'),
       btnCenterPoints: this.$('btnCenterPoints')
     };
@@ -1543,10 +1395,9 @@ class AtlasApp {
   }
 
   // ================================================================
-  // MAPA (com estilo sem rótulos de países)
+  // MAPA (sem rótulos de países)
   // ================================================================
   inicializarMapa() {
-    // Estilo com fundo claro e sem labels (para não confundir com os marcadores)
     const estiloSemLabels = {
       version: 8,
       sources: {
@@ -1576,31 +1427,16 @@ class AtlasApp {
         bearing: 0,
         projection: { type: 'mercator' }
       });
-
-      console.log('🗺️ Mapa inicializando (sem rótulos de países)');
-
+      console.log('🗺️ Mapa inicializando (sem rótulos)');
       this.map.on('load', () => {
-        console.log('✅ Mapa carregado com sucesso!');
-        setTimeout(() => {
-          if (this.map) this.map.resize();
-        }, 50);
-        // As rotas só aparecem quando o usuário clicar no botão
+        console.log('✅ Mapa carregado!');
+        setTimeout(() => { if (this.map) this.map.resize(); }, 50);
       });
-
-      this.map.on('error', (e) => {
-        console.warn('⚠️ Erro no mapa:', e);
-      });
-
+      this.map.on('error', (e) => console.warn('⚠️ Erro no mapa:', e));
     } catch (e) {
       console.error('❌ Erro ao inicializar mapa:', e);
     }
-
-    setTimeout(() => {
-      if (this.map) {
-        this.map.resize();
-        console.log('🔄 Resize forçado do mapa');
-      }
-    }, 200);
+    setTimeout(() => { if (this.map) { this.map.resize(); } }, 200);
   }
 
   // ================================================================
@@ -1612,25 +1448,14 @@ class AtlasApp {
       setTimeout(() => this.desenharRotas(), 500);
       return;
     }
-
-    // Remove layers anteriores
-    if (this.routeLayers) {
-      this.routeLayers.forEach(layer => {
-        try {
-          if (this.map.getLayer(layer)) this.map.removeLayer(layer);
-          if (this.map.getSource(layer)) this.map.removeSource(layer);
-        } catch(e) {}
-      });
-      this.routeLayers = [];
-    }
+    this.routeLayers.forEach(layer => {
+      try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
+    });
+    this.routeLayers = [];
 
     const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
-    if (rotas.length === 0) {
-      console.log('ℹ️ Nenhuma rota para desenhar');
-      return;
-    }
+    if (rotas.length === 0) return;
 
-    console.log(`🔄 Desenhando ${rotas.length} rotas...`);
     rotas.forEach((rota, index) => {
       const id = 'rota-' + index;
       const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
@@ -1648,90 +1473,50 @@ class AtlasApp {
           type: 'line',
           source: id,
           layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: {
-            'line-color': rota.cor || '#d4af37',
-            'line-width': 3,
-            'line-dasharray': [6, 4],
-            'line-opacity': 0.85
-          }
+          paint: { 'line-color': rota.cor || '#d4af37', 'line-width': 3, 'line-dasharray': [6, 4], 'line-opacity': 0.85 }
         });
         this.map.addLayer({
           id: id + '-glow',
           type: 'line',
           source: id,
           layout: { 'line-join': 'round', 'line-cap': 'round' },
-          paint: {
-            'line-color': rota.cor || '#d4af37',
-            'line-width': 7,
-            'line-dasharray': [6, 4],
-            'line-opacity': 0.15
-          }
+          paint: { 'line-color': rota.cor || '#d4af37', 'line-width': 7, 'line-dasharray': [6, 4], 'line-opacity': 0.15 }
         });
         this.routeLayers.push(id + '-line', id + '-glow');
-        console.log(`✅ Rota "${rota.nome}" desenhada`);
-      } catch(e) {
-        console.warn(`❌ Erro ao desenhar rota "${rota.nome}":`, e.message);
-      }
+      } catch(e) { console.warn('Erro ao desenhar rota:', rota.nome, e.message); }
     });
-
     this.routesVisible = true;
     this.dom.btnToggleRoutes.innerHTML = `<i class="fa-solid fa-route"></i> Ocultar Rotas`;
     this.dom.btnToggleRoutes.classList.add('active');
   }
 
   ocultarRotas() {
-    if (this.routeLayers.length === 0) return;
     this.routeLayers.forEach(layer => {
-      try {
-        if (this.map.getLayer(layer)) this.map.removeLayer(layer);
-        if (this.map.getSource(layer)) this.map.removeSource(layer);
-      } catch(e) {}
+      try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
     });
     this.routeLayers = [];
     this.routesVisible = false;
     this.dom.btnToggleRoutes.innerHTML = `<i class="fa-solid fa-route"></i> Mostrar Rotas`;
     this.dom.btnToggleRoutes.classList.remove('active');
-    console.log('🔄 Rotas ocultas');
   }
 
-  toggleRotas() {
-    this.routesVisible ? this.ocultarRotas() : this.desenharRotas();
-  }
+  toggleRotas() { this.routesVisible ? this.ocultarRotas() : this.desenharRotas(); }
 
   // ================================================================
   // CENTRALIZAR PONTOS
   // ================================================================
   centralizarPontos() {
     const pontos = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
-    if (pontos.length === 0) {
-      alert('Nenhum ponto para centralizar.');
-      return;
-    }
-    // Calcula a bounding box
-    let minLon = Infinity, maxLon = -Infinity;
-    let minLat = Infinity, maxLat = -Infinity;
-    pontos.forEach(p => {
-      if (p.lon < minLon) minLon = p.lon;
-      if (p.lon > maxLon) maxLon = p.lon;
-      if (p.lat < minLat) minLat = p.lat;
-      if (p.lat > maxLat) maxLat = p.lat;
-    });
-    const centerLon = (minLon + maxLon) / 2;
-    const centerLat = (minLat + maxLat) / 2;
-    // Calcula zoom para caber todos
-    const dLon = maxLon - minLon;
-    const dLat = maxLat - minLat;
-    const maxDim = Math.max(dLon, dLat);
+    if (!pontos.length) { alert('Nenhum ponto para centralizar.'); return; }
+    let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    pontos.forEach(p => { if (p.lon < minLon) minLon = p.lon; if (p.lon > maxLon) maxLon = p.lon; if (p.lat < minLat) minLat = p.lat; if (p.lat > maxLat) maxLat = p.lat; });
+    const centerLon = (minLon + maxLon) / 2, centerLat = (minLat + maxLat) / 2;
+    const maxDim = Math.max(maxLon - minLon, maxLat - minLat);
     let zoom = 2;
-    if (maxDim < 50) zoom = 3;
-    if (maxDim < 20) zoom = 4;
-    if (maxDim < 10) zoom = 5;
-    if (maxDim < 5) zoom = 6;
-    if (maxDim < 2) zoom = 7;
-    if (maxDim < 1) zoom = 8;
+    if (maxDim < 50) zoom = 3; if (maxDim < 20) zoom = 4; if (maxDim < 10) zoom = 5;
+    if (maxDim < 5) zoom = 6; if (maxDim < 2) zoom = 7; if (maxDim < 1) zoom = 8;
     if (maxDim < 0.5) zoom = 9;
-    this.map.flyTo({ center: [centerLon, centerLat], zoom: zoom, duration: 1500 });
-    console.log(`📍 Centralizando em ${pontos.length} pontos, zoom ${zoom}`);
+    this.map.flyTo({ center: [centerLon, centerLat], zoom, duration: 1500 });
   }
 
   // ================================================================
@@ -1743,10 +1528,11 @@ class AtlasApp {
     const categorias = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
     const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
     const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
+    const produtos = ['todos', ...new Set(this.data.map(d => d.produto).filter(Boolean))];
 
-    const popularContainer = (container, itens, chave) => {
+    const popularContainer = (container, itens, chave, labelMap = {}) => {
       container.innerHTML = itens.map(item => {
-        const label = item === 'todos' ? 'Todos' : (chave === 'categoria' ? NOMES_CATEGORIA[item] || item : item);
+        const label = item === 'todos' ? 'Todos' : (labelMap[item] || item);
         return `
           <button class="filtro-btn ${item === 'todos' ? 'active' : ''}" data-key="${chave}" data-val="${item}">
             <span>${label}</span>
@@ -1756,9 +1542,10 @@ class AtlasApp {
       }).join('');
     };
 
-    popularContainer(this.dom.categoriaFiltros, categorias, 'categoria');
+    popularContainer(this.dom.categoriaFiltros, categorias, 'categoria', NOMES_CATEGORIA);
     popularContainer(this.dom.temaFiltros, temas, 'tema');
     popularContainer(this.dom.povoFiltros, povos, 'povo');
+    popularContainer(this.dom.produtoFiltros, produtos, 'produto');
   }
 
   atualizarContadores(filtrados) {
@@ -1780,39 +1567,37 @@ class AtlasApp {
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
       const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
       const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
+      const matchProduto = this.activeFilters.produto === 'todos' || item.produto === this.activeFilters.produto;
       const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
-      return matchCat && matchTema && matchPovo && anoValido;
+      return matchCat && matchTema && matchPovo && matchProduto && anoValido;
     });
 
     if (this.searchQuery) {
+      const q = this.searchQuery.toLowerCase();
       filtrados = filtrados.filter(item => 
-        (item.nome && item.nome.toLowerCase().includes(this.searchQuery)) ||
-        (item.subtitulo && item.subtitulo.toLowerCase().includes(this.searchQuery)) ||
-        (item.descricao && item.descricao.toLowerCase().includes(this.searchQuery)) ||
-        (item.povo && item.povo.toLowerCase().includes(this.searchQuery)) ||
-        (item.pais && item.pais.toLowerCase().includes(this.searchQuery))
+        (item.nome && item.nome.toLowerCase().includes(q)) ||
+        (item.subtitulo && item.subtitulo.toLowerCase().includes(q)) ||
+        (item.descricao && item.descricao.toLowerCase().includes(q)) ||
+        (item.povo && item.povo.toLowerCase().includes(q)) ||
+        (item.pais && item.pais.toLowerCase().includes(q)) ||
+        (item.produto && item.produto.toLowerCase().includes(q))
       );
     }
 
     this.renderizarMarcadores(filtrados);
     this.renderizarTimeline(filtrados);
     this.atualizarContadores(filtrados);
-    // Não mexe nas rotas
   }
 
   renderizarMarcadores(itens) {
-    // Remove marcadores antigos
     this.markers.forEach(m => m.remove());
     this.markers = [];
-
     const pontos = itens.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
-    console.log(`📍 Renderizando ${pontos.length} marcadores.`);
     pontos.forEach(item => {
       const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
       const el = document.createElement('div');
       el.className = 'marker-container';
       el.style.setProperty('--marker-color', cor);
-
       const pulse = document.createElement('div');
       pulse.className = 'marker-pulse';
       const pin = document.createElement('div');
@@ -1820,13 +1605,13 @@ class AtlasApp {
       el.appendChild(pulse);
       el.appendChild(pin);
 
-      // Popup com nome e botão detalhes
       const popup = new maplibregl.Popup({ offset: 20, closeButton: true })
         .setHTML(`
           <div style="font-family:var(--font-sans); padding:4px; min-width:180px;">
             <strong style="color:#1a73e8; font-size:1rem;">${item.nome}</strong>
             <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
             <p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-location-dot"></i> ${item.lat.toFixed(4)}, ${item.lon.toFixed(4)}</p>
+            ${item.produto ? `<p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-box"></i> ${item.produto}</p>` : ''}
             <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
                     style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
               <i class="fa-solid fa-circle-info"></i> Detalhes
@@ -1848,12 +1633,13 @@ class AtlasApp {
       const cover = item.coverImage || 'https://via.placeholder.com/150x100?text=Sem+Imagem';
       const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
       const tipo = item.tipo === 'rota' ? '🚢 ' : '';
+      const prod = item.produto ? ` (${item.produto})` : '';
       return `
         <div class="event-card" data-nome="${item.nome}" style="--card-accent: ${cor}" onclick="window.atlasApp.focarPonto('${item.nome.replace(/'/g, "\\'")}')">
           <img class="event-cover" src="${cover}" alt="${item.nome}" />
           <div class="card-content">
             <div class="event-date"><i class="fa-solid fa-clock"></i> ${anoLabel}</div>
-            <div class="event-title">${tipo}${item.nome}</div>
+            <div class="event-title">${tipo}${item.nome}${prod}</div>
             <div class="event-desc">${item.descricao && item.descricao.length > 60 ? item.descricao.substring(0,60)+'...' : item.descricao || ''}</div>
           </div>
         </div>
@@ -1864,27 +1650,21 @@ class AtlasApp {
   focarPonto(nome) {
     const item = this.data.find(d => d.nome === nome);
     if (!item) return;
-
     if (item.tipo === 'rota' && item.pontos && item.pontos.length > 0) {
       const centro = item.pontos[0];
       this.map.flyTo({ center: [centro.lon, centro.lat], zoom: 4.5, duration: 2000 });
     } else if (item.lat && item.lon) {
       this.map.flyTo({ center: [item.lon, item.lat], zoom: 6.0, duration: 2000 });
     }
-
     document.querySelectorAll('.event-card').forEach(c => c.classList.remove('highlight'));
     const card = document.querySelector(`.event-card[data-nome="${nome}"]`);
-    if (card) {
-      card.classList.add('highlight');
-      card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-    }
+    if (card) { card.classList.add('highlight'); card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); }
     this.abrirDetalhes(nome);
   }
 
   abrirDetalhes(nome) {
     const item = this.data.find(d => d.nome === nome);
     if (!item) return;
-
     this.selectedItemName = nome;
     this.dom.detailPanel.classList.add('open');
 
@@ -1939,16 +1719,12 @@ class AtlasApp {
   }
 
   alternarAbaDetalhes(tabId) {
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
-    });
-    document.querySelectorAll('.tab-content').forEach(content => {
-      content.classList.toggle('active', content.id === tabId);
-    });
+    document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+    document.querySelectorAll('.tab-content').forEach(content => content.classList.toggle('active', content.id === tabId));
   }
 
   // ================================================================
-  // TTS / ÁUDIO
+  // TTS
   // ================================================================
   toggleTTS() {
     const item = this.data.find(d => d.nome === this.selectedItemName);
@@ -1960,20 +1736,14 @@ class AtlasApp {
     } else {
       const utterance = new SpeechSynthesisUtterance(item.descricao || item.nome);
       utterance.lang = 'pt-BR';
-      utterance.onend = () => {
-        this.ttsSpeaking = false;
-        this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
-      };
+      utterance.onend = () => { this.ttsSpeaking = false; this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`; };
       window.speechSynthesis.speak(utterance);
       this.ttsSpeaking = true;
       this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-stop"></i> Parar`;
     }
   }
 
-  toggleDetailAudio(url) {
-    const audio = new Audio(url);
-    audio.play();
-  }
+  toggleDetailAudio(url) { const audio = new Audio(url); audio.play(); }
 
   // ================================================================
   // 3D / Panorama (simplificado)
@@ -2042,45 +1812,24 @@ class AtlasApp {
   // ================================================================
   // LIGHTBOX / PDF
   // ================================================================
-  abrirLightbox(url) {
-    this.dom.lightboxImg.src = url;
-    this.dom.lightbox.style.display = 'flex';
-  }
-
-  abrirPDF(url, titulo) {
-    this.dom.pdfTitle.textContent = titulo || 'Documento';
-    this.dom.pdfFrame.src = url;
-    this.dom.pdfModal.style.display = 'flex';
-  }
+  abrirLightbox(url) { this.dom.lightboxImg.src = url; this.dom.lightbox.style.display = 'flex'; }
+  abrirPDF(url, titulo) { this.dom.pdfTitle.textContent = titulo || 'Documento'; this.dom.pdfFrame.src = url; this.dom.pdfModal.style.display = 'flex'; }
 
   // ================================================================
   // STORYTELLING
   // ================================================================
   iniciarStoryline(type) {
-    if (type === 'none') {
-      this.dom.storytellingHud.style.display = 'none';
-      this.storyPlaying = false;
-      clearInterval(this.storyInterval);
-      return;
-    }
-    const stories = {
-      navegacoes: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)', 'Rota do Atlântico Sul'],
-      imperio_romano: ['Alexandria (Egito)', 'Tânger (Marrocos)']
-    };
+    if (type === 'none') { this.dom.storytellingHud.style.display = 'none'; this.storyPlaying = false; clearInterval(this.storyInterval); return; }
+    const stories = { navegacoes: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)', 'Rota do Atlântico Sul'], imperio_romano: ['Alexandria (Egito)', 'Tânger (Marrocos)'] };
     this.currentStory = stories[type] || [];
     this.storyStepIndex = 0;
     this.dom.storytellingHud.style.display = 'flex';
-    if (this.currentStory.length > 0) {
-      this.focarPonto(this.currentStory[0]);
-      this.dom.storyTitle.textContent = this.currentStory[this.storyStepIndex];
-    }
+    if (this.currentStory.length) { this.focarPonto(this.currentStory[0]); this.dom.storyTitle.textContent = this.currentStory[0]; }
   }
 
   avancarStory(step) {
-    if (!this.currentStory || this.currentStory.length === 0) return;
-    this.storyStepIndex += step;
-    if (this.storyStepIndex < 0) this.storyStepIndex = this.currentStory.length - 1;
-    if (this.storyStepIndex >= this.currentStory.length) this.storyStepIndex = 0;
+    if (!this.currentStory || !this.currentStory.length) return;
+    this.storyStepIndex = (this.storyStepIndex + step + this.currentStory.length) % this.currentStory.length;
     const nomePonto = this.currentStory[this.storyStepIndex];
     this.focarPonto(nomePonto);
     this.dom.storyTitle.textContent = nomePonto;
@@ -2094,138 +1843,8 @@ class AtlasApp {
     } else {
       this.storyPlaying = true;
       this.dom.btnStoryPlay.innerHTML = `<i class="fa-solid fa-pause"></i>`;
-      this.storyInterval = setInterval(() => { this.avancarStory(1); }, 5000);
+      this.storyInterval = setInterval(() => this.avancarStory(1), 5000);
     }
-  }
-
-  // ================================================================
-  // RÁDIO (mantido)
-  // ================================================================
-  inicializarRadio() {
-    this.renderizarEstacoes();
-    this.renderizarPlaylists();
-    this.dom.radioVolumeSlider.addEventListener('input', (e) => {
-      this.radioVolume = parseFloat(e.target.value);
-      if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
-    });
-    this.dom.radioVolumeDown.addEventListener('click', () => {
-      this.radioVolume = Math.max(0, this.radioVolume - 0.1);
-      this.dom.radioVolumeSlider.value = this.radioVolume;
-      if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
-    });
-    this.dom.radioVolumeUp.addEventListener('click', () => {
-      this.radioVolume = Math.min(1, this.radioVolume + 0.1);
-      this.dom.radioVolumeSlider.value = this.radioVolume;
-      if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
-    });
-    this.dom.radioStopBtn.addEventListener('click', () => { this.pararRadio(); });
-    this.dom.radioPlayerBtn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      this.dom.radioDropdown.classList.toggle('open');
-    });
-    document.addEventListener('click', () => { this.dom.radioDropdown.classList.remove('open'); });
-  }
-
-  renderizarEstacoes() {
-    this.dom.radioStationsList.innerHTML = RADIO_STATIONS.map(station => `
-      <div class="radio-station" data-id="${station.id}" data-type="station" onclick="window.atlasApp.tocarRadio('${station.id}')">
-        <div class="radio-station-icon"><i class="${station.icon}"></i></div>
-        <div class="radio-station-info">
-          <div class="radio-station-name">${station.name}</div>
-          <div class="radio-station-desc">${station.desc}</div>
-        </div>
-        <span class="radio-station-badge">${station.badge}</span>
-      </div>
-    `).join('');
-  }
-
-  renderizarPlaylists() {
-    this.dom.radioPlaylistsList.innerHTML = RADIO_PLAYLISTS.map(playlist => `
-      <div class="radio-station" data-id="${playlist.id}" data-type="playlist" onclick="window.atlasApp.tocarPlaylist('${playlist.id}')">
-        <div class="radio-station-icon"><i class="${playlist.icon}"></i></div>
-        <div class="radio-station-info">
-          <div class="radio-station-name">${playlist.name}</div>
-          <div class="radio-station-desc">${playlist.desc}</div>
-        </div>
-        <span class="radio-station-badge">${playlist.badge}</span>
-      </div>
-    `).join('');
-  }
-
-  tocarRadio(stationId) {
-    const station = RADIO_STATIONS.find(s => s.id === stationId);
-    if (!station) return;
-    this.pararRadio();
-    this.currentAudio = new Audio(station.url);
-    this.currentAudio.volume = this.radioVolume;
-    this.currentAudio.play().catch(e => {
-      console.warn('Erro ao tocar rádio:', e);
-      this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> Não foi possível conectar à rádio`;
-    });
-    this.isRadioPlaying = true;
-    this.isPlaylistMode = false;
-    this.currentStationId = stationId;
-    this.dom.radioStatusText.textContent = '🔴 Ao Vivo';
-    this.dom.radioPlayerBtn.classList.add('playing');
-    this.dom.radioNowPlaying.innerHTML = `
-      <i class="fa-solid fa-radio"></i> <strong>${station.name}</strong> - ${station.desc}
-      <span class="radio-pulse"></span>
-    `;
-    document.querySelectorAll('.radio-station').forEach(el => {
-      el.classList.toggle('active', el.dataset.id === stationId && el.dataset.type === 'station');
-    });
-    this.dom.radioDropdown.classList.remove('open');
-  }
-
-  tocarPlaylist(playlistId) {
-    const playlist = RADIO_PLAYLISTS.find(p => p.id === playlistId);
-    if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
-    this.pararRadio();
-    this.isPlaylistMode = true;
-    this.playlistTracks = playlist.tracks;
-    this.currentPlaylistIndex = 0;
-    this.currentStationId = playlistId;
-    this.dom.radioStatusText.textContent = '🎵 Playlist';
-    this.dom.radioPlayerBtn.classList.add('playing');
-    this.dom.radioNowPlaying.innerHTML = `
-      <i class="fa-solid fa-headphones"></i> <strong>${playlist.name}</strong> - ${playlist.desc}
-      <span class="radio-pulse"></span>
-    `;
-    document.querySelectorAll('.radio-station').forEach(el => {
-      el.classList.toggle('active', el.dataset.id === playlistId && el.dataset.type === 'playlist');
-    });
-    this.tocarProximaFaixaPlaylist();
-    this.dom.radioDropdown.classList.remove('open');
-  }
-
-  tocarProximaFaixaPlaylist() {
-    if (!this.isPlaylistMode || this.playlistTracks.length === 0) return;
-    if (this.currentPlaylistIndex >= this.playlistTracks.length) this.currentPlaylistIndex = 0;
-    const track = this.playlistTracks[this.currentPlaylistIndex];
-    this.currentAudio = new Audio(track);
-    this.currentAudio.volume = this.radioVolume;
-    this.currentAudio.play().catch(e => console.warn('Erro ao tocar faixa:', e));
-    this.currentAudio.onended = () => {
-      this.currentPlaylistIndex++;
-      this.tocarProximaFaixaPlaylist();
-    };
-    this.dom.radioNowPlaying.innerHTML = `
-      <i class="fa-solid fa-music"></i> Tocando: <strong>${this.currentPlaylistIndex + 1}/${this.playlistTracks.length}</strong>
-      <span class="radio-pulse"></span>
-    `;
-  }
-
-  pararRadio() {
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
-    }
-    this.isRadioPlaying = false;
-    this.isPlaylistMode = false;
-    this.dom.radioStatusText.textContent = 'Rádio';
-    this.dom.radioPlayerBtn.classList.remove('playing');
-    this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-music"></i> Nenhuma estação selecionada`;
-    document.querySelectorAll('.radio-station').forEach(el => el.classList.remove('active'));
   }
 
   // ================================================================
@@ -2233,21 +1852,17 @@ class AtlasApp {
   // ================================================================
   toggleHighContrast() { document.body.classList.toggle('high-contrast'); }
   adjustFontSize(action) {
-    const currentSize = parseFloat(window.getComputedStyle(document.body).fontSize);
-    document.body.style.fontSize = (currentSize + action) + 'px';
+    const current = parseFloat(window.getComputedStyle(document.body).fontSize);
+    document.body.style.fontSize = (current + action) + 'px';
   }
 
   // ================================================================
   // EVENTOS
   // ================================================================
   bindEventos() {
-    // Rotas toggle
     this.dom.btnToggleRoutes.addEventListener('click', () => this.toggleRotas());
-
-    // Centralizar pontos
     this.dom.btnCenterPoints.addEventListener('click', () => this.centralizarPontos());
 
-    // Filtros accordion
     document.querySelectorAll('.filter-accordion-header').forEach(header => {
       header.addEventListener('click', () => {
         const content = header.nextElementSibling;
@@ -2255,7 +1870,6 @@ class AtlasApp {
       });
     });
 
-    // Clique nos filtros
     document.addEventListener('click', (e) => {
       const btn = e.target.closest('.filtro-btn');
       if (btn) {
@@ -2268,7 +1882,6 @@ class AtlasApp {
       }
     });
 
-    // Anos
     const atualizarTemporal = () => {
       this.startYear = parseInt(this.dom.inputStartYear.value);
       this.endYear = parseInt(this.dom.inputEndYear.value);
@@ -2279,20 +1892,17 @@ class AtlasApp {
     this.dom.inputStartYear.addEventListener('input', atualizarTemporal);
     this.dom.inputEndYear.addEventListener('input', atualizarTemporal);
 
-    // Pesquisa
     this.dom.searchInput.addEventListener('input', (e) => {
       this.searchQuery = e.target.value.toLowerCase();
       this.aplicarFiltros();
     });
 
-    // Sidebar
     this.dom.btnToggleFilters.addEventListener('click', () => {
       this.sidebarVisible = !this.sidebarVisible;
       this.dom.sidebar.classList.toggle('collapsed', !this.sidebarVisible);
       setTimeout(() => { if (this.map) this.map.resize(); }, 300);
     });
 
-    // Timeline
     this.dom.btnToggleTimeline.addEventListener('click', () => {
       this.timelineVisible = !this.timelineVisible;
       this.dom.timelineSection.classList.toggle('collapsed', !this.timelineVisible);
@@ -2302,19 +1912,14 @@ class AtlasApp {
       this.dom.timelineSection.classList.add('collapsed');
     });
 
-    // Globo
     this.dom.btnToggleGlobe.addEventListener('click', () => {
       this.isGlobeMode = !this.isGlobeMode;
       this.dom.btnToggleGlobe.classList.toggle('active', this.isGlobeMode);
-      try {
-        this.map.setProjection({ type: this.isGlobeMode ? 'globe' : 'mercator' });
-      } catch(e) {}
+      try { this.map.setProjection({ type: this.isGlobeMode ? 'globe' : 'mercator' }); } catch(e) {}
     });
 
-    // TTS
     this.dom.btnAudioTTS.addEventListener('click', () => this.toggleTTS());
 
-    // Fechar detalhes
     this.dom.btnCloseDetail.addEventListener('click', () => {
       this.dom.detailPanel.classList.remove('open');
       window.speechSynthesis.cancel();
@@ -2322,49 +1927,35 @@ class AtlasApp {
       this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
     });
 
-    // Storytelling
     this.dom.selectStoryline.addEventListener('change', (e) => this.iniciarStoryline(e.target.value));
     this.dom.btnStoryPrev.addEventListener('click', () => this.avancarStory(-1));
     this.dom.btnStoryNext.addEventListener('click', () => this.avancarStory(1));
     this.dom.btnStoryPlay.addEventListener('click', () => this.playPauseStory());
     this.dom.btnStoryClose.addEventListener('click', () => this.iniciarStoryline('none'));
 
-    // Acessibilidade
     this.dom.btnHighContrastToggle.addEventListener('click', () => this.toggleHighContrast());
 
-    // Lightbox/PDF
     this.dom.btnLightboxClose.addEventListener('click', () => this.dom.lightbox.style.display = 'none');
-    this.dom.pdfClose.addEventListener('click', () => {
-      this.dom.pdfModal.style.display = 'none';
-      this.dom.pdfFrame.src = '';
-    });
+    this.dom.pdfClose.addEventListener('click', () => { this.dom.pdfModal.style.display = 'none'; this.dom.pdfFrame.src = ''; });
 
-    // Reset filtros
     this.dom.btnResetFilters.addEventListener('click', () => {
-      this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
+      this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos', produto: 'todos' };
       document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.filtro-btn[data-val="todos"]').forEach(b => b.classList.add('active'));
       this.aplicarFiltros();
     });
 
-    // Logo reset
     this.dom.logoReset.addEventListener('click', (e) => {
       e.preventDefault();
       this.map.flyTo({ center: [-10, 10], zoom: 2.0, duration: 1500 });
       this.dom.detailPanel.classList.remove('open');
     });
 
-    // Escape
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') {
-        this.dom.modalAccessibility.classList.remove('open');
-      }
+      if (e.key === 'Escape') this.dom.modalAccessibility.classList.remove('open');
     });
 
-    // Resize
-    window.addEventListener('resize', () => {
-      if (this.map) setTimeout(() => this.map.resize(), 100);
-    });
+    window.addEventListener('resize', () => { if (this.map) setTimeout(() => this.map.resize(), 100); });
   }
 }
 
