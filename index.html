@@ -754,7 +754,7 @@
       box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
     }
 
-    /* ========== MARKER (grande) ========== */
+    /* ========== MARKER ========== */
     .marker-container {
       width: 40px;
       height: 40px;
@@ -841,6 +841,7 @@
       <i class="fa-solid fa-compass"></i><span>Atlas Atlantes</span>
     </a>
     <div class="header-controls">
+      <!-- Rádio removido -->
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
@@ -896,7 +897,7 @@
         <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
       </button>
       <div style="margin-top:auto; font-size:0.75rem; color:var(--color-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px;">
-        <span>Registros:</span>
+        <span>Registros na Linha do Tempo:</span>
         <strong id="count-visible" style="color:var(--color-accent)">0</strong>
       </div>
     </aside>
@@ -1276,7 +1277,6 @@ class AtlasApp {
     this.map = null;
     this.markers = [];
     this.routeLayers = [];
-    // Filtros ativos (incluindo produto)
     this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos', produto: 'todos' };
     this.searchQuery = '';
     this.selectedItemName = null;
@@ -1309,7 +1309,9 @@ class AtlasApp {
       this.inicializarMapa();
       this.inicializarComponentes();
       this.bindEventos();
-      this.aplicarFiltros(); // chama a lógica de renderização
+      // Primeira renderização: marcadores fixos + timeline inicial
+      this.renderizarMarcadoresFixos();
+      this.aplicarFiltrosTimelineERotas();
       setTimeout(() => {
         if (this.dom.loading) this.dom.loading.classList.add('hide');
       }, 600);
@@ -1438,7 +1440,6 @@ class AtlasApp {
       this.map.on('error', (e) => console.warn('⚠️ Erro no mapa:', e));
     } catch (e) {
       console.error('❌ Erro ao inicializar mapa:', e);
-      // Fallback para mapa básico se o estilo falhar
       try {
         this.map = new maplibregl.Map({
           container: 'map',
@@ -1446,15 +1447,59 @@ class AtlasApp {
           center: [-10, 10],
           zoom: 2
         });
-      } catch (e2) {
-        console.error('Falha total no mapa:', e2);
-      }
+      } catch (e2) { console.error('Falha total no mapa:', e2); }
     }
     setTimeout(() => { if (this.map) this.map.resize(); }, 200);
   }
 
   // ================================================================
-  // ROTAS (toggle)
+  // MARCADORES FIXOS (NUNCA FILTRADOS)
+  // ================================================================
+  renderizarMarcadoresFixos() {
+    // Remove marcadores antigos
+    this.markers.forEach(m => m.remove());
+    this.markers = [];
+
+    // Pegamos TODOS os itens que NÃO são rotas (portos, mapas, etc.) e têm lat/lon
+    const itens = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
+
+    itens.forEach(item => {
+      const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
+      const el = document.createElement('div');
+      el.className = 'marker-container';
+      el.style.setProperty('--marker-color', cor);
+      const pulse = document.createElement('div');
+      pulse.className = 'marker-pulse';
+      const pin = document.createElement('div');
+      pin.className = 'marker-pin';
+      el.appendChild(pulse);
+      el.appendChild(pin);
+
+      const popup = new maplibregl.Popup({ offset: 20, closeButton: true })
+        .setHTML(`
+          <div style="font-family:var(--font-sans); padding:4px; min-width:180px;">
+            <strong style="color:#1a73e8; font-size:1rem;">${item.nome}</strong>
+            <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
+            <p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-location-dot"></i> ${item.lat.toFixed(4)}, ${item.lon.toFixed(4)}</p>
+            ${item.produto ? `<p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-box"></i> ${item.produto}</p>` : ''}
+            <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
+                    style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
+              <i class="fa-solid fa-circle-info"></i> Detalhes
+            </button>
+          </div>
+        `);
+
+      const marker = new maplibregl.Marker({ element: el })
+        .setLngLat([item.lon, item.lat])
+        .setPopup(popup)
+        .addTo(this.map);
+      this.markers.push(marker);
+    });
+    console.log(`📍 Renderizados ${this.markers.length} marcadores fixos.`);
+  }
+
+  // ================================================================
+  // ROTAS (toggle) - aplica todos os filtros
   // ================================================================
   desenharRotas() {
     if (!this.map || !this.map.loaded()) {
@@ -1462,13 +1507,12 @@ class AtlasApp {
       setTimeout(() => this.desenharRotas(), 500);
       return;
     }
-    // Remove layers anteriores
     this.routeLayers.forEach(layer => {
       try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
     });
     this.routeLayers = [];
 
-    // Aplica filtros (incluindo produto) para selecionar quais rotas desenhar
+    // Filtra rotas com todos os filtros (categoria, tema, povo, produto, ano)
     const rotasFiltradas = this.data.filter(item => {
       if (item.tipo !== 'rota') return false;
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
@@ -1479,7 +1523,10 @@ class AtlasApp {
       return matchCat && matchTema && matchPovo && matchProduto && anoValido;
     });
 
-    if (!rotasFiltradas.length) return;
+    if (!rotasFiltradas.length) {
+      console.log('ℹ️ Nenhuma rota encontrada com os filtros atuais.');
+      return;
+    }
 
     rotasFiltradas.forEach((rota, index) => {
       const id = 'rota-' + index;
@@ -1528,85 +1575,17 @@ class AtlasApp {
   toggleRotas() { this.routesVisible ? this.ocultarRotas() : this.desenharRotas(); }
 
   // ================================================================
-  // CENTRALIZAR PONTOS
+  // TIMELINE E ROTAS - aplicam todos os filtros (incluindo produto)
   // ================================================================
-  centralizarPontos() {
-    const pontos = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
-    if (!pontos.length) { alert('Nenhum ponto para centralizar.'); return; }
-    let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
-    pontos.forEach(p => { if (p.lon < minLon) minLon = p.lon; if (p.lon > maxLon) maxLon = p.lon; if (p.lat < minLat) minLat = p.lat; if (p.lat > maxLat) maxLat = p.lat; });
-    const centerLon = (minLon + maxLon) / 2, centerLat = (minLat + maxLat) / 2;
-    const maxDim = Math.max(maxLon - minLon, maxLat - minLat);
-    let zoom = 2;
-    if (maxDim < 50) zoom = 3; if (maxDim < 20) zoom = 4; if (maxDim < 10) zoom = 5;
-    if (maxDim < 5) zoom = 6; if (maxDim < 2) zoom = 7; if (maxDim < 1) zoom = 8;
-    if (maxDim < 0.5) zoom = 9;
-    this.map.flyTo({ center: [centerLon, centerLat], zoom, duration: 1500 });
-  }
-
-  // ================================================================
-  // FILTROS E RENDERIZAÇÃO
-  // ================================================================
-  inicializarComponentes() { this.gerarFiltros(); }
-
-  gerarFiltros() {
-    const categorias = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
-    const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
-    const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
-    const produtos = ['todos', ...new Set(this.data.map(d => d.produto).filter(Boolean))];
-
-    const popularContainer = (container, itens, chave, labelMap = {}) => {
-      if (!container) return;
-      container.innerHTML = itens.map(item => {
-        const label = item === 'todos' ? 'Todos' : (labelMap[item] || item);
-        return `
-          <button class="filtro-btn ${item === 'todos' ? 'active' : ''}" data-key="${chave}" data-val="${item}">
-            <span>${label}</span>
-            <span class="count">0</span>
-          </button>
-        `;
-      }).join('');
-    };
-
-    popularContainer(this.dom.categoriaFiltros, categorias, 'categoria', NOMES_CATEGORIA);
-    popularContainer(this.dom.temaFiltros, temas, 'tema');
-    popularContainer(this.dom.povoFiltros, povos, 'povo');
-    popularContainer(this.dom.produtoFiltros, produtos, 'produto');
-  }
-
-  atualizarContadores(filtrados) {
-    this.dom.countVisible.textContent = filtrados.length;
-    document.querySelectorAll('.filter-accordion-content').forEach(grupo => {
-      grupo.querySelectorAll('.filtro-btn').forEach(btn => {
-        const key = btn.dataset.key;
-        const val = btn.dataset.val;
-        const count = val === 'todos' 
-          ? this.data.length 
-          : this.data.filter(d => d[key] === val).length;
-        btn.querySelector('.count').textContent = count;
-      });
-    });
-  }
-
-  aplicarFiltros() {
-    // 1. FILTRO PARA MARCADORES (NÃO usa produto) - apenas categoria, tema, povo, ano
-    const marcadores = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
-    const marcadoresFiltrados = marcadores.filter(item => {
-      const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
-      const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
-      const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
-      const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
-      return matchCat && matchTema && matchPovo && anoValido;
-    });
-
-    // 2. FILTRO PARA TIMELINE (usa todos os filtros, incluindo produto)
+  aplicarFiltrosTimelineERotas() {
+    // 1. Timeline: todos os itens (incluindo rotas) com TODOS os filtros
     const timelineItens = this.data.filter(item => {
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
       const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
       const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
       const matchProduto = this.activeFilters.produto === 'todos' || item.produto === this.activeFilters.produto;
       const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
-      // busca textual (se houver)
+      // busca textual
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
         const textMatch = 
@@ -1621,56 +1600,13 @@ class AtlasApp {
       return matchCat && matchTema && matchPovo && matchProduto && anoValido;
     });
 
-    // Renderizar marcadores (fixos, sem filtro de produto)
-    this.renderizarMarcadores(marcadoresFiltrados);
-    // Renderizar timeline (com todos os filtros)
     this.renderizarTimeline(timelineItens);
-    // Atualizar contador na sidebar (mostra quantos itens na timeline)
     this.atualizarContadores(timelineItens);
 
-    // Se as rotas estiverem visíveis, redesenhá-las (aplica todos os filtros, inclusive produto)
+    // 2. Se as rotas estiverem visíveis, redesenhá-las (já aplica os filtros)
     if (this.routesVisible) {
       this.desenharRotas();
     }
-  }
-
-  renderizarMarcadores(itens) {
-    // Remove marcadores antigos
-    this.markers.forEach(m => m.remove());
-    this.markers = [];
-    // itens já são os marcadores filtrados (sem produto)
-    itens.forEach(item => {
-      const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-      const el = document.createElement('div');
-      el.className = 'marker-container';
-      el.style.setProperty('--marker-color', cor);
-      const pulse = document.createElement('div');
-      pulse.className = 'marker-pulse';
-      const pin = document.createElement('div');
-      pin.className = 'marker-pin';
-      el.appendChild(pulse);
-      el.appendChild(pin);
-
-      const popup = new maplibregl.Popup({ offset: 20, closeButton: true })
-        .setHTML(`
-          <div style="font-family:var(--font-sans); padding:4px; min-width:180px;">
-            <strong style="color:#1a73e8; font-size:1rem;">${item.nome}</strong>
-            <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
-            <p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-location-dot"></i> ${item.lat.toFixed(4)}, ${item.lon.toFixed(4)}</p>
-            ${item.produto ? `<p style="font-size:0.7rem; color:#5f6368;"><i class="fa-solid fa-box"></i> ${item.produto}</p>` : ''}
-            <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
-                    style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
-              <i class="fa-solid fa-circle-info"></i> Detalhes
-            </button>
-          </div>
-        `);
-
-      const marker = new maplibregl.Marker({ element: el })
-        .setLngLat([item.lon, item.lat])
-        .setPopup(popup)
-        .addTo(this.map);
-      this.markers.push(marker);
-    });
   }
 
   renderizarTimeline(itens) {
@@ -1693,6 +1629,40 @@ class AtlasApp {
     }).join('');
   }
 
+  atualizarContadores(filtrados) {
+    this.dom.countVisible.textContent = filtrados.length;
+    document.querySelectorAll('.filter-accordion-content').forEach(grupo => {
+      grupo.querySelectorAll('.filtro-btn').forEach(btn => {
+        const key = btn.dataset.key;
+        const val = btn.dataset.val;
+        const count = val === 'todos' 
+          ? this.data.length 
+          : this.data.filter(d => d[key] === val).length;
+        btn.querySelector('.count').textContent = count;
+      });
+    });
+  }
+
+  // ================================================================
+  // CENTRALIZAR PONTOS
+  // ================================================================
+  centralizarPontos() {
+    const pontos = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
+    if (!pontos.length) { alert('Nenhum ponto para centralizar.'); return; }
+    let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+    pontos.forEach(p => { if (p.lon < minLon) minLon = p.lon; if (p.lon > maxLon) maxLon = p.lon; if (p.lat < minLat) minLat = p.lat; if (p.lat > maxLat) maxLat = p.lat; });
+    const centerLon = (minLon + maxLon) / 2, centerLat = (minLat + maxLat) / 2;
+    const maxDim = Math.max(maxLon - minLon, maxLat - minLat);
+    let zoom = 2;
+    if (maxDim < 50) zoom = 3; if (maxDim < 20) zoom = 4; if (maxDim < 10) zoom = 5;
+    if (maxDim < 5) zoom = 6; if (maxDim < 2) zoom = 7; if (maxDim < 1) zoom = 8;
+    if (maxDim < 0.5) zoom = 9;
+    this.map.flyTo({ center: [centerLon, centerLat], zoom, duration: 1500 });
+  }
+
+  // ================================================================
+  // FOCAR PONTO E DETALHES (sem alterações)
+  // ================================================================
   focarPonto(nome) {
     const item = this.data.find(d => d.nome === nome);
     if (!item) return;
@@ -1926,7 +1896,8 @@ class AtlasApp {
         this.activeFilters[key] = val;
         btn.parentElement.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        this.aplicarFiltros();
+        // Aplica os filtros NA TIMELINE E ROTAS (marcadores permanecem fixos)
+        this.aplicarFiltrosTimelineERotas();
       }
     });
 
@@ -1935,14 +1906,14 @@ class AtlasApp {
       this.endYear = parseInt(this.dom.inputEndYear.value);
       this.dom.lblStartYear.textContent = this.startYear < 0 ? `${Math.abs(this.startYear)} A.C.` : `${this.startYear} D.C.`;
       this.dom.lblEndYear.textContent = this.endYear < 0 ? `${Math.abs(this.endYear)} A.C.` : `${this.endYear} D.C.`;
-      this.aplicarFiltros();
+      this.aplicarFiltrosTimelineERotas();
     };
     this.dom.inputStartYear.addEventListener('input', atualizarTemporal);
     this.dom.inputEndYear.addEventListener('input', atualizarTemporal);
 
     this.dom.searchInput.addEventListener('input', (e) => {
       this.searchQuery = e.target.value.toLowerCase();
-      this.aplicarFiltros();
+      this.aplicarFiltrosTimelineERotas();
     });
 
     this.dom.btnToggleFilters.addEventListener('click', () => {
@@ -1990,7 +1961,7 @@ class AtlasApp {
       this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos', produto: 'todos' };
       document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
       document.querySelectorAll('.filtro-btn[data-val="todos"]').forEach(b => b.classList.add('active'));
-      this.aplicarFiltros();
+      this.aplicarFiltrosTimelineERotas();
     });
 
     this.dom.logoReset.addEventListener('click', (e) => {
