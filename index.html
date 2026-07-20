@@ -13,12 +13,10 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    /* ===== RESET ===== */
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #202124; height: 100vh; overflow: hidden; }
     #app { display: flex; flex-direction: column; height: 100vh; }
 
-    /* ===== HEADER ===== */
     .header {
       display: flex; align-items: center; justify-content: space-between;
       padding: 8px 20px; height: 60px; background: #fff; border-bottom: 1px solid #e0e0e0;
@@ -43,12 +41,10 @@
     }
     #searchInput:focus { outline: none; width: 260px; border-color: #1a73e8; background: #fff; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
 
-    /* ===== MAPA ===== */
     .main-area { display: flex; flex: 1; overflow: hidden; position: relative; }
     #map-container { flex: 1; height: 100%; position: relative; background: #e8eaed; }
     #map { width: 100%; height: 100%; min-height: 400px; }
 
-    /* ===== SIDEBAR ===== */
     #sidebar {
       width: 280px; background: #fff; border-right: 1px solid #e0e0e0;
       padding: 16px; overflow-y: auto; transition: 0.3s; flex-shrink: 0;
@@ -71,7 +67,6 @@
     .range-row input { width: 80px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 4px; text-align: center; }
     #count-visible { color: #1a73e8; font-weight: 700; }
 
-    /* ===== TIMELINE ===== */
     .timeline-section {
       position: absolute; bottom: 20px; left: 20px; right: 20px; height: 180px;
       background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
@@ -98,7 +93,6 @@
     .event-title { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-desc { font-size: 0.6rem; color: #5f6368; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-    /* ===== DETAIL PANEL ===== */
     #detail-panel {
       position: absolute; top: 0; right: 0; bottom: 0; width: 400px;
       background: #fff; border-left: 1px solid #e0e0e0;
@@ -124,7 +118,6 @@
     .panel-meta .value { font-weight: 500; }
     .panel-desc { font-size: 0.85rem; line-height: 1.5; text-align: justify; }
 
-    /* ===== LOADING ===== */
     #loading-overlay {
       position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column;
       align-items: center; justify-content: center; z-index: 9999; transition: 0.6s;
@@ -133,7 +126,6 @@
     .spinner { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top-color: #1a73e8; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ===== MARKERS ===== */
     .marker-container { width: 30px; height: 30px; position: relative; cursor: pointer; }
     .marker-pin {
       width: 16px; height: 16px; border-radius: 50% 50% 50% 0;
@@ -149,7 +141,6 @@
     }
     @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
 
-    /* ===== MODAL ===== */
     .modal-overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
       z-index: 999; display: none; align-items: center; justify-content: center;
@@ -189,7 +180,6 @@
 </head>
 <body>
 
-  <!-- LOADING -->
   <div id="loading-overlay">
     <div class="spinner"></div>
     <p style="margin-top:20px; font-weight:500; color:#1a73e8;">Carregando Atlas...</p>
@@ -334,13 +324,13 @@
 
   <script>
     // =========================================================
-    // DADOS COMPLETOS E CORRETOS (TODOS OS PORTOS + ROTAS)
+    // DADOS COMPLETOS
     // =========================================================
     const CORES_CATEGORIA = { mapa: '#1a73e8', porto: '#0d9488', rota: '#d4af37' };
     const NOMES_CATEGORIA = { mapa: 'Mapa', porto: 'Porto', rota: 'Rota Comercial' };
 
     const DADOS_INICIAIS = [
-      // ======== MAPAS HISTÓRICOS ========
+      // MAPAS
       {
         nome: "Carta de Piri Reis (1513)",
         subtitulo: "Mapa-múndi Otomano",
@@ -363,8 +353,7 @@
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
         fotos: [], documentos: []
       },
-
-      // ======== PORTOS - AMÉRICA DO NORTE ========
+      // PORTOS - AMÉRICA DO NORTE
       {
         nome: "Veracruz (México)",
         subtitulo: "O porto mais antigo do México continental",
@@ -398,8 +387,7 @@
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
         fotos: [], documentos: []
       },
-
-      // ======== PORTOS - AMÉRICA CENTRAL ========
+      // PORTOS - AMÉRICA CENTRAL
       {
         nome: "Porto Bello (Panamá)",
         subtitulo: "O porto das feiras de ouro",
@@ -411,8 +399,7 @@
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
         fotos: [], documentos: []
       },
-
-      // ======== PORTOS - AMÉRICA DO SUL ========
+      // PORTOS - AMÉRICA DO SUL
       {
         nome: "Recife (Brasil)",
         subtitulo: "O 'Veneza Brasileira' e porto do açúcar",
@@ -457,8 +444,7 @@
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
         fotos: [], documentos: []
       },
-
-      // ======== PORTOS - ÁFRICA ========
+      // PORTOS - ÁFRICA
       {
         nome: "Alexandria (Egito)",
         subtitulo: "O farol do mundo antigo",
@@ -486,7 +472,7 @@
         subtitulo: "A rota do Cabo",
         lat: -33.9249, lon: 18.4241,
         pais: "África do Sul", continente: "África",
-        categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses e Africanos",
+        categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses, Malaios e Africanos",
         fundacao: 1652,
         descricao: "Posto de reabastecimento da Companhia Holandesa das Índias Orientais.",
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
@@ -558,8 +544,7 @@
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
         fotos: [], documentos: []
       },
-
-      // ======== ROTAS COMERCIAIS ========
+      // ROTAS
       {
         nome: "Rota do Atlântico Sul",
         subtitulo: "Lisboa ↔ Santos",
@@ -720,7 +705,7 @@
       }
 
       // =========================================================
-      // MAPA
+      // MAPA - CORRIGIDO (projeção mercator + resize)
       // =========================================================
       inicializarMapa() {
         const style = {
@@ -747,7 +732,13 @@
           style: style,
           center: [-10, 10],
           zoom: 2.0,
-          pitch: 0
+          pitch: 0,
+          projection: 'mercator'  // <--- FORÇA PROJEÇÃO PLANA (MARCADORES FICAM FIXOS)
+        });
+
+        // Redimensiona o mapa quando a janela muda
+        window.addEventListener('resize', () => {
+          if (this.map) this.map.resize();
         });
 
         this.map.on('load', () => {
