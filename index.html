@@ -5,968 +5,484 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atlas Atlantes – Atlas Histórico Digital Interativo</title>
 
-  <!-- Maplibre GL JS CSS & JS -->
+  <!-- Maplibre GL -->
   <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,400&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
-
-  <!-- FontAwesome for icons -->
+  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- GSAP -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-
   <style>
-    :root {
-      --color-bg-dark: #f0f2f5;
-      --color-bg: #ffffff;
-      --color-surface: rgba(255, 255, 255, 0.85);
-      --color-surface-opaque: #ffffff;
-      --color-surface-hover: rgba(66, 133, 244, 0.10);
-      --color-accent: #1a73e8;
-      --color-accent-light: #4285f4;
-      --color-text: #202124;
-      --color-muted: #5f6368;
-      --border: rgba(0, 0, 0, 0.12);
-      --font-sans: 'Inter', sans-serif;
-      --font-serif: 'Playfair Display', serif;
-      --font-display: 'Outfit', sans-serif;
-      --timeline-height: 200px;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
+    /* ===== RESET & BASE ===== */
+    * { margin:0; padding:0; box-sizing:border-box; }
     body {
-      font-family: var(--font-sans);
-      background: var(--color-bg-dark);
-      color: var(--color-text);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #202124;
       height: 100vh;
-      width: 100vw;
       overflow: hidden;
-      position: relative;
     }
 
     #app {
       display: flex;
       flex-direction: column;
       height: 100vh;
-      position: relative;
-      z-index: 2;
     }
 
+    /* ===== HEADER ===== */
     .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 8px 24px;
-      height: 65px;
-      z-index: 10;
-      flex-shrink: 0;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      padding: 8px 20px;
+      height: 60px;
       background: #ffffff;
+      border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0;
+      z-index: 10;
     }
-
     .header-logo {
-      font-family: 'Outfit', sans-serif;
       font-weight: 800;
-      font-size: 1.5rem;
-      color: var(--color-accent);
+      font-size: 1.3rem;
+      color: #1a73e8;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
-
     .header-controls {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
     }
-
-    .search-wrapper {
-      position: relative;
-    }
-
-    .search-wrapper i {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: var(--color-muted);
-      font-size: 0.85rem;
-    }
-
-    #searchInput {
-      padding: 8px 12px 8px 34px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
+    .btn {
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #d0d0d0;
       background: #f8f9fa;
-      color: var(--color-text);
-      font-size: 0.85rem;
-      width: 220px;
-      transition: all 0.3s ease;
-    }
-
-    #searchInput:focus {
-      outline: none;
-      width: 300px;
-      background: #ffffff;
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
-    }
-
-    .btn-header {
-      padding: 8px 16px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: #f8f9fa;
-      color: var(--color-text);
+      color: #202124;
       font-size: 0.8rem;
       font-weight: 500;
       cursor: pointer;
       display: flex;
       align-items: center;
       gap: 6px;
-      transition: all 0.2s ease;
+      transition: 0.2s;
     }
-
-    .btn-header:hover {
-      background: var(--color-surface-hover);
-      border-color: var(--color-accent);
-      color: var(--color-accent);
+    .btn:hover {
+      background: #e8eaed;
+      border-color: #1a73e8;
+      color: #1a73e8;
     }
-
-    .btn-header.success {
+    .btn-success {
       background: #27ae60;
-      color: #ffffff;
+      color: #fff;
       border-color: #27ae60;
     }
-
-    .btn-header.success:hover {
+    .btn-success:hover {
       background: #2ecc71;
-      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+      border-color: #2ecc71;
+      color: #fff;
     }
 
-    /* RADIO PLAYER */
-    .radio-player-container {
+    .search-wrapper {
       position: relative;
     }
-
-    .radio-player-btn {
-      padding: 8px 16px;
-      border-radius: 24px;
-      border: 1px solid var(--border);
-      background: #f8f9fa;
-      color: var(--color-text);
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-    }
-
-    .radio-player-btn:hover {
-      background: var(--color-surface-hover);
-      border-color: var(--color-accent);
-      color: var(--color-accent);
-    }
-
-    .radio-player-btn.playing {
-      background: var(--color-accent);
-      color: #ffffff;
-      border-color: var(--color-accent);
-    }
-
-    .radio-dropdown {
+    .search-wrapper i {
       position: absolute;
-      top: 110%;
-      right: 0;
-      width: 340px;
-      background: #ffffff;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
-      display: none;
-      z-index: 100;
-      padding: 16px;
-      max-height: 420px;
-      overflow-y: auto;
-    }
-
-    .radio-dropdown.open {
-      display: block;
-    }
-
-    .radio-section-title {
-      font-size: 0.7rem;
-      text-transform: uppercase;
-      color: var(--color-muted);
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin: 12px 0 8px 0;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
-    }
-
-    .radio-station {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 8px 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      border: 1px solid transparent;
-    }
-
-    .radio-station:hover {
-      background: var(--color-surface-hover);
-      border-color: var(--border);
-    }
-
-    .radio-station.active {
-      background: rgba(26, 115, 232, 0.08);
-      border-color: var(--color-accent);
-    }
-
-    .radio-station-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: var(--color-accent);
-      color: #ffffff;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #777;
       font-size: 0.8rem;
-      flex-shrink: 0;
     }
-
-    .radio-station-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .radio-station-name {
+    #searchInput {
+      padding: 6px 12px 6px 30px;
+      border-radius: 20px;
+      border: 1px solid #d0d0d0;
+      background: #f8f9fa;
+      width: 200px;
       font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--color-text);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      transition: 0.3s;
+    }
+    #searchInput:focus {
+      outline: none;
+      width: 260px;
+      border-color: #1a73e8;
+      background: #fff;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
     }
 
-    .radio-station-desc {
-      font-size: 0.65rem;
-      color: var(--color-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .radio-station-badge {
-      font-size: 0.55rem;
-      padding: 2px 8px;
-      border-radius: 10px;
-      background: #e8eaed;
-      color: var(--color-muted);
-      font-weight: 600;
-      white-space: nowrap;
-    }
-
-    .radio-player-controls {
+    /* ===== MAPA ===== */
+    .main-area {
       display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 0;
-      border-top: 1px solid var(--border);
-      margin-top: 8px;
-    }
-
-    .radio-volume-slider {
       flex: 1;
-      accent-color: var(--color-accent);
+      overflow: hidden;
+      position: relative;
     }
-
-    .radio-now-playing {
-      font-size: 0.7rem;
-      color: var(--color-muted);
-      text-align: center;
-      padding: 4px 0;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 8px;
-    }
-
-    .radio-pulse {
-      display: inline-block;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #4CAF50;
-      animation: radioPulse 1.5s ease-in-out infinite;
-    }
-
-    @keyframes radioPulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.6); }
-    }
-
-    /* MAP CONTAINER */
     #map-container {
       flex: 1;
-      display: flex;
-      flex-direction: column;
+      height: 100%;
       position: relative;
       background: #e8eaed;
-      height: 100%;
     }
-
     #map {
-      flex: 1;
       width: 100%;
       height: 100%;
-      min-height: 300px;
+      min-height: 400px;
     }
 
-    .globe-controls {
-      position: absolute;
-      top: 15px;
-      right: 15px;
+    /* ===== SIDEBAR ===== */
+    #sidebar {
+      width: 280px;
+      background: #fff;
+      border-right: 1px solid #e0e0e0;
+      padding: 16px;
+      overflow-y: auto;
+      transition: 0.3s;
+      flex-shrink: 0;
+    }
+    #sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      border: none;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sidebar-title {
+      font-weight: 600;
+      color: #1a73e8;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 6px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .filter-group {
+      margin-bottom: 12px;
+    }
+    .filter-header {
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+      padding: 4px 0;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+    .filter-content {
+      padding-left: 8px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      z-index: 5;
+      gap: 4px;
     }
-
-    .btn-globe-ctrl {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
+    .filter-btn {
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: var(--color-text);
+      gap: 6px;
+      padding: 4px 8px;
+      border: none;
+      background: transparent;
+      color: #5f6368;
+      font-size: 0.8rem;
       cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-      font-size: 0.95rem;
-      transition: all 0.25s ease;
-      background: #ffffff;
-      border: 1px solid var(--border);
+      border-radius: 4px;
+      transition: 0.2s;
+      width: 100%;
+      text-align: left;
+    }
+    .filter-btn:hover {
+      background: #f1f3f4;
+    }
+    .filter-btn.active {
+      background: #e8f0fe;
+      color: #1a73e8;
+      font-weight: 500;
+    }
+    .filter-btn .count {
+      margin-left: auto;
+      background: #e8eaed;
+      padding: 0 8px;
+      border-radius: 10px;
+      font-size: 0.65rem;
     }
 
-    .btn-globe-ctrl:hover {
-      transform: scale(1.05);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      border-color: var(--color-accent);
+    .range-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 0.8rem;
+      margin-top: 6px;
+    }
+    .range-row input {
+      width: 80px;
+      padding: 4px 6px;
+      border: 1px solid #d0d0d0;
+      border-radius: 4px;
+      text-align: center;
     }
 
-    .btn-globe-ctrl.active {
-      background: var(--color-accent);
-      color: #ffffff;
+    #count-visible {
+      color: #1a73e8;
+      font-weight: 700;
     }
 
-    /* TIMELINE */
+    /* ===== TIMELINE ===== */
     .timeline-section {
       position: absolute;
       bottom: 20px;
       left: 20px;
       right: 20px;
-      height: var(--timeline-height);
+      height: 180px;
+      background: rgba(255,255,255,0.92);
+      backdrop-filter: blur(8px);
+      border-radius: 12px;
+      padding: 10px 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      border: 1px solid rgba(0,0,0,0.08);
+      transition: 0.4s;
       z-index: 4;
-      border-radius: 16px;
-      padding: 12px 18px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
     }
-
     .timeline-section.collapsed {
-      transform: translateY(calc(var(--timeline-height) + 30px));
+      transform: translateY(220px);
       opacity: 0;
       pointer-events: none;
     }
-
     .timeline-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.85rem;
-      color: var(--color-accent);
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 6px;
+      font-size: 0.8rem;
+      color: #1a73e8;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 4px;
+      margin-bottom: 8px;
     }
-
     .timeline-wrapper {
       overflow-x: auto;
-      overflow-y: hidden;
-      height: 100%;
-      padding-bottom: 6px;
-      scrollbar-width: thin;
-      scrollbar-color: var(--color-accent) transparent;
-      cursor: grab;
+      height: calc(100% - 30px);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding-bottom: 4px;
     }
-
     .timeline-wrapper::-webkit-scrollbar {
       height: 4px;
     }
     .timeline-wrapper::-webkit-scrollbar-thumb {
-      background: var(--color-accent);
+      background: #1a73e8;
       border-radius: 4px;
     }
-
-    .timeline {
-      display: flex;
-      gap: 16px;
-      width: max-content;
-      height: 100%;
-      align-items: center;
-    }
-
     .event-card {
-      width: 220px;
-      height: 100px;
-      background: #ffffff;
-      border: 1px solid var(--border);
+      min-width: 180px;
+      height: 90px;
+      background: #fff;
       border-radius: 8px;
+      border-left: 4px solid var(--card-color, #1a73e8);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
       display: flex;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.3s ease;
-      border-left: 4px solid var(--card-accent, var(--color-accent));
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      transition: 0.2s;
+      flex-shrink: 0;
     }
-
     .event-card:hover {
       transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
     }
-
     .event-card.highlight {
-      border-color: var(--color-accent-light);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.2);
-      background: rgba(26, 115, 232, 0.05);
+      border-color: #1a73e8;
+      box-shadow: 0 0 0 3px rgba(26,115,232,0.25);
     }
-
     .event-cover {
-      width: 70px;
+      width: 60px;
       height: 100%;
       object-fit: cover;
       flex-shrink: 0;
-      border-right: 1px solid var(--border);
     }
-
-    .card-content {
-      padding: 8px 10px;
+    .event-info {
+      padding: 6px 10px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       flex: 1;
-      min-width: 0;
+      overflow: hidden;
     }
-
     .event-date {
       font-size: 0.6rem;
-      color: var(--color-accent);
+      color: #1a73e8;
       font-weight: 600;
     }
-
     .event-title {
       font-size: 0.75rem;
       font-weight: 600;
-      color: var(--color-text);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
     .event-desc {
       font-size: 0.6rem;
-      color: var(--color-muted);
+      color: #5f6368;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      line-height: 1.3;
     }
 
-    /* DETAIL PANEL */
+    /* ===== DETAIL PANEL ===== */
     #detail-panel {
       position: absolute;
       top: 0;
       right: 0;
       bottom: 0;
-      width: 440px;
-      z-index: 15;
+      width: 400px;
+      background: #fff;
+      border-left: 1px solid #e0e0e0;
       transform: translateX(100%);
-      transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+      z-index: 15;
       display: flex;
       flex-direction: column;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
-      border-left: 1px solid var(--border);
-      background: #ffffff;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.08);
     }
-
     #detail-panel.open {
       transform: translateX(0);
     }
-
-    .panel-cover-container {
-      position: relative;
-      height: 160px;
-      width: 100%;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: #e8eaed;
-    }
-
     .panel-cover {
+      height: 140px;
+      background: #e8eaed;
+      position: relative;
+      overflow: hidden;
+    }
+    .panel-cover img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
-
-    .panel-cover-overlay {
+    .panel-cover .overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to bottom, rgba(0,0,0,0.1), rgba(0,0,0,0.6));
+      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
     }
-
-    .panel-close-btn {
+    .panel-close {
       position: absolute;
-      top: 12px;
-      right: 12px;
-      width: 32px;
-      height: 32px;
+      top: 10px;
+      right: 10px;
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
       background: rgba(0,0,0,0.5);
-      border: none;
       color: #fff;
+      border: none;
+      cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      z-index: 2;
     }
-
-    .panel-close-btn:hover {
-      background: var(--color-accent);
-      transform: scale(1.05);
+    .panel-close:hover {
+      background: #1a73e8;
     }
-
     .panel-tabs {
       display: flex;
       background: #f8f9fa;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid #e0e0e0;
       flex-shrink: 0;
-      overflow-x: auto;
     }
-
-    .tab-btn {
+    .panel-tabs button {
       flex: 1;
-      padding: 10px 6px;
-      background: none;
+      padding: 8px 4px;
       border: none;
-      border-bottom: 2px solid transparent;
-      color: var(--color-muted);
+      background: transparent;
       font-size: 0.7rem;
-      cursor: pointer;
-      text-align: center;
       font-weight: 500;
+      color: #5f6368;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
       transition: 0.2s;
-      white-space: nowrap;
     }
-
-    .tab-btn:hover {
-      color: var(--color-accent);
+    .panel-tabs button.active {
+      color: #1a73e8;
+      border-bottom-color: #1a73e8;
     }
-
-    .tab-btn.active {
-      color: var(--color-accent);
-      border-bottom-color: var(--color-accent);
-    }
-
     .panel-body {
       flex: 1;
       overflow-y: auto;
-      padding: 16px 20px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 15px;
-      background: #ffffff;
+      gap: 12px;
     }
-
-    .tab-content {
+    .panel-body .tab-content {
       display: none;
-    }
-
-    .tab-content.active {
-      display: flex;
       flex-direction: column;
-      gap: 15px;
+      gap: 12px;
     }
-
-    .panel-meta-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 8px;
-      background: #f8f9fa;
-      border-radius: 8px;
-      padding: 12px;
-    }
-
-    .meta-item {
+    .panel-body .tab-content.active {
       display: flex;
-      flex-direction: column;
-      gap: 2px;
     }
-
-    .meta-label {
-      font-size: 0.6rem;
-      color: var(--color-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .meta-value {
-      font-size: 0.78rem;
-      font-weight: 500;
-      color: var(--color-text);
-    }
-
     .panel-title {
-      font-family: 'Playfair Display', serif;
       font-size: 1.2rem;
-      margin-top: 4px;
-      color: var(--color-text);
+      font-weight: 700;
     }
-
-    .panel-description {
-      font-size: 0.82rem;
-      line-height: 1.6;
-      color: var(--color-text);
+    .panel-sub {
+      color: #5f6368;
+      font-size: 0.85rem;
+    }
+    .panel-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px 12px;
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 6px;
+    }
+    .panel-meta .label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      color: #5f6368;
+    }
+    .panel-meta .value {
+      font-weight: 500;
+    }
+    .panel-desc {
+      font-size: 0.85rem;
+      line-height: 1.5;
       text-align: justify;
     }
 
-    .panel-category-badge {
-      display: inline-block;
-      border-radius: 12px;
-      font-size: 0.65rem;
-      padding: 2px 10px;
-      font-weight: 600;
-      background: #f8f9fa;
-      border: 1px solid var(--border);
-      color: var(--color-muted);
-    }
-
-    .form-control {
-      padding: 8px 12px;
-      border-radius: 6px;
-      border: 1px solid var(--border);
-      background: #ffffff;
-      color: var(--color-text);
-      font-size: 0.8rem;
-    }
-
-    .form-control:focus {
-      outline: none;
-      border-color: var(--color-accent);
-      box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-    }
-
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      backdrop-filter: blur(4px);
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal-content {
-      width: 90%;
-      max-width: 700px;
-      background: #ffffff;
-      border-radius: 16px;
-      padding: 24px;
-      position: relative;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-      max-height: 90vh;
-      overflow-y: auto;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 12px;
-    }
-
-    .modal-title {
-      font-family: 'Outfit', sans-serif;
-      font-weight: 700;
-      color: var(--color-accent);
-      font-size: 1.2rem;
-    }
-
-    .modal-close {
-      cursor: pointer;
-      font-size: 1.3rem;
-      color: var(--color-muted);
-      transition: color 0.2s;
-    }
-
-    .modal-close:hover {
-      color: var(--color-text);
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      margin-bottom: 10px;
-    }
-
-    .form-group label {
-      font-size: 0.7rem;
-      color: var(--color-muted);
-      text-transform: uppercase;
-      font-weight: 600;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .form-row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 12px;
-    }
-
-    .btn-submit {
-      padding: 12px;
-      background: var(--color-accent);
-      color: #ffffff;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      transition: all 0.2s ease;
-    }
-
-    .btn-submit:hover {
-      background: var(--color-accent-light);
-      box-shadow: 0 2px 12px rgba(26, 115, 232, 0.3);
-    }
-
-    #sidebar {
-      width: 280px;
-      z-index: 5;
-      padding: 20px;
-      overflow-y: auto;
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      background: #ffffff;
-      border-right: 1px solid var(--border);
-    }
-
-    #sidebar.collapsed {
-      width: 0;
-      padding: 0;
-      border-right: none;
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .sidebar-section-title {
-      font-family: 'Playfair Display', serif;
-      color: var(--color-accent);
-      font-size: 0.9rem;
-      border-bottom: 1px solid var(--border);
-      padding-bottom: 4px;
-      margin-bottom: 10px;
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .range-slider-container {
-      margin-top: 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .range-slider-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      color: var(--color-muted);
-    }
-
-    .year-inputs {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    .year-inputs input {
-      width: 100%;
-      background: #f8f9fa;
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 4px 8px;
-      color: var(--color-text);
-      font-size: 0.75rem;
-      text-align: center;
-    }
-
-    .filter-accordion {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .filter-accordion-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 6px 8px;
-      font-size: 0.8rem;
-      color: var(--color-text);
-      cursor: pointer;
-      background: #f8f9fa;
-      border-radius: 4px;
-      transition: 0.2s;
-    }
-
-    .filter-accordion-content {
-      padding: 5px 0 5px 10px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .filtro-btn {
-      display: flex;
-      align-items: center;
-      width: 100%;
-      padding: 6px 10px;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      background: transparent;
-      color: var(--color-muted);
-      font-size: 0.78rem;
-      cursor: pointer;
-      text-align: left;
-      transition: all 0.2s ease;
-    }
-
-    .filtro-btn:hover {
-      background: var(--color-surface-hover);
-      color: var(--color-text);
-    }
-
-    .filtro-btn.active {
-      background: rgba(26, 115, 232, 0.08);
-      color: var(--color-accent);
-      border-color: rgba(26, 115, 232, 0.2);
-      font-weight: 500;
-    }
-
-    .filtro-btn .count {
-      margin-left: auto;
-      background: #f8f9fa;
-      padding: 1px 6px;
-      border-radius: 10px;
-      font-size: 0.65rem;
-      color: var(--color-muted);
-    }
-
+    /* ===== LOADING ===== */
     #loading-overlay {
       position: fixed;
       inset: 0;
-      z-index: 9999;
-      background: #ffffff;
+      background: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      transition: opacity 0.8s ease;
+      z-index: 9999;
+      transition: 0.6s;
     }
-
     #loading-overlay.hide {
       opacity: 0;
       pointer-events: none;
     }
-
-    .loading-spinner {
-      position: relative;
-      width: 60px;
-      height: 60px;
-    }
-
-    .loading-spinner div {
-      box-sizing: border-box;
-      position: absolute;
-      width: 48px;
-      height: 48px;
-      margin: 6px;
-      border: 4px solid var(--color-accent);
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid #e0e0e0;
+      border-top-color: #1a73e8;
       border-radius: 50%;
-      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-      border-color: var(--color-accent) transparent transparent transparent;
+      animation: spin 0.8s linear infinite;
     }
-    .loading-spinner div:nth-child(1) { animation-delay: -0.45s; }
-    .loading-spinner div:nth-child(2) { animation-delay: -0.3s; }
-    .loading-spinner div:nth-child(3) { animation-delay: -0.15s; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    @keyframes lds-ring {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .maplibregl-popup-content {
-      background: #ffffff !important;
-      color: var(--color-text) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 8px !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
-    }
-
+    /* ===== MARKERS ===== */
     .marker-container {
       width: 30px;
       height: 30px;
       position: relative;
       cursor: pointer;
     }
-
     .marker-pin {
       width: 16px;
       height: 16px;
@@ -978,7 +494,6 @@
       transform: translate(-50%, -100%) rotate(-45deg);
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
-
     .marker-pin::after {
       content: '';
       width: 6px;
@@ -990,7 +505,6 @@
       left: 50%;
       transform: translate(-50%, -50%);
     }
-
     .marker-pulse {
       width: 30px;
       height: 30px;
@@ -1003,419 +517,156 @@
       transform: translate(-50%, -50%);
       animation: pulse 2s infinite;
     }
-
     @keyframes pulse {
       0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; }
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
-    #storytelling-hud {
-      position: absolute;
-      top: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 8px 16px;
-      border-radius: 30px;
-      z-index: 5;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      background: rgba(255, 255, 255, 0.92);
-      backdrop-filter: blur(12px);
-      border: 1px solid var(--border);
-      display: none;
-    }
-
-    .hud-title {
-      font-family: 'Playfair Display', serif;
-      font-size: 0.85rem;
-      color: var(--color-text);
-      max-width: 250px;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .btn-hud {
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      border: 1px solid var(--border);
-      background: #f8f9fa;
-      color: var(--color-text);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      transition: 0.2s;
-    }
-
-    .btn-hud:hover {
-      background: var(--color-accent);
-      color: #fff;
-      border-color: var(--color-accent);
-    }
-
-    #lightbox {
-      display: none;
+    /* ===== MODAL ===== */
+    .modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.9);
-      z-index: 9999;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    #lightbox-img {
-      max-width: 90%;
-      max-height: 85vh;
-      border-radius: 8px;
-    }
-
-    #pdfModal {
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 999;
       display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 9998;
       align-items: center;
       justify-content: center;
     }
-
-    #pdfModal > div {
-      background: #ffffff;
-      border: 1px solid var(--border);
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 800px;
-    }
-
-    #pdfFrame {
-      width: 100%;
-      height: 480px;
-      border: none;
-      border-radius: 6px;
-      margin-top: 12px;
+    .modal-overlay.open { display: flex; }
+    .modal-box {
       background: #fff;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 640px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
-
-    .panel-narrative-controls {
+    .modal-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 12px;
+      margin-bottom: 16px;
     }
-
-    .btn-narrative-audio {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 4px 12px;
-      font-size: 0.7rem;
-      color: var(--color-accent);
+    .modal-header h3 {
+      color: #1a73e8;
+    }
+    .modal-close {
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
+      font-size: 1.4rem;
+      color: #5f6368;
     }
+    .modal-close:hover { color: #202124; }
 
-    .btn-narrative-audio:hover {
-      background: var(--color-surface-hover);
-    }
-
-    .panel-section-title {
-      font-family: 'Playfair Display', serif;
-      color: var(--color-accent);
-      font-size: 0.9rem;
-      margin: 0;
-    }
-
-    .gallery-img-wrapper {
-      cursor: pointer;
-      border-radius: 4px;
-      overflow: hidden;
-      aspect-ratio: 1;
-      background: #f8f9fa;
-      border: 1px solid var(--border);
-    }
-
-    .gallery-img {
+    .form-group { margin-bottom: 12px; }
+    .form-group label { font-size: 0.7rem; text-transform: uppercase; color: #5f6368; font-weight: 600; display: block; margin-bottom: 2px; }
+    .form-control {
       width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.2s ease;
-    }
-
-    .gallery-img:hover {
-      transform: scale(1.05);
-    }
-
-    .doc-link {
-      display: flex;
-      align-items: center;
-      gap: 10px;
       padding: 8px 12px;
-      background: #f8f9fa;
+      border: 1px solid #d0d0d0;
       border-radius: 6px;
-      border: 1px solid var(--border);
-      color: var(--color-text);
-      text-decoration: none;
-      font-size: 0.75rem;
-      transition: all 0.2s ease;
+      font-size: 0.85rem;
     }
+    .form-control:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.1); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
 
-    .doc-link:hover {
-      background: var(--color-surface-hover);
-      border-color: var(--color-accent);
-      color: var(--color-accent);
-    }
-
-    .audio-player-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: #f8f9fa;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-    }
-
-    .audio-play-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--color-accent);
+    .btn-submit {
+      width: 100%;
+      padding: 12px;
+      background: #1a73e8;
       color: #fff;
       border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 0.8rem;
-      transition: all 0.2s ease;
-    }
-
-    .audio-play-btn:hover {
-      transform: scale(1.05);
-      box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
-    }
-
-    .replica-viewport, .panorama-viewport {
-      width: 100%;
-      height: 250px;
-      background: #f0f2f5;
       border-radius: 8px;
-      border: 1px solid var(--border);
-      position: relative;
-      overflow: hidden;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
     }
+    .btn-submit:hover { background: #1557b0; }
 
-    #three-canvas, #panorama-canvas {
-      width: 100% !important;
-      height: 100% !important;
-    }
-
-    .viewport-instructions {
-      position: absolute;
-      bottom: 8px;
-      left: 8px;
-      right: 8px;
-      background: rgba(0,0,0,0.6);
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 0.6rem;
-      text-align: center;
-      color: #ffffff;
-      pointer-events: none;
-    }
-
-    @media (max-width: 1024px) {
-      #detail-panel {
-        width: 100%;
-        max-width: 100vw;
-      }
-      #searchInput {
-        width: 140px;
-      }
-      #searchInput:focus {
-        width: 200px;
-      }
-      .radio-dropdown {
-        width: 280px;
-        right: -80px;
-      }
-    }
-
+    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
-      .header {
-        padding: 8px 12px;
-        flex-wrap: wrap;
-        height: auto;
-        gap: 8px;
-      }
-      .header-logo {
-        font-size: 1.1rem;
-      }
-      .btn-header {
-        padding: 6px 12px;
-        font-size: 0.7rem;
-      }
-      #searchInput {
-        width: 120px;
-        font-size: 0.75rem;
-      }
-      #searchInput:focus {
-        width: 160px;
-      }
-      .timeline-section {
-        height: 150px;
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
-        padding: 8px 12px;
-      }
-      .event-card {
-        width: 160px;
-        height: 80px;
-      }
-      .event-cover {
-        width: 50px;
-      }
-      .event-title {
-        font-size: 0.65rem;
-      }
-      .event-desc {
-        display: none;
-      }
-      .radio-dropdown {
-        width: 250px;
-        right: -120px;
-      }
-      .form-row-3 {
-        grid-template-columns: 1fr 1fr;
-      }
+      .header { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 6px; }
+      .header-logo { font-size: 1rem; }
+      #searchInput { width: 120px; }
+      #searchInput:focus { width: 160px; }
+      #sidebar { width: 220px; }
+      #detail-panel { width: 100%; }
+      .timeline-section { height: 150px; bottom: 10px; left: 10px; right: 10px; }
+      .event-card { min-width: 140px; height: 70px; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-row-3 { grid-template-columns: 1fr 1fr; }
     }
   </style>
 </head>
 <body>
 
+  <!-- LOADING -->
   <div id="loading-overlay">
-    <div class="loading-spinner">
-      <div></div><div></div><div></div><div></div>
-    </div>
-    <p style="margin-top:20px; font-family:'Playfair Display', serif; color:var(--color-accent); font-size:1rem; letter-spacing:1px;">CARREGANDO ATLAS INTERATIVO...</p>
+    <div class="spinner"></div>
+    <p style="margin-top:20px; font-weight:500; color:#1a73e8;">Carregando Atlas...</p>
   </div>
 
   <div id="app">
+    <!-- HEADER -->
     <header class="header">
       <a href="#" class="header-logo" id="logoReset">
-        <i class="fa-solid fa-compass"></i>
-        <span>Atlas Atlantes</span>
+        <i class="fa-solid fa-compass"></i> Atlas Atlantes
       </a>
-      
       <div class="header-controls">
-        <!-- RÁDIO -->
-        <div class="radio-player-container">
-          <button class="radio-player-btn" id="radioPlayerBtn">
-            <i class="fa-solid fa-radio"></i>
-            <span id="radioStatusText">Rádio</span>
-            <i class="fa-solid fa-chevron-down" style="font-size:0.6rem;"></i>
-          </button>
-          
-          <div class="radio-dropdown" id="radioDropdown">
-            <div class="radio-now-playing" id="radioNowPlaying">
-              <i class="fa-solid fa-music"></i> <span>Nenhuma estação selecionada</span>
-            </div>
-            
-            <div class="radio-section-title"><i class="fa-solid fa-microphone"></i> Rádios Históricas</div>
-            <div id="radioStationsList"></div>
-            
-            <div class="radio-section-title"><i class="fa-solid fa-headphones"></i> Playlists Temáticas</div>
-            <div id="radioPlaylistsList"></div>
-            
-            <div class="radio-player-controls">
-              <button class="btn-header" id="radioVolumeDown"><i class="fa-solid fa-volume-low"></i></button>
-              <input type="range" class="radio-volume-slider" id="radioVolumeSlider" min="0" max="1" step="0.05" value="0.3" />
-              <button class="btn-header" id="radioVolumeUp"><i class="fa-solid fa-volume-high"></i></button>
-              <button class="btn-header" id="radioStopBtn"><i class="fa-solid fa-stop"></i></button>
-            </div>
-          </div>
-        </div>
-
-        <!-- BUSCA -->
         <div class="search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
+          <input type="text" id="searchInput" placeholder="Buscar..." />
         </div>
-
-        <!-- FILTROS -->
-        <button class="btn-header" id="btnToggleFilters">
-          <i class="fa-solid fa-filter"></i> Filtros
-        </button>
-
-        <!-- LINHA DO TEMPO -->
-        <button class="btn-header" id="btnToggleTimeline">
-          <i class="fa-solid fa-timeline"></i> Linha do Tempo
-        </button>
-
-        <!-- NOVA ROTA -->
-        <button class="btn-header success" id="btnAddRoute">
-          <i class="fa-solid fa-route"></i> Nova Rota
-        </button>
+        <button class="btn" id="btnToggleFilters"><i class="fa-solid fa-filter"></i> Filtros</button>
+        <button class="btn" id="btnToggleTimeline"><i class="fa-solid fa-timeline"></i> Linha do Tempo</button>
+        <button class="btn btn-success" id="btnAddRoute"><i class="fa-solid fa-route"></i> Nova Rota</button>
       </div>
     </header>
 
+    <!-- MAIN -->
     <div class="main-area">
       <!-- SIDEBAR -->
-      <aside id="sidebar" class="collapsed">
-        <div class="sidebar-section-title">
-          <span>Período Histórico</span>
-          <i class="fa-solid fa-calendar-days"></i>
+      <aside id="sidebar">
+        <div class="sidebar-title">
+          <span>Período</span>
+          <i class="fa-regular fa-calendar"></i>
         </div>
-        <div class="range-slider-container">
-          <div class="range-slider-labels">
-            <span>Início: <strong id="lbl-start-year">-2000</strong></span>
-            <span>Fim: <strong id="lbl-end-year">2026</strong></span>
-          </div>
-          <div class="year-inputs">
-            <input type="number" id="inputStartYear" value="-2000" min="-2000" max="2026" />
-            <span>a</span>
-            <input type="number" id="inputEndYear" value="2026" min="-2000" max="2026" />
-          </div>
+        <div class="range-row">
+          <input type="number" id="inputStartYear" value="-2000" />
+          <span>até</span>
+          <input type="number" id="inputEndYear" value="2026" />
         </div>
 
-        <div class="sidebar-section-title">
+        <div class="sidebar-title" style="margin-top:16px;">
           <span>Filtros</span>
-          <i class="fa-solid fa-filter-list"></i>
+          <i class="fa-solid fa-sliders"></i>
         </div>
 
-        <div class="filter-accordion">
-          <div class="filter-accordion-header" data-target="categoria-content">
-            <span>Categoria</span> <i class="fa-solid fa-chevron-down"></i>
-          </div>
-          <div class="filter-accordion-content" id="categoria-filtros"></div>
-
-          <div class="filter-accordion-header" data-target="tema-content">
-            <span>Tema</span> <i class="fa-solid fa-chevron-down"></i>
-          </div>
-          <div class="filter-accordion-content" id="tema-filtros"></div>
-
-          <div class="filter-accordion-header" data-target="povo-content">
-            <span>Cultura</span> <i class="fa-solid fa-chevron-down"></i>
-          </div>
-          <div class="filter-accordion-content" id="povo-filtros"></div>
+        <div class="filter-group">
+          <div class="filter-header" data-target="cat">Categoria <i class="fa-solid fa-chevron-down"></i></div>
+          <div class="filter-content" id="categoria-filtros"></div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-header" data-target="tema">Tema <i class="fa-solid fa-chevron-down"></i></div>
+          <div class="filter-content" id="tema-filtros"></div>
+        </div>
+        <div class="filter-group">
+          <div class="filter-header" data-target="povo">Cultura <i class="fa-solid fa-chevron-down"></i></div>
+          <div class="filter-content" id="povo-filtros"></div>
         </div>
 
-        <button id="reset-filtros" class="btn-header" style="width:100%; justify-content:center; margin-top:10px;">
-          <i class="fa-solid fa-filter-circle-xmark"></i> Limpar Filtros
+        <button class="btn" style="width:100%; justify-content:center; margin-top:12px;" id="reset-filtros">
+          <i class="fa-solid fa-rotate-left"></i> Limpar Filtros
         </button>
-        
-        <div style="margin-top:auto; font-size:0.75rem; color:var(--color-muted); display:flex; justify-content:space-between; border-top:1px solid var(--border); padding-top:10px;">
+
+        <div style="margin-top:20px; border-top:1px solid #e0e0e0; padding-top:12px; font-size:0.8rem; color:#5f6368; display:flex; justify-content:space-between;">
           <span>Registros:</span>
-          <strong id="count-visible" style="color:var(--color-accent)">0</strong>
+          <strong id="count-visible">0</strong>
         </div>
       </aside>
 
@@ -1423,153 +674,74 @@
       <div id="map-container">
         <div id="map"></div>
 
-        <div class="globe-controls">
-          <div class="btn-globe-ctrl" id="btnToggleGlobe" title="Alternar Globo 3D">
-            <i class="fa-solid fa-earth-americas"></i>
-          </div>
-        </div>
-
-        <div id="storytelling-hud">
-          <button class="btn-hud" id="btnStoryPrev"><i class="fa-solid fa-chevron-left"></i></button>
-          <div class="hud-title" id="storyTitle">Storytelling</div>
-          <div class="hud-controls">
-            <button class="btn-hud" id="btnStoryPlay"><i class="fa-solid fa-play"></i></button>
-            <button class="btn-hud" id="btnStoryNext"><i class="fa-solid fa-chevron-right"></i></button>
-            <button class="btn-hud" id="btnStoryClose" style="background:#e74c3c; color:#fff;"><i class="fa-solid fa-xmark"></i></button>
-          </div>
-        </div>
-
         <!-- TIMELINE -->
         <div class="timeline-section" id="timelineSection">
           <div class="timeline-header">
-            <div class="timeline-title">
-              <i class="fa-solid fa-scroll" style="color:var(--color-accent)"></i>
-              <span>Linha do Tempo</span>
-            </div>
-            
-            <div class="timeline-controls-player">
-              <select id="selectStoryline" class="form-control" style="padding:2px 8px; font-size:0.7rem; width:140px; background:#f8f9fa;">
-                <option value="none">-- Storytelling --</option>
-                <option value="navegacoes">Grandes Navegações</option>
-                <option value="imperio_romano">Império Romano</option>
-              </select>
-              <button class="btn-header" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 10px; border-radius:10px;">
-                Ocultar
-              </button>
-            </div>
+            <span><i class="fa-regular fa-clock"></i> Linha do Tempo</span>
+            <button class="btn" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 10px;">Ocultar</button>
           </div>
           <div class="timeline-wrapper" id="timelineWrapper">
-            <div class="timeline" id="timelineContainer"></div>
+            <div id="timelineContainer" style="display:flex; gap:12px; height:100%; align-items:center;"></div>
           </div>
         </div>
       </div>
 
       <!-- DETAIL PANEL -->
       <aside id="detail-panel">
-        <div class="panel-cover-container">
-          <img class="panel-cover" id="detailCover" src="" alt="Capa" />
-          <div class="panel-cover-overlay"></div>
-          <button class="panel-close-btn" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
+        <div class="panel-cover">
+          <img id="detailCover" src="" alt="capa" />
+          <div class="overlay"></div>
+          <button class="panel-close" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
         </div>
-
         <div class="panel-tabs">
-          <button class="tab-btn active" data-tab="tab-narrativa">Narrativa</button>
-          <button class="tab-btn" data-tab="tab-multimidia">Mídia</button>
-          <button class="tab-btn" data-tab="tab-documentos">Documentos</button>
-          <button class="tab-btn" data-tab="tab-objeto3d">3D</button>
-          <button class="tab-btn" data-tab="tab-panorama">360°</button>
+          <button class="active" data-tab="tab-narrativa">Narrativa</button>
+          <button data-tab="tab-multimidia">Mídia</button>
+          <button data-tab="tab-documentos">Documentos</button>
         </div>
-
         <div class="panel-body">
-          <div id="detailViewMode">
-            <div class="tab-content active" id="tab-narrativa">
-              <div>
-                <span class="panel-category-badge" id="detailCategoryBadge">Categoria</span>
-                <h2 class="panel-title" id="detailTitle">Título</h2>
-                <h4 id="detailSubtitle" style="font-size:0.8rem; font-weight:400; color:var(--color-muted);">Subtítulo</h4>
-              </div>
-
-              <div class="panel-meta-grid">
-                <div class="meta-item">
-                  <span class="meta-label">Ano</span>
-                  <span class="meta-value" id="detailMetaDate">-</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Local</span>
-                  <span class="meta-value" id="detailMetaLocation">-</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Coordenadas</span>
-                  <span class="meta-value" id="detailMetaCoords">-</span>
-                </div>
-                <div class="meta-item">
-                  <span class="meta-label">Cultura</span>
-                  <span class="meta-value" id="detailMetaPovo">-</span>
-                </div>
-              </div>
-
-              <div>
-                <div class="panel-narrative-controls">
-                  <h4 class="panel-section-title"><i class="fa-solid fa-book-open"></i> Crônica</h4>
-                  <button class="btn-narrative-audio" id="btnAudioTTS"><i class="fa-solid fa-volume-high"></i> Ouvir</button>
-                </div>
-                <p class="panel-description" id="detailDescription">Descrição do registro histórico.</p>
-              </div>
+          <div class="tab-content active" id="tab-narrativa">
+            <span class="panel-category-badge" id="detailCategoryBadge" style="background:#e8eaed; padding:2px 10px; border-radius:12px; font-size:0.7rem;">Categoria</span>
+            <h2 class="panel-title" id="detailTitle">Título</h2>
+            <div class="panel-sub" id="detailSubtitle">Subtítulo</div>
+            <div class="panel-meta">
+              <div><div class="label">Ano</div><div class="value" id="detailMetaDate">-</div></div>
+              <div><div class="label">Local</div><div class="value" id="detailMetaLocation">-</div></div>
+              <div><div class="label">Coordenadas</div><div class="value" id="detailMetaCoords">-</div></div>
+              <div><div class="label">Cultura</div><div class="value" id="detailMetaPovo">-</div></div>
             </div>
-
-            <div class="tab-content" id="tab-multimidia">
-              <h4 class="panel-section-title"><i class="fa-solid fa-images"></i> Galeria</h4>
-              <div class="panel-gallery" id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;"></div>
-              <h4 class="panel-section-title" style="margin-top:10px;"><i class="fa-solid fa-video"></i> Áudio</h4>
-              <div id="detailVideos"></div>
-            </div>
-
-            <div class="tab-content" id="tab-documentos">
-              <h4 class="panel-section-title"><i class="fa-solid fa-file-invoice"></i> Documentos</h4>
-              <div class="panel-documents" id="detailDocuments"></div>
-            </div>
-
-            <div class="tab-content" id="tab-objeto3d">
-              <h4 class="panel-section-title"><i class="fa-solid fa-cube"></i> Artefato 3D</h4>
-              <div class="replica-viewport" id="threeReplicaViewport">
-                <canvas id="three-canvas"></canvas>
-                <div class="viewport-instructions">Arraste para rotacionar</div>
-              </div>
-            </div>
-
-            <div class="tab-content" id="tab-panorama">
-              <h4 class="panel-section-title"><i class="fa-solid fa-vr-cardboard"></i> Visita 360°</h4>
-              <div class="panorama-viewport" id="panoramaViewport">
-                <canvas id="panorama-canvas"></canvas>
-                <div class="viewport-instructions">Arraste para olhar ao redor</div>
-              </div>
-            </div>
+            <p class="panel-desc" id="detailDescription">Descrição</p>
+          </div>
+          <div class="tab-content" id="tab-multimidia">
+            <h4>Galeria</h4>
+            <div id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div>
+          </div>
+          <div class="tab-content" id="tab-documentos">
+            <h4>Documentos</h4>
+            <div id="detailDocuments"></div>
           </div>
         </div>
       </aside>
     </div>
   </div>
 
-  <!-- MODAL: ADICIONAR ROTA -->
+  <!-- MODAL NOVA ROTA -->
   <div class="modal-overlay" id="modalAddRoute">
-    <div class="modal-content">
+    <div class="modal-box">
       <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-route" style="color:var(--color-accent)"></i> Adicionar Nova Rota</h3>
+        <h3><i class="fa-solid fa-route" style="color:#1a73e8;"></i> Nova Rota</h3>
         <span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span>
       </div>
-
       <form id="addRouteForm">
         <div class="form-row">
           <div class="form-group">
-            <label>Nome da Rota *</label>
-            <input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Atlântico Sul" required />
+            <label>Nome *</label>
+            <input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required />
           </div>
           <div class="form-group">
             <label>Subtítulo</label>
             <input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" />
           </div>
         </div>
-
         <div class="form-row-3">
           <div class="form-group">
             <label>Ano *</label>
@@ -1582,15 +754,10 @@
           <div class="form-group">
             <label>Tema</label>
             <select id="routeCategory" class="form-control">
-              <option value="Comércio">Comércio</option>
-              <option value="Cultura">Cultura</option>
-              <option value="Política">Política</option>
-              <option value="Religião">Religião</option>
-              <option value="Conflitos">Conflitos</option>
+              <option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option>
             </select>
           </div>
         </div>
-
         <div class="form-row">
           <div class="form-group">
             <label>Países</label>
@@ -1598,131 +765,66 @@
           </div>
           <div class="form-group">
             <label>Continentes</label>
-            <input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América do Sul" />
+            <input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" />
           </div>
         </div>
-
         <div class="form-group">
-          <label>Pontos da Rota *</label>
-          <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <input type="number" step="any" id="routePointLat" class="form-control" placeholder="Latitude" style="flex:1; min-width:80px;" />
-            <input type="number" step="any" id="routePointLon" class="form-control" placeholder="Longitude" style="flex:1; min-width:80px;" />
-            <button type="button" class="btn-header" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar</button>
+          <label>Pontos da Rota (clique no mapa)</label>
+          <div style="display:flex; gap:6px; flex-wrap:wrap;">
+            <input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:70px;" />
+            <input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:70px;" />
+            <button type="button" class="btn" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar</button>
           </div>
-          <div style="font-size:0.65rem; color:var(--color-muted); margin-top:4px;">💡 Clique no mapa para preencher as coordenadas</div>
+          <div style="font-size:0.7rem; color:#5f6368; margin-top:4px;">💡 Clique no mapa para preencher as coordenadas</div>
         </div>
-
-        <div id="routePointsList" style="display:flex; flex-direction:column; gap:4px; max-height:150px; overflow-y:auto; padding:4px; background:#f8f9fa; border-radius:4px; border:1px solid var(--border);">
-          <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">Nenhum ponto adicionado</div>
+        <div id="routePointsList" style="max-height:100px; overflow-y:auto; background:#f8f9fa; border-radius:6px; padding:4px; border:1px solid #e0e0e0; margin-bottom:10px;">
+          <div style="text-align:center; color:#777; font-size:0.8rem; padding:6px;">Nenhum ponto</div>
         </div>
-
         <div class="form-group">
           <label>Descrição *</label>
-          <textarea id="routeDescription" class="form-control" placeholder="Descreva a história da rota..." rows="3" required></textarea>
+          <textarea id="routeDescription" class="form-control" rows="3" placeholder="Descreva a rota..." required></textarea>
         </div>
-
         <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota</button>
       </form>
     </div>
   </div>
 
-  <!-- LIGHTBOX -->
-  <div id="lightbox">
-    <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
-    <img id="lightbox-img" src="" alt="Ampliada" />
-  </div>
-
-  <!-- PDF MODAL -->
-  <div id="pdfModal">
-    <div>
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
-        <h3 id="pdfTitle" style="color:var(--color-accent); margin:0; font-size:1rem; font-family:'Playfair Display', serif;">Documento</h3>
-        <span id="pdfClose" style="cursor:pointer; font-size:1.3rem; color:var(--color-muted);"><i class="fa-solid fa-xmark"></i></span>
-      </div>
-      <iframe id="pdfFrame" src=""></iframe>
-    </div>
-  </div>
-
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-
   <script>
     // =========================================================
-    // DADOS
+    // DADOS INICIAIS (com rotas e pontos)
     // =========================================================
-    const CORES_CATEGORIA = {
-      mapa: '#1a73e8',
-      porto: '#0d9488',
-      expedicao: '#7c3aed',
-      documento: '#6b7280',
-      naufragio: '#dc2626',
-      rota: '#d4af37'
-    };
-
-    const NOMES_CATEGORIA = {
-      mapa: 'Mapa Histórico',
-      porto: 'Porto',
-      expedicao: 'Expedição',
-      documento: 'Documento',
-      naufragio: 'Naufrágio',
-      rota: 'Rota Comercial'
-    };
-
     const DADOS_INICIAIS = [
       {
         nome: "Carta de Piri Reis (1513)",
         subtitulo: "Mapa-múndi Otomano",
-        lat: 41.0082,
-        lon: 28.9784,
-        pais: "Turquia",
-        continente: "Europa/Ásia",
-        categoria: "mapa",
-        tema: "Cultura",
-        povo: "Otomanos",
+        lat: 41.0082, lon: 28.9784,
+        pais: "Turquia", continente: "Europa/Ásia",
+        categoria: "mapa", tema: "Cultura", povo: "Otomanos",
         fundacao: 1513,
-        descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Piri Reis",
-        institution: "Museu de Topkapi"
+        descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg"
       },
       {
         nome: "Mapa de Cantino (1502)",
         subtitulo: "Planisfério português",
-        lat: 38.7071,
-        lon: -9.1355,
-        pais: "Portugal",
-        continente: "Europa",
-        categoria: "mapa",
-        tema: "Cultura",
-        povo: "Portugueses",
+        lat: 38.7071, lon: -9.1355,
+        pais: "Portugal", continente: "Europa",
+        categoria: "mapa", tema: "Cultura", povo: "Portugueses",
         fundacao: 1502,
         descricao: "O mais antigo mapa a retratar a costa do Brasil.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Desconhecido",
-        institution: "Biblioteca Estense"
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg"
       },
       {
         nome: "Santos (Brasil)",
-        subtitulo: "O maior complexo portuário da América Latina",
-        lat: -23.9608,
-        lon: -46.3350,
-        pais: "Brasil",
-        continente: "América do Sul",
-        categoria: "porto",
-        tema: "Economia",
-        povo: "Brasileiros",
+        subtitulo: "Maior porto da América Latina",
+        lat: -23.9608, lon: -46.3350,
+        pais: "Brasil", continente: "América do Sul",
+        categoria: "porto", tema: "Economia", povo: "Brasileiros",
         fundacao: 1892,
         descricao: "O Porto de Santos é o maior complexo portuário da América Latina.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Companhia Docas",
-        institution: "Porto de Santos"
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg"
       },
+      // ROTAS
       {
         nome: "Rota do Atlântico Sul",
         subtitulo: "Lisboa ↔ Santos",
@@ -1739,12 +841,7 @@
         continente: "Europa/América do Sul",
         categoria: "rota",
         tema: "Comércio",
-        povo: "Portugueses e Brasileiros",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Companhia de Navegação",
-        institution: "Porto de Santos"
+        povo: "Portugueses"
       },
       {
         nome: "Rota do Pacífico",
@@ -1755,53 +852,26 @@
           { lat: -23.9608, lon: -46.3350 }
         ],
         cor: "#2ecc71",
-        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.",
+        descricao: "Conexão entre os oceanos Pacífico e Atlântico.",
         fundacao: 1914,
         pais: "Panamá/Brasil",
         continente: "América Central/América do Sul",
         categoria: "rota",
         tema: "Comércio",
-        povo: "Panamenhos e Brasileiros",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Canal do Panamá",
-        institution: "Administração do Canal do Panamá"
+        povo: "Panamenhos"
       }
     ];
 
-    // =========================================================
-    // RADIO STATIONS
-    // =========================================================
-    const RADIO_STATIONS = [
-      {
-        id: 'classic-fm',
-        name: 'Classic FM',
-        desc: 'Música Clássica e Erudita',
-        url: 'https://icecast.omroep.nl/radio4-bb-mp3',
-        icon: 'fa-solid fa-music',
-        badge: 'Clássica'
-      },
-      {
-        id: 'radio-batuta',
-        name: 'Rádio Batuta',
-        desc: 'Música Brasileira Histórica',
-        url: 'https://radio.radio-batuta.com.br/radio-batuta.mp3',
-        icon: 'fa-solid fa-guitar',
-        badge: 'Brasil'
-      }
-    ];
-
-    const RADIO_PLAYLISTS = [
-      {
-        id: 'medieval',
-        name: 'Música Medieval',
-        desc: 'Cantos Gregorianos',
-        tracks: ['https://upload.wikimedia.org/wikipedia/commons/d/df/Canto_Gregoriano_-_Kyrie.ogg'],
-        icon: 'fa-solid fa-church',
-        badge: 'Medieval'
-      }
-    ];
+    const CORES_CATEGORIA = {
+      mapa: '#1a73e8',
+      porto: '#0d9488',
+      rota: '#d4af37'
+    };
+    const NOMES_CATEGORIA = {
+      mapa: 'Mapa',
+      porto: 'Porto',
+      rota: 'Rota Comercial'
+    };
 
     // =========================================================
     // APLICAÇÃO PRINCIPAL
@@ -1810,68 +880,48 @@
       constructor() {
         this.data = [];
         this.map = null;
-        this.markerInstances = [];   // Marcadores fixos
-        this.markerData = [];        // Dados dos marcadores atuais
+        this.markers = [];        // instâncias atuais
+        this.markerData = [];     // referência dos dados
         this.routeLayers = [];
-        this.routePointMarkers = []; // Marcadores dos pontos das rotas
+        this.routePointMarkers = [];
         this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
         this.searchQuery = '';
-        this.selectedItemName = null;
         this.startYear = -2000;
         this.endYear = 2026;
         this.sidebarVisible = false;
         this.timelineVisible = true;
-        this.isGlobeMode = false;
+        this.selectedItem = null;
         this.routePoints = [];
-        this.currentAudio = null;
-        this.isRadioPlaying = false;
-        this.radioVolume = 0.3;
-        this.isPlaylistMode = false;
-        this.playlistTracks = [];
-        this.currentPlaylistIndex = 0;
-        this.ttsSpeaking = false;
-        this.currentStory = null;
-        this.storyStepIndex = 0;
-        this.storyPlaying = false;
-        this.storyInterval = null;
-        this._pendingDraw = false;
-        this._lastMarkerIds = '';
       }
 
       async start() {
-        this.initDOMRefs();
+        this.initDOM();
         await this.carregarDados();
         this.inicializarMapa();
-        this.inicializarComponentes();
-        this.inicializarRadio();
+        this.inicializarFiltros();
         this.bindEventos();
         this.aplicarFiltros();
         setTimeout(() => {
-          if (this.dom.loading) this.dom.loading.classList.add('hide');
-        }, 600);
+          document.getElementById('loading-overlay').classList.add('hide');
+        }, 800);
       }
 
-      initDOMRefs() {
-        this.$ = (id) => document.getElementById(id);
+      initDOM() {
+        this.$ = id => document.getElementById(id);
         this.dom = {
-          loading: this.$('loading-overlay'),
           map: this.$('map'),
           sidebar: this.$('sidebar'),
-          categoriaFiltros: this.$('categoria-filtros'),
-          temaFiltros: this.$('tema-filtros'),
-          povoFiltros: this.$('povo-filtros'),
-          btnToggleFilters: this.$('btnToggleFilters'),
-          btnToggleTimeline: this.$('btnToggleTimeline'),
-          btnResetFilters: this.$('reset-filtros'),
-          countVisible: this.$('count-visible'),
-          searchInput: this.$('searchInput'),
-          logoReset: this.$('logoReset'),
+          categoria: this.$('categoria-filtros'),
+          tema: this.$('tema-filtros'),
+          povo: this.$('povo-filtros'),
+          search: this.$('searchInput'),
+          count: this.$('count-visible'),
+          timeline: this.$('timelineContainer'),
           timelineSection: this.$('timelineSection'),
-          timelineContainer: this.$('timelineContainer'),
-          timelineCloseBtn: this.$('timelineCloseBtn'),
+          timelineClose: this.$('timelineCloseBtn'),
           detailPanel: this.$('detail-panel'),
           detailCover: this.$('detailCover'),
-          detailCategoryBadge: this.$('detailCategoryBadge'),
+          detailCategory: this.$('detailCategoryBadge'),
           detailTitle: this.$('detailTitle'),
           detailSubtitle: this.$('detailSubtitle'),
           detailMetaDate: this.$('detailMetaDate'),
@@ -1880,73 +930,58 @@
           detailMetaPovo: this.$('detailMetaPovo'),
           detailDescription: this.$('detailDescription'),
           detailGallery: this.$('detailGallery'),
-          detailVideos: this.$('detailVideos'),
           detailDocuments: this.$('detailDocuments'),
           btnCloseDetail: this.$('btnCloseDetail'),
-          btnAudioTTS: this.$('btnAudioTTS'),
-          btnToggleGlobe: this.$('btnToggleGlobe'),
-          selectStoryline: this.$('selectStoryline'),
-          storytellingHud: this.$('storytelling-hud'),
-          storyTitle: this.$('storyTitle'),
-          btnStoryPrev: this.$('btnStoryPrev'),
-          btnStoryPlay: this.$('btnStoryPlay'),
-          btnStoryNext: this.$('btnStoryNext'),
-          btnStoryClose: this.$('btnStoryClose'),
-          lightbox: this.$('lightbox'),
-          lightboxImg: this.$('lightbox-img'),
-          btnLightboxClose: this.$('btnLightboxClose'),
-          pdfModal: this.$('pdfModal'),
-          pdfFrame: this.$('pdfFrame'),
-          pdfTitle: this.$('pdfTitle'),
-          pdfClose: this.$('pdfClose'),
-          inputStartYear: this.$('inputStartYear'),
-          inputEndYear: this.$('inputEndYear'),
-          lblStartYear: this.$('lbl-start-year'),
-          lblEndYear: this.$('lbl-end-year'),
-          radioPlayerBtn: this.$('radioPlayerBtn'),
-          radioDropdown: this.$('radioDropdown'),
-          radioStationsList: this.$('radioStationsList'),
-          radioPlaylistsList: this.$('radioPlaylistsList'),
-          radioNowPlaying: this.$('radioNowPlaying'),
-          radioStatusText: this.$('radioStatusText'),
-          radioVolumeSlider: this.$('radioVolumeSlider'),
-          radioVolumeDown: this.$('radioVolumeDown'),
-          radioVolumeUp: this.$('radioVolumeUp'),
-          radioStopBtn: this.$('radioStopBtn'),
+          btnToggleFilters: this.$('btnToggleFilters'),
+          btnToggleTimeline: this.$('btnToggleTimeline'),
+          btnResetFilters: this.$('reset-filtros'),
+          inputStart: this.$('inputStartYear'),
+          inputEnd: this.$('inputEndYear'),
+          logoReset: this.$('logoReset'),
           modalAddRoute: this.$('modalAddRoute'),
           btnCloseAddRoute: this.$('btnCloseAddRoute'),
-          addRouteForm: this.$('addRouteForm'),
           btnAddRoute: this.$('btnAddRoute'),
+          addRouteForm: this.$('addRouteForm'),
+          routeName: this.$('routeName'),
+          routeSubtitle: this.$('routeSubtitle'),
+          routeYear: this.$('routeYear'),
+          routeColor: this.$('routeColor'),
+          routeCategory: this.$('routeCategory'),
+          routeCountries: this.$('routeCountries'),
+          routeContinents: this.$('routeContinents'),
+          routePointLat: this.$('routePointLat'),
+          routePointLon: this.$('routePointLon'),
           btnAddRoutePoint: this.$('btnAddRoutePoint'),
-          routePointsList: this.$('routePointsList')
+          routePointsList: this.$('routePointsList'),
+          routeDescription: this.$('routeDescription')
         };
       }
 
       async carregarDados() {
-        const stored = localStorage.getItem('atlas_data_completo');
+        const stored = localStorage.getItem('atlas_data');
         if (stored) {
           this.data = JSON.parse(stored);
-          console.log('✅ Dados carregados do localStorage:', this.data.length, 'registros');
+          console.log('✅ Carregado do localStorage:', this.data.length);
           return;
         }
-
         this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
-        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
-        console.log('✅ Dados iniciais carregados:', this.data.length, 'registros');
+        localStorage.setItem('atlas_data', JSON.stringify(this.data));
+        console.log('✅ Dados iniciais:', this.data.length);
       }
 
       salvarDados() {
-        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
+        localStorage.setItem('atlas_data', JSON.stringify(this.data));
       }
 
       // =========================================================
       // MAPA
       // =========================================================
       inicializarMapa() {
-        const estiloRaster = {
+        // Estilo claro e confiável (OSM raster)
+        const style = {
           version: 8,
           sources: {
-            'raster-tiles': {
+            'osm': {
               type: 'raster',
               tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
               tileSize: 256,
@@ -1954,9 +989,9 @@
             }
           },
           layers: [{
-            id: 'raster-layer',
+            id: 'osm-layer',
             type: 'raster',
-            source: 'raster-tiles',
+            source: 'osm',
             minzoom: 0,
             maxzoom: 19
           }]
@@ -1964,90 +999,35 @@
 
         this.map = new maplibregl.Map({
           container: 'map',
-          style: estiloRaster,
+          style: style,
           center: [-10, 10],
           zoom: 2.0,
-          pitch: 0,
-          bearing: 0
+          pitch: 0
         });
 
+        // Força redimensionamento após carregar
         this.map.on('load', () => {
-          console.log('✅ Mapa carregado com sucesso!');
+          console.log('✅ Mapa carregado');
+          this.map.resize();
           this.desenharRotas();
         });
 
+        // Fallback: se não carregar em 4s, tenta redesenhar
+        setTimeout(() => {
+          if (this.map && !this.map.loaded()) {
+            console.warn('⏳ Mapa demorou, forçando redesenho...');
+            this.desenharRotas();
+          }
+        }, 4000);
+
+        // Clique no mapa para adicionar ponto da rota
         this.map.on('click', (e) => {
           if (this.dom.modalAddRoute.classList.contains('open')) {
             const { lng, lat } = e.lngLat;
-            this.$('routePointLat').value = lat.toFixed(6);
-            this.$('routePointLon').value = lng.toFixed(6);
+            this.dom.routePointLat.value = lat.toFixed(6);
+            this.dom.routePointLon.value = lng.toFixed(6);
           }
         });
-
-        // Força o redimensionamento
-        setTimeout(() => {
-          if (this.map) this.map.resize();
-        }, 500);
-      }
-
-      // =========================================================
-      // MARCADORES FIXOS - OTIMIZADO
-      // =========================================================
-      renderizarMarcadores(itens) {
-        // Gera uma string com os IDs dos itens para comparar
-        const newIds = itens.map(i => i.nome).sort().join('|');
-        
-        // Se os dados são os mesmos e já temos marcadores, não recria
-        if (newIds === this._lastMarkerIds && this.markerInstances.length > 0) {
-          console.log('ℹ️ Marcadores já estão atualizados, mantendo fixos.');
-          return;
-        }
-
-        // Remove marcadores antigos
-        this.markerInstances.forEach(m => m.remove());
-        this.markerInstances = [];
-        this.markerData = itens.slice();
-        this._lastMarkerIds = newIds;
-
-        // Adiciona novos marcadores
-        itens.forEach(item => {
-          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
-          
-          const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-          
-          const el = document.createElement('div');
-          el.className = 'marker-container';
-          el.style.setProperty('--marker-color', cor);
-
-          const pulse = document.createElement('div');
-          pulse.className = 'marker-pulse';
-          const pin = document.createElement('div');
-          pin.className = 'marker-pin';
-
-          el.appendChild(pulse);
-          el.appendChild(pin);
-
-          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
-            .setHTML(`
-              <div style="font-family:'Inter',sans-serif; padding:4px;">
-                <strong style="color:#1a73e8; font-size:0.9rem;">${item.nome}</strong>
-                <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
-                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
-                        style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
-                  <i class="fa-solid fa-circle-info"></i> Detalhes
-                </button>
-              </div>
-            `);
-
-          const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([item.lon, item.lat])
-            .setPopup(popup)
-            .addTo(this.map);
-
-          this.markerInstances.push(marker);
-        });
-
-        console.log(`✅ ${this.markerInstances.length} marcadores fixos`);
       }
 
       // =========================================================
@@ -2055,52 +1035,48 @@
       // =========================================================
       desenharRotas() {
         if (!this.map || !this.map.loaded()) {
-          if (!this._pendingDraw) {
-            this._pendingDraw = true;
+          console.warn('⏳ Aguardando mapa para desenhar rotas...');
+          if (!this._pending) {
+            this._pending = true;
             this.map.once('load', () => {
-              this._pendingDraw = false;
+              this._pending = false;
               this.desenharRotas();
             });
           }
           return;
         }
 
-        // Remove layers antigas
-        if (this.routeLayers) {
-          this.routeLayers.forEach(layer => {
+        // Remove layers antigos
+        if (this.routeLayers.length) {
+          this.routeLayers.forEach(id => {
             try {
-              if (this.map.getLayer(layer)) this.map.removeLayer(layer);
-              if (this.map.getSource(layer)) this.map.removeSource(layer);
+              if (this.map.getLayer(id)) this.map.removeLayer(id);
+              if (this.map.getSource(id)) this.map.removeSource(id);
             } catch(e) {}
           });
+          this.routeLayers = [];
         }
-        this.routeLayers = [];
-
         // Remove marcadores de pontos antigos
         this.routePointMarkers.forEach(m => m.remove());
         this.routePointMarkers = [];
 
-        const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
-        
-        if (rotas.length === 0) return;
+        const rotas = this.data.filter(d => d.tipo === 'rota' && d.pontos && d.pontos.length >= 2);
+        if (!rotas.length) return;
 
-        rotas.forEach((rota, index) => {
-          const id = 'rota-' + index;
-          const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
-          
+        rotas.forEach((rota, idx) => {
+          const id = 'rota-' + idx;
+          const coords = rota.pontos.map(p => [p.lon, p.lat]);
+
           try {
             this.map.addSource(id, {
               type: 'geojson',
               data: {
                 type: 'Feature',
-                properties: {},
-                geometry: {
-                  type: 'LineString',
-                  coordinates: coordinates
-                }
+                geometry: { type: 'LineString', coordinates: coords }
               }
             });
 
+            // Linha principal
             this.map.addLayer({
               id: id + '-line',
               type: 'line',
@@ -2113,7 +1089,7 @@
                 'line-opacity': 0.85
               }
             });
-
+            // Brilho
             this.map.addLayer({
               id: id + '-glow',
               type: 'line',
@@ -2126,26 +1102,24 @@
                 'line-opacity': 0.15
               }
             });
-
             this.routeLayers.push(id + '-line', id + '-glow');
 
-            rota.pontos.forEach((ponto) => {
+            // Marcadores circulares nos pontos
+            rota.pontos.forEach(p => {
               const el = document.createElement('div');
-              el.style.width = '10px';
-              el.style.height = '10px';
-              el.style.borderRadius = '50%';
-              el.style.background = rota.cor || '#d4af37';
-              el.style.border = '2px solid white';
-              el.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
-              
+              el.style.cssText = `
+                width:10px; height:10px; border-radius:50%;
+                background:${rota.cor || '#d4af37'};
+                border:2px solid white;
+                box-shadow:0 0 10px rgba(0,0,0,0.3);
+              `;
               const marker = new maplibregl.Marker({ element: el })
-                .setLngLat([ponto.lon, ponto.lat])
+                .setLngLat([p.lon, p.lat])
                 .addTo(this.map);
               this.routePointMarkers.push(marker);
             });
-
           } catch(e) {
-            console.warn('Erro ao desenhar rota:', e.message);
+            console.warn('Erro ao desenhar rota:', e);
           }
         });
       }
@@ -2159,207 +1133,155 @@
       }
 
       // =========================================================
-      // ADICIONAR ROTA
+      // MARCADORES FIXOS (não recriam se dados não mudarem)
       // =========================================================
-      adicionarPontoRota() {
-        const lat = parseFloat(this.$('routePointLat').value);
-        const lon = parseFloat(this.$('routePointLon').value);
-        
-        if (isNaN(lat) || isNaN(lon)) {
-          alert('Preencha latitude e longitude válidas.');
-          return;
+      renderizarMarcadores(itens) {
+        // Compara se os dados mudaram (evita recriação desnecessária)
+        const newIds = itens.map(i => i.nome).sort().join(',');
+        const oldIds = this.markerData.map(i => i.nome).sort().join(',');
+        if (newIds === oldIds && this.markers.length > 0) {
+          return; // mesmos dados, mantém marcadores
         }
 
-        this.routePoints.push({ lat, lon });
-        this.renderizarPontosRota();
-        
-        this.$('routePointLat').value = '';
-        this.$('routePointLon').value = '';
-      }
+        // Remove antigos
+        this.markers.forEach(m => m.remove());
+        this.markers = [];
+        this.markerData = itens.slice();
 
-      removerPontoRota(index) {
-        this.routePoints.splice(index, 1);
-        this.renderizarPontosRota();
-      }
+        itens.forEach(item => {
+          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
+          const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
 
-      renderizarPontosRota() {
-        if (this.routePoints.length === 0) {
-          this.dom.routePointsList.innerHTML = `
-            <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">Nenhum ponto adicionado</div>
-          `;
-          return;
-        }
+          const el = document.createElement('div');
+          el.className = 'marker-container';
+          el.style.setProperty('--marker-color', cor);
 
-        this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#fff; border:1px solid var(--border); border-radius:4px;">
-            <span style="font-size:0.75rem;">${i+1}. ${p.lat.toFixed(4)}°, ${p.lon.toFixed(4)}°</span>
-            <button type="button" class="btn-header" style="padding:2px 8px; font-size:0.65rem; color:#e74c3c; border-color:#e74c3c;" onclick="window.atlasApp.removerPontoRota(${i})">
-              <i class="fa-solid fa-times"></i>
-            </button>
-          </div>
-        `).join('');
-      }
+          const pulse = document.createElement('div');
+          pulse.className = 'marker-pulse';
+          const pin = document.createElement('div');
+          pin.className = 'marker-pin';
+          el.append(pulse, pin);
 
-      async adicionarRota(e) {
-        e.preventDefault();
-        
-        const nome = this.$('routeName').value.trim();
-        const subtitulo = this.$('routeSubtitle').value.trim();
-        const year = parseInt(this.$('routeYear').value);
-        const color = this.$('routeColor').value;
-        const category = this.$('routeCategory').value;
-        const countries = this.$('routeCountries').value.trim();
-        const continents = this.$('routeContinents').value.trim();
-        const description = this.$('routeDescription').value.trim();
+          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
+            .setHTML(`
+              <div style="padding:4px; font-family:sans-serif;">
+                <strong style="color:#1a73e8;">${item.nome}</strong>
+                <p style="font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
+                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')"
+                  style="margin-top:6px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; cursor:pointer; width:100%;">
+                  <i class="fa-regular fa-circle-info"></i> Detalhes
+                </button>
+              </div>
+            `);
 
-        if (!nome || !description || isNaN(year) || this.routePoints.length < 2) {
-          alert('Preencha todos os campos obrigatórios e adicione pelo menos 2 pontos.');
-          return;
-        }
-
-        const novaRota = {
-          nome,
-          subtitulo,
-          tipo: 'rota',
-          pontos: [...this.routePoints],
-          cor: color,
-          descricao: description,
-          fundacao: year,
-          pais: countries || 'Não especificado',
-          continente: continents || 'Não especificado',
-          categoria: 'rota',
-          tema: category,
-          povo: 'Diversos',
-          coverImage: '',
-          fotos: [],
-          documentos: [],
-          author: 'Usuário',
-          institution: ''
-        };
-
-        this.data.push(novaRota);
-        this.salvarDados();
-        
-        this.dom.modalAddRoute.classList.remove('open');
-        this.dom.addRouteForm.reset();
-        this.routePoints = [];
-        this.renderizarPontosRota();
-
-        this.gerarFiltros();
-        this.aplicarFiltros();
-        alert(`✅ Rota "${nome}" adicionada com sucesso!`);
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([item.lon, item.lat])
+            .setPopup(popup)
+            .addTo(this.map);
+          this.markers.push(marker);
+        });
       }
 
       // =========================================================
       // FILTROS
       // =========================================================
-      inicializarComponentes() {
-        this.gerarFiltros();
-      }
-
-      gerarFiltros() {
-        const categorias = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
+      inicializarFiltros() {
+        const cats = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
         const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
         const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
 
-        const popularContainer = (container, itens, chave) => {
-          container.innerHTML = itens.map(item => {
-            const label = item === 'todos' ? 'Todos' : (chave === 'categoria' ? NOMES_CATEGORIA[item] || item : item);
-            return `
-              <button class="filtro-btn ${item === 'todos' ? 'active' : ''}" data-key="${chave}" data-val="${item}">
-                <span>${label}</span>
-                <span class="count">0</span>
-              </button>
-            `;
+        const render = (container, arr, key) => {
+          container.innerHTML = arr.map(val => {
+            const label = val === 'todos' ? 'Todos' : (NOMES_CATEGORIA[val] || val);
+            return `<button class="filter-btn ${val==='todos'?'active':''}" data-key="${key}" data-val="${val}">
+              <span>${label}</span>
+              <span class="count">0</span>
+            </button>`;
           }).join('');
         };
-
-        popularContainer(this.dom.categoriaFiltros, categorias, 'categoria');
-        popularContainer(this.dom.temaFiltros, temas, 'tema');
-        popularContainer(this.dom.povoFiltros, povos, 'povo');
+        render(this.dom.categoria, cats, 'categoria');
+        render(this.dom.tema, temas, 'tema');
+        render(this.dom.povo, povos, 'povo');
       }
 
       atualizarContadores(filtrados) {
-        this.dom.countVisible.textContent = filtrados.length;
-        
-        document.querySelectorAll('.filter-accordion-content').forEach(grupo => {
-          grupo.querySelectorAll('.filtro-btn').forEach(btn => {
+        this.dom.count.textContent = filtrados.length;
+        document.querySelectorAll('.filter-content').forEach(group => {
+          group.querySelectorAll('.filter-btn').forEach(btn => {
             const key = btn.dataset.key;
             const val = btn.dataset.val;
-            
-            const count = val === 'todos' 
-              ? this.data.length 
+            const count = val === 'todos'
+              ? this.data.length
               : this.data.filter(d => d[key] === val).length;
-            
             btn.querySelector('.count').textContent = count;
           });
         });
       }
 
       aplicarFiltros() {
-        let filtrados = this.data;
-
-        filtrados = filtrados.filter(item => {
+        let filtrados = this.data.filter(item => {
           const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
           const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
           const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
-          const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
-          return matchCat && matchTema && matchPovo && anoValido;
+          const matchAno = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
+          return matchCat && matchTema && matchPovo && matchAno;
         });
 
         if (this.searchQuery) {
-          filtrados = filtrados.filter(item => 
-            (item.nome && item.nome.toLowerCase().includes(this.searchQuery)) ||
-            (item.subtitulo && item.subtitulo.toLowerCase().includes(this.searchQuery)) ||
-            (item.descricao && item.descricao.toLowerCase().includes(this.searchQuery)) ||
-            (item.povo && item.povo.toLowerCase().includes(this.searchQuery)) ||
-            (item.pais && item.pais.toLowerCase().includes(this.searchQuery))
+          const q = this.searchQuery.toLowerCase();
+          filtrados = filtrados.filter(d =>
+            d.nome?.toLowerCase().includes(q) ||
+            d.subtitulo?.toLowerCase().includes(q) ||
+            d.descricao?.toLowerCase().includes(q) ||
+            d.povo?.toLowerCase().includes(q) ||
+            d.pais?.toLowerCase().includes(q)
           );
         }
 
-        // Atualiza marcadores de forma otimizada
         this.renderizarMarcadores(filtrados);
         this.renderizarTimeline(filtrados);
         this.atualizarContadores(filtrados);
         this.redesenharRotas();
       }
 
+      // =========================================================
+      // TIMELINE
+      // =========================================================
       renderizarTimeline(itens) {
-        this.dom.timelineContainer.innerHTML = itens.map(item => {
+        if (!itens.length) {
+          this.dom.timeline.innerHTML = '<div style="color:#777; padding:10px;">Nenhum registro</div>';
+          return;
+        }
+        this.dom.timeline.innerHTML = itens.map(item => {
           const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-          const cover = item.coverImage || 'https://via.placeholder.com/150x100?text=Sem+Imagem';
-          const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
-          const tipo = item.tipo === 'rota' ? '🚢 ' : '';
+          const cover = item.coverImage || 'https://via.placeholder.com/80x80?text=No+Image';
+          const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+          const icon = item.tipo === 'rota' ? '🚢 ' : '';
           return `
-            <div class="event-card" data-nome="${item.nome}" style="--card-accent: ${cor}" onclick="window.atlasApp.focarPonto('${item.nome.replace(/'/g, "\\'")}')">
+            <div class="event-card" data-nome="${item.nome}" style="--card-color:${cor}" onclick="window.atlasApp.focarPonto('${item.nome.replace(/'/g, "\\'")}')">
               <img class="event-cover" src="${cover}" alt="${item.nome}" />
-              <div class="card-content">
-                <div class="event-date"><i class="fa-solid fa-clock"></i> ${anoLabel}</div>
-                <div class="event-title">${tipo}${item.nome}</div>
-                <div class="event-desc">${item.descricao && item.descricao.length > 60 ? item.descricao.substring(0,60)+'...' : item.descricao || ''}</div>
+              <div class="event-info">
+                <div class="event-date">${ano}</div>
+                <div class="event-title">${icon}${item.nome}</div>
+                <div class="event-desc">${(item.descricao||'').substring(0,60)}${(item.descricao||'').length>60?'...':''}</div>
               </div>
             </div>
           `;
         }).join('');
       }
 
+      // =========================================================
+      // NAVEGAÇÃO
+      // =========================================================
       focarPonto(nome) {
         const item = this.data.find(d => d.nome === nome);
         if (!item) return;
 
-        if (item.tipo === 'rota' && item.pontos && item.pontos.length > 0) {
+        if (item.tipo === 'rota' && item.pontos?.length) {
           const centro = item.pontos[0];
-          this.map.flyTo({
-            center: [centro.lon, centro.lat],
-            zoom: 4.5,
-            duration: 2000
-          });
+          this.map.flyTo({ center: [centro.lon, centro.lat], zoom: 4.5, duration: 1800 });
         } else {
-          this.map.flyTo({
-            center: [item.lon, item.lat],
-            zoom: 6.0,
-            duration: 2000
-          });
+          this.map.flyTo({ center: [item.lon, item.lat], zoom: 6, duration: 1800 });
         }
 
         document.querySelectorAll('.event-card').forEach(c => c.classList.remove('highlight'));
@@ -2368,410 +1290,277 @@
           card.classList.add('highlight');
           card.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
         }
-
         this.abrirDetalhes(nome);
       }
 
       abrirDetalhes(nome) {
         const item = this.data.find(d => d.nome === nome);
         if (!item) return;
-
-        this.selectedItemName = nome;
+        this.selectedItem = nome;
         this.dom.detailPanel.classList.add('open');
 
         this.dom.detailCover.src = item.coverImage || '';
         this.dom.detailTitle.textContent = item.nome;
         this.dom.detailSubtitle.textContent = item.subtitulo || '';
-        this.dom.detailCategoryBadge.textContent = NOMES_CATEGORIA[item.categoria] || item.categoria;
-        this.dom.detailCategoryBadge.style.borderColor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-        this.dom.detailCategoryBadge.style.color = CORES_CATEGORIA[item.categoria] || '#1a73e8';
+        this.dom.detailCategory.textContent = NOMES_CATEGORIA[item.categoria] || item.categoria;
+        this.dom.detailCategory.style.borderColor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
+        this.dom.detailCategory.style.color = CORES_CATEGORIA[item.categoria] || '#1a73e8';
 
-        const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
-        this.dom.detailMetaDate.textContent = anoLabel;
-        this.dom.detailMetaLocation.innerHTML = `${item.pais || ''}${item.continente ? ', ' + item.continente : ''}`;
-        
-        if (item.tipo === 'rota' && item.pontos) {
-          this.dom.detailMetaCoords.textContent = `${item.pontos.length} pontos de rota`;
-        } else {
-          this.dom.detailMetaCoords.textContent = `${item.lat?.toFixed(4) || ''}°, ${item.lon?.toFixed(4) || ''}°`;
-        }
-        
+        const ano = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+        this.dom.detailMetaDate.textContent = ano;
+        this.dom.detailMetaLocation.textContent = `${item.pais || ''}${item.continente ? ', '+item.continente : ''}`;
+        this.dom.detailMetaCoords.textContent = item.tipo === 'rota' ? `${item.pontos?.length||0} pontos` : `${item.lat?.toFixed(4)||''}°, ${item.lon?.toFixed(4)||''}°`;
         this.dom.detailMetaPovo.textContent = item.povo || 'Desconhecido';
         this.dom.detailDescription.textContent = item.descricao || '';
 
-        this.dom.detailGallery.innerHTML = (item.fotos || []).map(foto => `
-          <div class="gallery-img-wrapper" onclick="window.atlasApp.abrirLightbox('${foto.url}')" title="${foto.descricao || ''}">
-            <img class="gallery-img" src="${foto.url}" alt="Foto" />
-          </div>
-        `).join('');
+        this.dom.detailGallery.innerHTML = (item.fotos||[]).map(f =>
+          `<div style="aspect-ratio:1; background:#e8eaed; border-radius:4px; overflow:hidden; cursor:pointer;" onclick="window.atlasApp.abrirLightbox('${f.url}')">
+            <img src="${f.url}" style="width:100%; height:100%; object-fit:cover;" />
+          </div>`
+        ).join('');
 
-        this.dom.detailVideos.innerHTML = `<span style="font-size:0.75rem; color:var(--color-muted);">Nenhum áudio disponível.</span>`;
+        this.dom.detailDocuments.innerHTML = (item.documentos||[]).map(d =>
+          `<div style="display:flex; align-items:center; gap:8px; padding:6px 10px; background:#f8f9fa; border-radius:4px; border:1px solid #e0e0e0;">
+            <i class="fa-regular fa-file-pdf" style="color:#1a73e8;"></i>
+            <span style="flex:1; font-size:0.8rem;">${d.titulo}</span>
+            <button class="btn" style="padding:2px 8px; font-size:0.7rem;" onclick="window.atlasApp.abrirPDF('${d.url}','${d.titulo}')">Ver</button>
+          </div>`
+        ).join('');
 
-        this.dom.detailDocuments.innerHTML = (item.documentos || []).map(doc => `
-          <a class="doc-link" href="#" onclick="event.preventDefault(); window.atlasApp.abrirPDF('${doc.url}', '${doc.titulo}')">
-            <i class="fa-solid fa-file-pdf"></i>
-            <span style="flex:1;">${doc.titulo}</span>
-            <i class="fa-solid fa-eye"></i>
-          </a>
-        `).join('');
-
-        this.alternarAbaDetalhes('tab-narrativa');
-      }
-
-      alternarAbaDetalhes(tabId) {
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-          btn.classList.toggle('active', btn.getAttribute('data-tab') === tabId);
-        });
-        document.querySelectorAll('.tab-content').forEach(content => {
-          content.classList.toggle('active', content.id === tabId);
-        });
+        // Ativa aba Narrativa
+        document.querySelectorAll('.panel-tabs button').forEach(b => b.classList.remove('active'));
+        document.querySelector('.panel-tabs button[data-tab="tab-narrativa"]').classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        document.getElementById('tab-narrativa').classList.add('active');
       }
 
       // =========================================================
-      // RADIO
+      // ADICIONAR ROTA
       // =========================================================
-      inicializarRadio() {
-        this.dom.radioStationsList.innerHTML = RADIO_STATIONS.map(station => `
-          <div class="radio-station" onclick="window.atlasApp.tocarRadio('${station.id}')">
-            <div class="radio-station-icon"><i class="${station.icon}"></i></div>
-            <div class="radio-station-info">
-              <div class="radio-station-name">${station.name}</div>
-              <div class="radio-station-desc">${station.desc}</div>
-            </div>
-            <span class="radio-station-badge">${station.badge}</span>
-          </div>
-        `).join('');
-
-        this.dom.radioPlaylistsList.innerHTML = RADIO_PLAYLISTS.map(playlist => `
-          <div class="radio-station" onclick="window.atlasApp.tocarPlaylist('${playlist.id}')">
-            <div class="radio-station-icon"><i class="${playlist.icon}"></i></div>
-            <div class="radio-station-info">
-              <div class="radio-station-name">${playlist.name}</div>
-              <div class="radio-station-desc">${playlist.desc}</div>
-            </div>
-            <span class="radio-station-badge">${playlist.badge}</span>
-          </div>
-        `).join('');
-
-        this.dom.radioVolumeSlider.addEventListener('input', (e) => {
-          this.radioVolume = parseFloat(e.target.value);
-          if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
-        });
-
-        this.dom.radioStopBtn.addEventListener('click', () => this.pararRadio());
-
-        this.dom.radioPlayerBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.dom.radioDropdown.classList.toggle('open');
-        });
-
-        document.addEventListener('click', () => {
-          this.dom.radioDropdown.classList.remove('open');
-        });
+      adicionarPontoRota() {
+        const lat = parseFloat(this.dom.routePointLat.value);
+        const lon = parseFloat(this.dom.routePointLon.value);
+        if (isNaN(lat) || isNaN(lon)) { alert('Coordenadas inválidas'); return; }
+        this.routePoints.push({ lat, lon });
+        this.renderizarPontosRota();
+        this.dom.routePointLat.value = '';
+        this.dom.routePointLon.value = '';
       }
 
-      tocarRadio(stationId) {
-        const station = RADIO_STATIONS.find(s => s.id === stationId);
-        if (!station) return;
-
-        this.pararRadio();
-        
-        this.currentAudio = new Audio(station.url);
-        this.currentAudio.volume = this.radioVolume;
-        this.currentAudio.play().catch(() => {
-          this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> Não foi possível conectar`;
-        });
-
-        this.isRadioPlaying = true;
-        this.dom.radioStatusText.textContent = '🔴 Ao Vivo';
-        this.dom.radioPlayerBtn.classList.add('playing');
-        this.dom.radioNowPlaying.innerHTML = `
-          <i class="fa-solid fa-radio"></i> <strong>${station.name}</strong>
-          <span class="radio-pulse"></span>
-        `;
-        this.dom.radioDropdown.classList.remove('open');
+      removerPontoRota(idx) {
+        this.routePoints.splice(idx, 1);
+        this.renderizarPontosRota();
       }
 
-      tocarPlaylist(playlistId) {
-        const playlist = RADIO_PLAYLISTS.find(p => p.id === playlistId);
-        if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
-
-        this.pararRadio();
-        
-        this.isPlaylistMode = true;
-        this.playlistTracks = playlist.tracks;
-        this.currentPlaylistIndex = 0;
-        this.dom.radioStatusText.textContent = '🎵 Playlist';
-        this.dom.radioPlayerBtn.classList.add('playing');
-        this.dom.radioNowPlaying.innerHTML = `
-          <i class="fa-solid fa-headphones"></i> <strong>${playlist.name}</strong>
-          <span class="radio-pulse"></span>
-        `;
-
-        this.tocarProximaFaixaPlaylist();
-        this.dom.radioDropdown.classList.remove('open');
-      }
-
-      tocarProximaFaixaPlaylist() {
-        if (!this.isPlaylistMode || this.playlistTracks.length === 0) return;
-        if (this.currentPlaylistIndex >= this.playlistTracks.length) {
-          this.currentPlaylistIndex = 0;
+      renderizarPontosRota() {
+        if (!this.routePoints.length) {
+          this.dom.routePointsList.innerHTML = '<div style="text-align:center;color:#777;padding:6px;">Nenhum ponto</div>';
+          return;
         }
-
-        const track = this.playlistTracks[this.currentPlaylistIndex];
-        this.currentAudio = new Audio(track);
-        this.currentAudio.volume = this.radioVolume;
-        this.currentAudio.play().catch(() => {});
-        
-        this.currentAudio.onended = () => {
-          this.currentPlaylistIndex++;
-          this.tocarProximaFaixaPlaylist();
-        };
+        this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) =>
+          `<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 8px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;margin-bottom:2px;">
+            <span style="font-size:0.8rem;">${i+1}. ${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}</span>
+            <button class="btn" style="padding:0 6px;color:#e74c3c;border-color:#e74c3c;" onclick="window.atlasApp.removerPontoRota(${i})"><i class="fa-solid fa-xmark"></i></button>
+          </div>`
+        ).join('');
       }
 
-      pararRadio() {
-        if (this.currentAudio) {
-          this.currentAudio.pause();
-          this.currentAudio = null;
-        }
-        this.isRadioPlaying = false;
-        this.isPlaylistMode = false;
-        this.dom.radioStatusText.textContent = 'Rádio';
-        this.dom.radioPlayerBtn.classList.remove('playing');
-        this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-music"></i> Nenhuma estação selecionada`;
-      }
-
-      // =========================================================
-      // STORYTELLING
-      // =========================================================
-      iniciarStoryline(type) {
-        if (type === 'none') {
-          this.dom.storytellingHud.style.display = 'none';
-          this.storyPlaying = false;
-          clearInterval(this.storyInterval);
+      async adicionarRota(e) {
+        e.preventDefault();
+        const nome = this.dom.routeName.value.trim();
+        const year = parseInt(this.dom.routeYear.value);
+        const desc = this.dom.routeDescription.value.trim();
+        if (!nome || isNaN(year) || !desc || this.routePoints.length < 2) {
+          alert('Preencha todos os campos e adicione pelo menos 2 pontos.');
           return;
         }
 
-        const stories = {
-          navegacoes: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)', 'Rota do Atlântico Sul'],
-          imperio_romano: ['Santos (Brasil)']
+        const nova = {
+          nome,
+          subtitulo: this.dom.routeSubtitle.value.trim(),
+          tipo: 'rota',
+          pontos: [...this.routePoints],
+          cor: this.dom.routeColor.value,
+          descricao: desc,
+          fundacao: year,
+          pais: this.dom.routeCountries.value.trim() || 'Não especificado',
+          continente: this.dom.routeContinents.value.trim() || 'Não especificado',
+          categoria: 'rota',
+          tema: this.dom.routeCategory.value,
+          povo: 'Diversos',
+          coverImage: '',
+          fotos: [],
+          documentos: []
         };
 
-        this.currentStory = stories[type] || [];
-        this.storyStepIndex = 0;
-        this.dom.storytellingHud.style.display = 'flex';
-        if (this.currentStory.length > 0) {
-          this.focarPonto(this.currentStory[0]);
-          this.dom.storyTitle.textContent = this.currentStory[this.storyStepIndex];
-        }
-      }
-
-      avancarStory(step) {
-        if (!this.currentStory || this.currentStory.length === 0) return;
-        this.storyStepIndex += step;
-        if (this.storyStepIndex < 0) this.storyStepIndex = this.currentStory.length - 1;
-        if (this.storyStepIndex >= this.currentStory.length) this.storyStepIndex = 0;
-
-        const nomePonto = this.currentStory[this.storyStepIndex];
-        this.focarPonto(nomePonto);
-        this.dom.storyTitle.textContent = nomePonto;
-      }
-
-      playPauseStory() {
-        if (this.storyPlaying) {
-          clearInterval(this.storyInterval);
-          this.storyPlaying = false;
-          this.dom.btnStoryPlay.innerHTML = `<i class="fa-solid fa-play"></i>`;
-        } else {
-          this.storyPlaying = true;
-          this.dom.btnStoryPlay.innerHTML = `<i class="fa-solid fa-pause"></i>`;
-          this.storyInterval = setInterval(() => {
-            this.avancarStory(1);
-          }, 5000);
-        }
+        this.data.push(nova);
+        this.salvarDados();
+        this.dom.modalAddRoute.classList.remove('open');
+        this.dom.addRouteForm.reset();
+        this.routePoints = [];
+        this.renderizarPontosRota();
+        this.inicializarFiltros();
+        this.aplicarFiltros();
+        alert(`✅ Rota "${nome}" adicionada!`);
       }
 
       // =========================================================
-      // UTILITÁRIOS
+      // LIGHTBOX / PDF
       // =========================================================
-      toggleTTS() {
-        const item = this.data.find(d => d.nome === this.selectedItemName);
-        if (!item) return;
-
-        if (this.ttsSpeaking) {
-          window.speechSynthesis.cancel();
-          this.ttsSpeaking = false;
-          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
-        } else {
-          const utterance = new SpeechSynthesisUtterance(item.descricao || item.nome);
-          utterance.lang = 'pt-BR';
-          utterance.onend = () => {
-            this.ttsSpeaking = false;
-            this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
-          };
-          window.speechSynthesis.speak(utterance);
-          this.ttsSpeaking = true;
-          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-stop"></i> Parar`;
-        }
-      }
-
       abrirLightbox(url) {
-        this.dom.lightboxImg.src = url;
-        this.dom.lightbox.style.display = 'flex';
+        const lb = document.getElementById('lightbox');
+        if (!lb) {
+          const div = document.createElement('div');
+          div.id = 'lightbox';
+          div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:9999;display:none;align-items:center;justify-content:center;cursor:pointer;';
+          div.innerHTML = `<img id="lb-img" style="max-width:90%;max-height:90%;border-radius:8px;" />`;
+          div.onclick = () => div.style.display = 'none';
+          document.body.appendChild(div);
+          document.getElementById('lb-img').src = url;
+          div.style.display = 'flex';
+        } else {
+          document.getElementById('lb-img').src = url;
+          lb.style.display = 'flex';
+        }
       }
 
       abrirPDF(url, titulo) {
-        this.dom.pdfTitle.textContent = titulo || 'Documento';
-        this.dom.pdfFrame.src = url;
-        this.dom.pdfModal.style.display = 'flex';
+        const modal = document.getElementById('pdfModal');
+        if (!modal) {
+          const div = document.createElement('div');
+          div.id = 'pdfModal';
+          div.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:9998;display:none;align-items:center;justify-content:center;';
+          div.innerHTML = `
+            <div style="background:#fff;border-radius:12px;padding:20px;max-width:800px;width:90%;max-height:90vh;overflow-y:auto;">
+              <div style="display:flex;justify-content:space-between;border-bottom:1px solid #e0e0e0;padding-bottom:8px;">
+                <h3 id="pdfTitle" style="color:#1a73e8;">Documento</h3>
+                <span id="pdfClose" style="cursor:pointer;font-size:1.4rem;">&times;</span>
+              </div>
+              <iframe id="pdfFrame" style="width:100%;height:480px;border:none;border-radius:6px;margin-top:12px;"></iframe>
+            </div>
+          `;
+          document.body.appendChild(div);
+          document.getElementById('pdfClose').onclick = () => {
+            div.style.display = 'none';
+            document.getElementById('pdfFrame').src = '';
+          };
+          div.onclick = (e) => { if (e.target === div) { div.style.display = 'none'; document.getElementById('pdfFrame').src = ''; } };
+        }
+        document.getElementById('pdfTitle').textContent = titulo || 'Documento';
+        document.getElementById('pdfFrame').src = url;
+        document.getElementById('pdfModal').style.display = 'flex';
       }
 
       // =========================================================
       // EVENTOS
       // =========================================================
       bindEventos() {
-        // Acordeões
-        document.querySelectorAll('.filter-accordion-header').forEach(header => {
+        // Sidebar
+        this.dom.btnToggleFilters.addEventListener('click', () => {
+          this.dom.sidebar.classList.toggle('collapsed');
+        });
+
+        // Timeline
+        this.dom.btnToggleTimeline.addEventListener('click', () => {
+          this.dom.timelineSection.classList.toggle('collapsed');
+        });
+        this.dom.timelineClose.addEventListener('click', () => {
+          this.dom.timelineSection.classList.add('collapsed');
+        });
+
+        // Filtros com accordion
+        document.querySelectorAll('.filter-header').forEach(header => {
           header.addEventListener('click', () => {
             const content = header.nextElementSibling;
             content.style.display = content.style.display === 'none' ? 'flex' : 'none';
           });
         });
 
-        // Filtros
+        // Clique nos botões de filtro
         document.addEventListener('click', (e) => {
-          const btn = e.target.closest('.filtro-btn');
+          const btn = e.target.closest('.filter-btn');
           if (btn) {
             const key = btn.dataset.key;
             const val = btn.dataset.val;
             this.activeFilters[key] = val;
-            
-            btn.parentElement.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            btn.parentElement.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             btn.classList.add('active');
             this.aplicarFiltros();
           }
         });
 
+        // Reset filtros
+        this.dom.btnResetFilters.addEventListener('click', () => {
+          this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.filter-btn[data-val="todos"]').forEach(b => b.classList.add('active'));
+          this.aplicarFiltros();
+        });
+
         // Anos
-        const atualizarTemporal = () => {
-          this.startYear = parseInt(this.dom.inputStartYear.value);
-          this.endYear = parseInt(this.dom.inputEndYear.value);
-          this.dom.lblStartYear.textContent = this.startYear < 0 ? `${Math.abs(this.startYear)} A.C.` : `${this.startYear} D.C.`;
-          this.dom.lblEndYear.textContent = this.endYear < 0 ? `${Math.abs(this.endYear)} A.C.` : `${this.endYear} D.C.`;
+        const updateAnos = () => {
+          this.startYear = parseInt(this.dom.inputStart.value) || -2000;
+          this.endYear = parseInt(this.dom.inputEnd.value) || 2026;
           this.aplicarFiltros();
         };
-        this.dom.inputStartYear.addEventListener('input', atualizarTemporal);
-        this.dom.inputEndYear.addEventListener('input', atualizarTemporal);
+        this.dom.inputStart.addEventListener('change', updateAnos);
+        this.dom.inputEnd.addEventListener('change', updateAnos);
 
-        // Pesquisa
-        this.dom.searchInput.addEventListener('input', (e) => {
+        // Busca
+        this.dom.search.addEventListener('input', (e) => {
           this.searchQuery = e.target.value.toLowerCase();
           this.aplicarFiltros();
         });
 
-        // Toggle sidebar
-        this.dom.btnToggleFilters.addEventListener('click', () => {
-          this.sidebarVisible = !this.sidebarVisible;
-          this.dom.sidebar.classList.toggle('collapsed', !this.sidebarVisible);
-          setTimeout(() => this.map?.resize(), 300);
-        });
-
-        // Toggle timeline
-        this.dom.btnToggleTimeline.addEventListener('click', () => {
-          this.timelineVisible = !this.timelineVisible;
-          this.dom.timelineSection.classList.toggle('collapsed', !this.timelineVisible);
-        });
-        this.dom.timelineCloseBtn.addEventListener('click', () => {
-          this.timelineVisible = false;
-          this.dom.timelineSection.classList.add('collapsed');
-        });
-
-        // Globo
-        this.dom.btnToggleGlobe.addEventListener('click', () => {
-          this.isGlobeMode = !this.isGlobeMode;
-          this.dom.btnToggleGlobe.classList.toggle('active', this.isGlobeMode);
-          try {
-            this.map.setProjection({ type: this.isGlobeMode ? 'globe' : 'mercator' });
-          } catch (e) {}
-        });
-
-        // TTS
-        this.dom.btnAudioTTS.addEventListener('click', () => this.toggleTTS());
-
-        // Fechar detalhes
+        // Detalhes - fechar
         this.dom.btnCloseDetail.addEventListener('click', () => {
           this.dom.detailPanel.classList.remove('open');
-          window.speechSynthesis.cancel();
-          this.ttsSpeaking = false;
-          this.dom.btnAudioTTS.innerHTML = `<i class="fa-solid fa-volume-high"></i> Ouvir`;
         });
 
-        // Storytelling
-        this.dom.selectStoryline.addEventListener('change', (e) => this.iniciarStoryline(e.target.value));
-        this.dom.btnStoryPrev.addEventListener('click', () => this.avancarStory(-1));
-        this.dom.btnStoryNext.addEventListener('click', () => this.avancarStory(1));
-        this.dom.btnStoryPlay.addEventListener('click', () => this.playPauseStory());
-        this.dom.btnStoryClose.addEventListener('click', () => this.iniciarStoryline('none'));
-
-        // Lightbox & PDF
-        this.dom.btnLightboxClose.addEventListener('click', () => this.dom.lightbox.style.display = 'none');
-        this.dom.pdfClose.addEventListener('click', () => {
-          this.dom.pdfModal.style.display = 'none';
-          this.dom.pdfFrame.src = '';
-        });
-
-        // Resetar filtros
-        this.dom.btnResetFilters.addEventListener('click', () => {
-          this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
-          document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-          document.querySelectorAll('.filtro-btn[data-val="todos"]').forEach(b => b.classList.add('active'));
-          this.aplicarFiltros();
+        // Abas no detail panel
+        document.querySelectorAll('.panel-tabs button').forEach(btn => {
+          btn.addEventListener('click', () => {
+            document.querySelectorAll('.panel-tabs button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(btn.dataset.tab).classList.add('active');
+          });
         });
 
         // Logo reset
         this.dom.logoReset.addEventListener('click', (e) => {
           e.preventDefault();
-          this.map.flyTo({ center: [-10, 10], zoom: 2.0, duration: 1500 });
+          this.map.flyTo({ center: [-10,10], zoom:2, duration:1500 });
           this.dom.detailPanel.classList.remove('open');
         });
 
-        // NOVA ROTA
+        // Modal Nova Rota
         this.dom.btnAddRoute.addEventListener('click', () => {
           this.dom.modalAddRoute.classList.add('open');
           this.routePoints = [];
           this.renderizarPontosRota();
         });
-
         this.dom.btnCloseAddRoute.addEventListener('click', () => {
           this.dom.modalAddRoute.classList.remove('open');
         });
-
         this.dom.addRouteForm.addEventListener('submit', (e) => this.adicionarRota(e));
-
         this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
 
-        this.$('routePointLat').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            this.adicionarPontoRota();
-          }
-        });
-        this.$('routePointLon').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') {
-            e.preventDefault();
-            this.adicionarPontoRota();
-          }
-        });
+        // Enter nas coordenadas
+        this.dom.routePointLat.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
+        this.dom.routePointLon.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
 
         // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             this.dom.modalAddRoute.classList.remove('open');
+            this.dom.detailPanel.classList.remove('open');
           }
         });
       }
     }
 
+    // Inicialização
     window.addEventListener('DOMContentLoaded', () => {
       window.atlasApp = new AtlasApp();
       window.atlasApp.start();
