@@ -168,7 +168,7 @@
       box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
     }
 
-    /* RADIO */
+    /* RADIO PLAYER – mantido */
     .radio-player-container { position: relative; }
     .radio-player-btn {
       padding: 8px 16px;
@@ -1136,11 +1136,43 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
+    /* Novo botão de toggle de rotas */
+    .btn-toggle-routes {
+      position: absolute;
+      bottom: calc(var(--timeline-height) + 30px);
+      right: 20px;
+      z-index: 5;
+      padding: 10px 18px;
+      border-radius: 30px;
+      border: 1px solid var(--border);
+      background: #ffffff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-toggle-routes:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+    .btn-toggle-routes.active {
+      background: var(--color-accent);
+      color: #fff;
+      border-color: var(--color-accent);
+    }
+
     @media (max-width: 1024px) {
       #detail-panel { width: 100%; max-width: 100vw; }
       #searchInput { width: 140px; }
       #searchInput:focus { width: 200px; }
       .radio-dropdown { width: 280px; right: -80px; }
+      .btn-toggle-routes { bottom: calc(var(--timeline-height) + 20px); right: 10px; padding: 6px 12px; font-size: 0.7rem; }
     }
     @media (max-width: 768px) {
       .header { padding: 8px 12px; flex-wrap: wrap; height: auto; gap: 8px; }
@@ -1155,6 +1187,7 @@
       .event-desc { display: none; }
       .radio-dropdown { width: 250px; right: -120px; }
       .form-row-3 { grid-template-columns: 1fr 1fr; }
+      .btn-toggle-routes { bottom: calc(var(--timeline-height) + 10px); right: 10px; padding: 4px 10px; font-size: 0.65rem; }
     }
   </style>
 </head>
@@ -1201,7 +1234,7 @@
 
         <button class="btn-header" id="btnToggleFilters"><i class="fa-solid fa-filter"></i> Filtros</button>
         <button class="btn-header" id="btnToggleTimeline"><i class="fa-solid fa-timeline"></i> Linha do Tempo</button>
-        <button class="btn-header success" id="btnAddRoute"><i class="fa-solid fa-route"></i> Nova Rota</button>
+        <!-- Botão "Nova Rota" removido -->
       </div>
     </header>
 
@@ -1263,6 +1296,11 @@
             <i class="fa-solid fa-earth-americas"></i>
           </div>
         </div>
+
+        <!-- Botão para mostrar/ocultar rotas -->
+        <button class="btn-toggle-routes" id="btnToggleRoutes">
+          <i class="fa-solid fa-route"></i> Mostrar Rotas
+        </button>
 
         <div id="storytelling-hud">
           <button class="btn-hud" id="btnStoryPrev"><i class="fa-solid fa-chevron-left"></i></button>
@@ -1366,111 +1404,7 @@
     </div>
   </div>
 
-  <!-- MODAL: ADICIONAR ROTA -->
-  <div class="modal-overlay" id="modalAddRoute">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-route" style="color:var(--color-accent)"></i> Adicionar Nova Rota Comercial</h3>
-        <span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span>
-      </div>
-      <form id="addRouteForm" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
-        <div class="form-row">
-          <div class="form-group">
-            <label>Nome da Rota *</label>
-            <input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Atlântico Sul" required />
-          </div>
-          <div class="form-group">
-            <label>Subtítulo</label>
-            <input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" />
-          </div>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group">
-            <label>Ano de Início *</label>
-            <input type="number" id="routeYear" class="form-control" placeholder="1500" required />
-          </div>
-          <div class="form-group">
-            <label>Cor da Rota</label>
-            <input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" />
-          </div>
-          <div class="form-group">
-            <label>Categoria</label>
-            <select id="routeCategory" class="form-control">
-              <option value="Comércio">Comércio</option>
-              <option value="Cultura">Cultura</option>
-              <option value="Política">Política</option>
-              <option value="Religião">Religião</option>
-              <option value="Conflitos">Conflitos</option>
-              <option value="Economia">Economia</option>
-            </select>
-          </div>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Países/Regiões</label>
-            <input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" />
-          </div>
-          <div class="form-group">
-            <label>Continentes</label>
-            <input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América do Sul" />
-          </div>
-        </div>
-        <div class="form-group">
-          <label>Cultura/Povos</label>
-          <input type="text" id="routePeople" class="form-control" placeholder="Ex: Portugueses, Africanos" />
-        </div>
-        <div class="form-group">
-          <label>Pontos da Rota (Latitude, Longitude) *</label>
-          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:80px;" />
-            <input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:80px;" />
-            <button type="button" class="btn-header" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar Ponto</button>
-          </div>
-          <div style="font-size:0.65rem; color:var(--color-muted); margin-top:4px;">💡 Clique no mapa para preencher as coordenadas automaticamente</div>
-        </div>
-        <div id="routePointsList" style="display:flex; flex-direction:column; gap:4px; max-height:150px; overflow-y:auto; padding:4px; background:#f8f9fa; border-radius:4px; border:1px solid var(--border);">
-          <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">Nenhum ponto adicionado. Clique no mapa ou digite as coordenadas.</div>
-        </div>
-        <div class="form-group">
-          <label>URL da Imagem de Capa</label>
-          <input type="url" id="routeCoverImage" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
-        </div>
-        <div class="form-group">
-          <label>Descrição da Rota *</label>
-          <textarea id="routeDescription" class="form-control" placeholder="Descreva a história da rota..." rows="3" required></textarea>
-        </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Autor/Pesquisador</label>
-            <input type="text" id="routeAuthor" class="form-control" placeholder="Seu nome" />
-          </div>
-          <div class="form-group">
-            <label>Instituição</label>
-            <input type="text" id="routeInstitution" class="form-control" placeholder="Sua instituição" />
-          </div>
-        </div>
-        <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota ao Atlas</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- LIGHTBOX -->
-  <div id="lightbox">
-    <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
-    <img id="lightbox-img" src="" alt="Ampliada" />
-  </div>
-
-  <!-- PDF MODAL -->
-  <div id="pdfModal">
-    <div>
-      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
-        <h3 id="pdfTitle" style="color:var(--color-accent); margin:0; font-size:1rem; font-family:var(--font-serif)">Documento</h3>
-        <span id="pdfClose" style="cursor:pointer; font-size:1.3rem; color:var(--color-muted);"><i class="fa-solid fa-xmark"></i></span>
-      </div>
-      <iframe id="pdfFrame" src=""></iframe>
-    </div>
-  </div>
-
+  <!-- MODAL DE ACESSIBILIDADE (mantido) -->
   <div class="modal-overlay" id="modalAccessibility">
     <div class="modal-content" style="max-width:400px;">
       <div class="modal-header">
@@ -1492,12 +1426,28 @@
     </div>
   </div>
 
+  <!-- LIGHTBOX e PDF (mantidos) -->
+  <div id="lightbox">
+    <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
+    <img id="lightbox-img" src="" alt="Ampliada" />
+  </div>
+
+  <div id="pdfModal">
+    <div>
+      <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
+        <h3 id="pdfTitle" style="color:var(--color-accent); margin:0; font-size:1rem; font-family:var(--font-serif)">Documento</h3>
+        <span id="pdfClose" style="cursor:pointer; font-size:1.3rem; color:var(--color-muted);"><i class="fa-solid fa-xmark"></i></span>
+      </div>
+      <iframe id="pdfFrame" src=""></iframe>
+    </div>
+  </div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <script>
     // =========================================================
-    // DADOS
+    // DADOS (mesmos do original, com coordenadas corretas)
     // =========================================================
     const CORES_CATEGORIA = {
       mapa: '#1a73e8',
@@ -1699,7 +1649,7 @@
     ];
 
     // =========================================================
-    // CLASSE ATLAS APP (com CartoDB)
+    // CLASSE ATLAS APP (COM ROTAS SOB DEMANDA)
     // =========================================================
     class AtlasApp {
       constructor() {
@@ -1730,13 +1680,14 @@
         this.storyStepIndex = 0;
         this.storyPlaying = false;
         this.storyInterval = null;
-        this.routePoints = [];
         this.currentAudio = null;
         this.isRadioPlaying = false;
         this.radioVolume = 0.3;
         this.isPlaylistMode = false;
         this.playlistTracks = [];
         this.currentPlaylistIndex = 0;
+        // Estado das rotas
+        this.routesVisible = false;
       }
 
       async start() {
@@ -1818,12 +1769,7 @@
           radioVolumeDown: this.$('radioVolumeDown'),
           radioVolumeUp: this.$('radioVolumeUp'),
           radioStopBtn: this.$('radioStopBtn'),
-          modalAddRoute: this.$('modalAddRoute'),
-          btnCloseAddRoute: this.$('btnCloseAddRoute'),
-          addRouteForm: this.$('addRouteForm'),
-          btnAddRoute: this.$('btnAddRoute'),
-          btnAddRoutePoint: this.$('btnAddRoutePoint'),
-          routePointsList: this.$('routePointsList')
+          btnToggleRoutes: this.$('btnToggleRoutes')
         };
       }
 
@@ -1844,10 +1790,9 @@
       }
 
       // =========================================================
-      // MAPA (USANDO CARTODB - SEM CORS)
+      // MAPA (COM CARTODB - SEM CORS)
       // =========================================================
       inicializarMapa() {
-        // CartoDB - light_all (ótimo, sem CORS)
         const estiloRaster = {
           version: 8,
           sources: {
@@ -1875,40 +1820,30 @@
             zoom: 2.0,
             pitch: 0,
             bearing: 0,
-            hash: false
+            hash: false,
+            projection: { type: 'mercator' } // garante projeção correta
           });
 
-          console.log('🗺️ Mapa inicializando com CartoDB...');
+          console.log('🗺️ Mapa inicializando com CartoDB (projeção Mercator)');
 
           this.map.on('load', () => {
             console.log('✅ Mapa carregado com sucesso!');
             setTimeout(() => {
               if (this.map) this.map.resize();
             }, 50);
-            this.desenharRotas();
+            // NÃO desenha rotas automaticamente – só quando o usuário clicar no botão
+            // this.desenharRotas();  <- removido
           });
 
           this.map.on('error', (e) => {
             console.warn('⚠️ Erro no mapa:', e);
           });
 
-          if (this.map.loaded()) {
-            this.desenharRotas();
-          }
-
         } catch (e) {
           console.error('❌ Erro ao inicializar mapa:', e);
         }
 
-        this.map.on('click', (e) => {
-          if (this.dom.modalAddRoute.classList.contains('open')) {
-            const { lng, lat } = e.lngLat;
-            this.$('routePointLat').value = lat.toFixed(6);
-            this.$('routePointLon').value = lng.toFixed(6);
-            this.adicionarPontoRota();
-          }
-        });
-
+        // Redimensionamento forçado
         setTimeout(() => {
           if (this.map) {
             this.map.resize();
@@ -1918,7 +1853,7 @@
       }
 
       // =========================================================
-      // DESENHAR ROTAS
+      // DESENHAR ROTAS (agora chamado pelo botão)
       // =========================================================
       desenharRotas() {
         if (!this.map) {
@@ -1939,6 +1874,7 @@
           return;
         }
 
+        // Limpa layers anteriores (caso já existam)
         if (this.routeLayers) {
           this.routeLayers.forEach(layer => {
             try {
@@ -1998,6 +1934,7 @@
 
             this.routeLayers.push(id + '-line', id + '-glow');
 
+            // Marcadores nos pontos (opcional, mas útil)
             rota.pontos.forEach((ponto, i) => {
               const el = document.createElement('div');
               el.style.width = '10px';
@@ -2017,100 +1954,38 @@
             console.warn(`❌ Erro ao desenhar rota "${rota.nome}":`, e.message);
           }
         });
+
+        this.routesVisible = true;
+        this.dom.btnToggleRoutes.innerHTML = `<i class="fa-solid fa-route"></i> Ocultar Rotas`;
+        this.dom.btnToggleRoutes.classList.add('active');
       }
 
-      redesenharRotas() {
-        if (this.map && this.map.loaded()) {
-          this.desenharRotas();
+      // Oculta as rotas (remove as camadas)
+      ocultarRotas() {
+        if (this.routeLayers.length === 0) return;
+        this.routeLayers.forEach(layer => {
+          try {
+            if (this.map.getLayer(layer)) this.map.removeLayer(layer);
+            if (this.map.getSource(layer)) this.map.removeSource(layer);
+          } catch(e) {}
+        });
+        this.routeLayers = [];
+        this.routesVisible = false;
+        this.dom.btnToggleRoutes.innerHTML = `<i class="fa-solid fa-route"></i> Mostrar Rotas`;
+        this.dom.btnToggleRoutes.classList.remove('active');
+        console.log('🔄 Rotas ocultas');
+      }
+
+      toggleRotas() {
+        if (this.routesVisible) {
+          this.ocultarRotas();
         } else {
-          console.warn('⏳ Aguardando mapa para redesenhar rotas...');
-          if (this.map) {
-            this.map.once('load', () => this.desenharRotas());
-          }
+          this.desenharRotas();
         }
       }
 
       // =========================================================
-      // ADICIONAR ROTA
-      // =========================================================
-      adicionarPontoRota() {
-        const lat = parseFloat(this.$('routePointLat').value);
-        const lon = parseFloat(this.$('routePointLon').value);
-        if (isNaN(lat) || isNaN(lon)) {
-          alert('Preencha latitude e longitude válidas.');
-          return;
-        }
-        this.routePoints.push({ lat, lon });
-        this.renderizarPontosRota();
-        this.$('routePointLat').value = '';
-        this.$('routePointLon').value = '';
-      }
-
-      removerPontoRota(index) {
-        this.routePoints.splice(index, 1);
-        this.renderizarPontosRota();
-      }
-
-      renderizarPontosRota() {
-        if (this.routePoints.length === 0) {
-          this.dom.routePointsList.innerHTML = `
-            <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">
-              Nenhum ponto adicionado. Clique no mapa ou digite as coordenadas.
-            </div>
-          `;
-          return;
-        }
-        this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) => `
-          <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#fff; border:1px solid var(--border); border-radius:4px;">
-            <span style="font-size:0.75rem;">${i+1}. ${p.lat.toFixed(4)}°, ${p.lon.toFixed(4)}°</span>
-            <button type="button" class="btn-header" style="padding:2px 8px; font-size:0.65rem; color:#e74c3c; border-color:#e74c3c;" onclick="window.atlasApp.removerPontoRota(${i})">
-              <i class="fa-solid fa-times"></i>
-            </button>
-          </div>
-        `).join('');
-      }
-
-      async adicionarRota(e) {
-        e.preventDefault();
-        const nome = this.$('routeName').value.trim();
-        const subtitulo = this.$('routeSubtitle').value.trim();
-        const year = parseInt(this.$('routeYear').value);
-        const color = this.$('routeColor').value;
-        const category = this.$('routeCategory').value;
-        const countries = this.$('routeCountries').value.trim();
-        const continents = this.$('routeContinents').value.trim();
-        const people = this.$('routePeople').value.trim();
-        const coverImage = this.$('routeCoverImage').value.trim();
-        const description = this.$('routeDescription').value.trim();
-        const author = this.$('routeAuthor').value.trim() || 'Anônimo';
-        const institution = this.$('routeInstitution').value.trim();
-
-        if (!nome || !description || isNaN(year) || this.routePoints.length < 2) {
-          alert('Preencha todos os campos obrigatórios e adicione pelo menos 2 pontos.');
-          return;
-        }
-
-        const novaRota = {
-          nome, subtitulo, tipo: 'rota', pontos: [...this.routePoints], cor: color,
-          descricao: description, fundacao: year, pais: countries || 'Não especificado',
-          continente: continents || 'Não especificado', categoria: 'rota', tema: category,
-          povo: people || 'Não especificado', coverImage: coverImage || '',
-          fotos: [], documentos: [], author, institution
-        };
-
-        this.data.push(novaRota);
-        this.salvarDados();
-        this.dom.modalAddRoute.classList.remove('open');
-        this.dom.addRouteForm.reset();
-        this.routePoints = [];
-        this.renderizarPontosRota();
-        this.gerarFiltros();
-        this.aplicarFiltros();
-        alert(`✅ Rota "${nome}" adicionada com sucesso!`);
-      }
-
-      // =========================================================
-      // FILTROS E RENDERIZAÇÃO
+      // FILTROS E RENDERIZAÇÃO (mantidos)
       // =========================================================
       inicializarComponentes() { this.gerarFiltros(); }
 
@@ -2172,7 +2047,8 @@
         this.renderizarMarcadores(filtrados);
         this.renderizarTimeline(filtrados);
         this.atualizarContadores(filtrados);
-        this.redesenharRotas();
+        // Não redesenha rotas automaticamente – mantém o estado atual
+        // this.redesenharRotas();  <- removido
       }
 
       renderizarMarcadores(itens) {
@@ -2621,6 +2497,11 @@
       // EVENTOS
       // =========================================================
       bindEventos() {
+        // Botão toggle rotas
+        this.dom.btnToggleRoutes.addEventListener('click', () => {
+          this.toggleRotas();
+        });
+
         document.querySelectorAll('.filter-accordion-header').forEach(header => {
           header.addEventListener('click', () => {
             const content = header.nextElementSibling;
@@ -2714,27 +2595,8 @@
           this.dom.detailPanel.classList.remove('open');
         });
 
-        this.dom.btnAddRoute.addEventListener('click', () => {
-          this.dom.modalAddRoute.classList.add('open');
-          this.routePoints = [];
-          this.renderizarPontosRota();
-        });
-        this.dom.btnCloseAddRoute.addEventListener('click', () => {
-          this.dom.modalAddRoute.classList.remove('open');
-        });
-        this.dom.addRouteForm.addEventListener('submit', (e) => this.adicionarRota(e));
-        this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
-
-        this.$('routePointLat').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); this.adicionarPontoRota(); }
-        });
-        this.$('routePointLon').addEventListener('keypress', (e) => {
-          if (e.key === 'Enter') { e.preventDefault(); this.adicionarPontoRota(); }
-        });
-
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
-            this.dom.modalAddRoute.classList.remove('open');
             this.dom.modalAccessibility.classList.remove('open');
           }
         });
