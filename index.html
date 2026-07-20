@@ -15,7 +15,7 @@
   <!-- FontAwesome for icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
-  <!-- GSAP (Smooth animations) -->
+  <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
   <style>
@@ -67,7 +67,6 @@
       border: 1px solid var(--border);
     }
 
-    /* HEADER */
     .header {
       display: flex;
       align-items: center;
@@ -91,14 +90,11 @@
       gap: 12px;
     }
 
-    .header-logo i {
-      color: var(--color-accent);
-    }
-
     .header-controls {
       display: flex;
       align-items: center;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     .search-wrapper {
@@ -165,12 +161,191 @@
       box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
     }
 
-    /* MAIN AREA */
-    .main-area {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
+    /* RADIO PLAYER */
+    .radio-player-container {
       position: relative;
+    }
+
+    .radio-player-btn {
+      padding: 8px 16px;
+      border-radius: 24px;
+      border: 1px solid var(--border);
+      background: #f8f9fa;
+      color: var(--color-text);
+      font-size: 0.8rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .radio-player-btn:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--color-accent);
+      color: var(--color-accent);
+    }
+
+    .radio-player-btn.playing {
+      background: var(--color-accent);
+      color: #ffffff;
+      border-color: var(--color-accent);
+    }
+
+    .radio-dropdown {
+      position: absolute;
+      top: 110%;
+      right: 0;
+      width: 340px;
+      background: #ffffff;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      display: none;
+      z-index: 100;
+      padding: 16px;
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    .radio-dropdown.open {
+      display: block;
+    }
+
+    .radio-dropdown::-webkit-scrollbar {
+      width: 4px;
+    }
+    .radio-dropdown::-webkit-scrollbar-thumb {
+      background: var(--color-accent);
+      border-radius: 4px;
+    }
+
+    .radio-section-title {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: var(--color-muted);
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin: 12px 0 8px 0;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 4px;
+    }
+
+    .radio-section-title:first-of-type {
+      margin-top: 0;
+    }
+
+    .radio-station {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .radio-station:hover {
+      background: var(--color-surface-hover);
+      border-color: var(--border);
+    }
+
+    .radio-station.active {
+      background: rgba(26, 115, 232, 0.08);
+      border-color: var(--color-accent);
+    }
+
+    .radio-station-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--color-accent);
+      color: #ffffff;
+      font-size: 0.8rem;
+      flex-shrink: 0;
+    }
+
+    .radio-station-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .radio-station-name {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .radio-station-desc {
+      font-size: 0.65rem;
+      color: var(--color-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .radio-station-badge {
+      font-size: 0.55rem;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #e8eaed;
+      color: var(--color-muted);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .radio-station.active .radio-station-badge {
+      background: var(--color-accent);
+      color: #ffffff;
+    }
+
+    .radio-player-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 0;
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+
+    .radio-volume-slider {
+      flex: 1;
+      accent-color: var(--color-accent);
+    }
+
+    .radio-now-playing {
+      font-size: 0.7rem;
+      color: var(--color-muted);
+      text-align: center;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+
+    .radio-now-playing strong {
+      color: var(--color-text);
+    }
+
+    .radio-pulse {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CAF50;
+      animation: radioPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes radioPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.6); }
     }
 
     /* MAP CONTAINER */
@@ -188,7 +363,6 @@
       height: 100%;
     }
 
-    /* MAP CONTROLS */
     .globe-controls {
       position: absolute;
       top: 15px;
@@ -521,188 +695,6 @@
       text-align: justify;
     }
 
-    .citation-box {
-      background: #f8f9fa;
-      border: 1px solid var(--border);
-      padding: 12px;
-      border-radius: 6px;
-      font-size: 0.7rem;
-      font-family: monospace;
-      color: var(--color-text);
-      position: relative;
-    }
-
-    .copy-citation-btn {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      background: none;
-      border: none;
-      color: var(--color-accent);
-      cursor: pointer;
-      font-size: 0.85rem;
-    }
-
-    /* LOADING */
-    #loading-overlay {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: #ffffff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.8s ease;
-    }
-
-    #loading-overlay.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .loading-spinner {
-      position: relative;
-      width: 60px;
-      height: 60px;
-    }
-
-    .loading-spinner div {
-      box-sizing: border-box;
-      position: absolute;
-      width: 48px;
-      height: 48px;
-      margin: 6px;
-      border: 4px solid var(--color-accent);
-      border-radius: 50%;
-      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-      border-color: var(--color-accent) transparent transparent transparent;
-    }
-    .loading-spinner div:nth-child(1) { animation-delay: -0.45s; }
-    .loading-spinner div:nth-child(2) { animation-delay: -0.3s; }
-    .loading-spinner div:nth-child(3) { animation-delay: -0.15s; }
-
-    @keyframes lds-ring {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* MAPLBRE CUSTOM */
-    .maplibregl-popup-content {
-      background: #ffffff !important;
-      color: var(--color-text) !important;
-      border: 1px solid var(--border) !important;
-      border-radius: 8px !important;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
-    }
-
-    /* RESPONSIVE */
-    @media (max-width: 1024px) {
-      #detail-panel {
-        width: 100%;
-        max-width: 100vw;
-      }
-      #searchInput {
-        width: 140px;
-      }
-      #searchInput:focus {
-        width: 200px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .header {
-        padding: 8px 12px;
-        flex-wrap: wrap;
-        height: auto;
-        gap: 8px;
-      }
-      .header-logo {
-        font-size: 1.1rem;
-      }
-      .btn-header {
-        padding: 6px 12px;
-        font-size: 0.7rem;
-      }
-      #searchInput {
-        width: 120px;
-        font-size: 0.75rem;
-      }
-      #searchInput:focus {
-        width: 160px;
-      }
-      .timeline-section {
-        height: 150px;
-        bottom: 10px;
-        left: 10px;
-        right: 10px;
-        padding: 8px 12px;
-      }
-      .event-card {
-        width: 160px;
-        height: 80px;
-      }
-      .event-cover {
-        width: 50px;
-      }
-      .event-title {
-        font-size: 0.65rem;
-      }
-      .event-desc {
-        display: none;
-      }
-    }
-
-    /* MAP MARKER STYLES */
-    .marker-container {
-      width: 30px;
-      height: 30px;
-      position: relative;
-      cursor: pointer;
-    }
-
-    .marker-pin {
-      width: 16px;
-      height: 16px;
-      border-radius: 50% 50% 50% 0;
-      background: var(--marker-color, #1a73e8);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -100%) rotate(-45deg);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    }
-
-    .marker-pin::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #fff;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
-
-    .marker-pulse {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--marker-color, #1a73e8);
-      opacity: 0.15;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      animation: pulse 2s infinite;
-    }
-
-    @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; }
-      100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
-    }
-
     .panel-category-badge {
       display: inline-block;
       border-radius: 12px;
@@ -729,7 +721,6 @@
       box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
     }
 
-    /* Modal */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -973,23 +964,35 @@
       pointer-events: none;
     }
 
-    .audio-header-player {
+    .panel-narrative-controls {
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      border: 1px solid var(--border);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      background: #f8f9fa;
     }
 
-    .audio-header-player button {
+    .btn-narrative-audio {
       background: none;
-      border: none;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 4px 12px;
+      font-size: 0.7rem;
       color: var(--color-accent);
       cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-narrative-audio:hover {
+      background: var(--color-surface-hover);
+    }
+
+    .panel-section-title {
+      font-family: var(--font-serif);
+      color: var(--color-accent);
       font-size: 0.9rem;
+      margin: 0;
     }
 
     .gallery-img-wrapper {
@@ -1185,41 +1188,173 @@
       pointer-events: none;
     }
 
-    .panel-narrative-controls {
+    #loading-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: #ffffff;
       display: flex;
-      justify-content: space-between;
+      flex-direction: column;
       align-items: center;
+      justify-content: center;
+      transition: opacity 0.8s ease;
     }
 
-    .btn-narrative-audio {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 4px 12px;
-      font-size: 0.7rem;
-      color: var(--color-accent);
+    #loading-overlay.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .loading-spinner {
+      position: relative;
+      width: 60px;
+      height: 60px;
+    }
+
+    .loading-spinner div {
+      box-sizing: border-box;
+      position: absolute;
+      width: 48px;
+      height: 48px;
+      margin: 6px;
+      border: 4px solid var(--color-accent);
+      border-radius: 50%;
+      animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+      border-color: var(--color-accent) transparent transparent transparent;
+    }
+    .loading-spinner div:nth-child(1) { animation-delay: -0.45s; }
+    .loading-spinner div:nth-child(2) { animation-delay: -0.3s; }
+    .loading-spinner div:nth-child(3) { animation-delay: -0.15s; }
+
+    @keyframes lds-ring {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .maplibregl-popup-content {
+      background: #ffffff !important;
+      color: var(--color-text) !important;
+      border: 1px solid var(--border) !important;
+      border-radius: 8px !important;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12) !important;
+    }
+
+    .marker-container {
+      width: 30px;
+      height: 30px;
+      position: relative;
       cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.2s ease;
     }
 
-    .btn-narrative-audio:hover {
-      background: var(--color-surface-hover);
+    .marker-pin {
+      width: 16px;
+      height: 16px;
+      border-radius: 50% 50% 50% 0;
+      background: var(--marker-color, #1a73e8);
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -100%) rotate(-45deg);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
 
-    .panel-section-title {
-      font-family: var(--font-serif);
-      color: var(--color-accent);
-      font-size: 0.9rem;
-      margin: 0;
+    .marker-pin::after {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .marker-pulse {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: var(--marker-color, #1a73e8);
+      opacity: 0.15;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; }
+      100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
+    }
+
+    @media (max-width: 1024px) {
+      #detail-panel {
+        width: 100%;
+        max-width: 100vw;
+      }
+      #searchInput {
+        width: 140px;
+      }
+      #searchInput:focus {
+        width: 200px;
+      }
+      .radio-dropdown {
+        width: 280px;
+        right: -80px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header {
+        padding: 8px 12px;
+        flex-wrap: wrap;
+        height: auto;
+        gap: 8px;
+      }
+      .header-logo {
+        font-size: 1.1rem;
+      }
+      .btn-header {
+        padding: 6px 12px;
+        font-size: 0.7rem;
+      }
+      #searchInput {
+        width: 120px;
+        font-size: 0.75rem;
+      }
+      #searchInput:focus {
+        width: 160px;
+      }
+      .timeline-section {
+        height: 150px;
+        bottom: 10px;
+        left: 10px;
+        right: 10px;
+        padding: 8px 12px;
+      }
+      .event-card {
+        width: 160px;
+        height: 80px;
+      }
+      .event-cover {
+        width: 50px;
+      }
+      .event-title {
+        font-size: 0.65rem;
+      }
+      .event-desc {
+        display: none;
+      }
+      .radio-dropdown {
+        width: 250px;
+        right: -120px;
+      }
     }
   </style>
 </head>
 <body>
 
-  <!-- TELA DE CARREGAMENTO -->
   <div id="loading-overlay">
     <div class="loading-spinner">
       <div></div><div></div><div></div><div></div>
@@ -1228,7 +1363,6 @@
   </div>
 
   <div id="app">
-    <!-- HEADER -->
     <header class="header">
       <a href="#" class="header-logo" id="logoReset">
         <i class="fa-solid fa-compass"></i>
@@ -1236,9 +1370,31 @@
       </a>
       
       <div class="header-controls">
-        <div class="audio-header-player">
-          <button id="btnHeaderSound" title="Ligar/Desligar Música Ambiente"><i class="fa-solid fa-volume-xmark"></i></button>
-          <span>Som</span>
+        <div class="radio-player-container">
+          <button class="radio-player-btn" id="radioPlayerBtn">
+            <i class="fa-solid fa-radio"></i>
+            <span id="radioStatusText">Rádio</span>
+            <i class="fa-solid fa-chevron-down" style="font-size:0.6rem;"></i>
+          </button>
+          
+          <div class="radio-dropdown" id="radioDropdown">
+            <div class="radio-now-playing" id="radioNowPlaying">
+              <i class="fa-solid fa-music"></i> <span>Nenhuma estação selecionada</span>
+            </div>
+            
+            <div class="radio-section-title"><i class="fa-solid fa-microphone"></i> Rádios Históricas</div>
+            <div id="radioStationsList"></div>
+            
+            <div class="radio-section-title"><i class="fa-solid fa-headphones"></i> Playlists Temáticas</div>
+            <div id="radioPlaylistsList"></div>
+            
+            <div class="radio-player-controls">
+              <button class="btn-header" id="radioVolumeDown"><i class="fa-solid fa-volume-low"></i></button>
+              <input type="range" class="radio-volume-slider" id="radioVolumeSlider" min="0" max="1" step="0.05" value="0.3" />
+              <button class="btn-header" id="radioVolumeUp"><i class="fa-solid fa-volume-high"></i></button>
+              <button class="btn-header" id="radioStopBtn"><i class="fa-solid fa-stop"></i></button>
+            </div>
+          </div>
         </div>
 
         <div class="search-wrapper">
@@ -1255,16 +1411,13 @@
           <i class="fa-solid fa-timeline"></i> Linha do Tempo
         </button>
 
-        <button class="btn-header primary" id="btnAdminPanel" title="Adicionar Registro">
+        <button class="btn-header primary" id="btnAdminPanel">
           <i class="fa-solid fa-plus"></i> Adicionar
         </button>
       </div>
     </header>
 
-    <!-- MAIN AREA -->
     <div class="main-area">
-      
-      <!-- SIDEBAR FILTROS -->
       <aside id="sidebar" class="collapsed">
         <div class="sidebar-section-title">
           <span>Período Histórico</span>
@@ -1314,7 +1467,6 @@
         </div>
       </aside>
 
-      <!-- MAP CONTAINER -->
       <div id="map-container">
         <div id="map"></div>
 
@@ -1324,7 +1476,6 @@
           </div>
         </div>
 
-        <!-- STORYTELLING HUD -->
         <div id="storytelling-hud">
           <button class="btn-hud" id="btnStoryPrev"><i class="fa-solid fa-chevron-left"></i></button>
           <div class="hud-title" id="storyTitle">Storytelling</div>
@@ -1335,7 +1486,6 @@
           </div>
         </div>
 
-        <!-- TIMELINE -->
         <div class="timeline-section" id="timelineSection">
           <div class="timeline-header">
             <div class="timeline-title">
@@ -1360,12 +1510,11 @@
         </div>
       </div>
 
-      <!-- DETAIL PANEL -->
       <aside id="detail-panel">
         <div class="panel-cover-container">
           <img class="panel-cover" id="detailCover" src="" alt="Capa" />
           <div class="panel-cover-overlay"></div>
-          <button class="panel-close-btn" id="btnCloseDetail" title="Fechar"><i class="fa-solid fa-xmark"></i></button>
+          <button class="panel-close-btn" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
         </div>
 
         <div class="panel-tabs">
@@ -1378,8 +1527,6 @@
 
         <div class="panel-body">
           <div id="detailViewMode" style="display:flex; flex-direction:column; gap:12px; width:100%;">
-            
-            <!-- NARRATIVA -->
             <div class="tab-content active" id="tab-narrativa">
               <div>
                 <span class="panel-category-badge" id="detailCategoryBadge">Categoria</span>
@@ -1415,22 +1562,18 @@
               </div>
             </div>
 
-            <!-- MULTIMÍDIA -->
             <div class="tab-content" id="tab-multimidia">
               <h4 class="panel-section-title"><i class="fa-solid fa-images"></i> Galeria</h4>
               <div class="panel-gallery" id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px;"></div>
-              
               <h4 class="panel-section-title" style="margin-top:10px;"><i class="fa-solid fa-video"></i> Áudio</h4>
               <div id="detailVideos" style="display:flex; flex-direction:column; gap:10px;"></div>
             </div>
 
-            <!-- DOCUMENTOS -->
             <div class="tab-content" id="tab-documentos">
               <h4 class="panel-section-title"><i class="fa-solid fa-file-invoice"></i> Documentos</h4>
               <div class="panel-documents" id="detailDocuments" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
 
-            <!-- OBJETO 3D -->
             <div class="tab-content" id="tab-objeto3d">
               <h4 class="panel-section-title"><i class="fa-solid fa-cube"></i> Artefato 3D</h4>
               <div class="replica-viewport" id="threeReplicaViewport">
@@ -1439,7 +1582,6 @@
               </div>
             </div>
 
-            <!-- PANORAMA 360 -->
             <div class="tab-content" id="tab-panorama">
               <h4 class="panel-section-title"><i class="fa-solid fa-vr-cardboard"></i> Visita 360°</h4>
               <div class="panorama-viewport" id="panoramaViewport">
@@ -1447,14 +1589,12 @@
                 <div class="viewport-instructions">Arraste para olhar ao redor</div>
               </div>
             </div>
-
           </div>
         </div>
       </aside>
     </div>
   </div>
 
-  <!-- MODAL: ADMIN (Adicionar Registro) -->
   <div class="modal-overlay" id="modalAdmin">
     <div class="modal-content">
       <div class="modal-header">
@@ -1466,7 +1606,7 @@
         <div class="form-row">
           <div class="form-group">
             <label>Nome do Registro</label>
-            <input type="text" id="addName" class="form-control" placeholder="Ex: Biblioteca de Alexandria" required />
+            <input type="text" id="addName" class="form-control" placeholder="Ex: Porto de Santos" required />
           </div>
           <div class="form-group">
             <label>Subtítulo</label>
@@ -1478,11 +1618,12 @@
           <div class="form-group">
             <label>Categoria</label>
             <select id="addCategory" class="form-control">
-              <option value="mapa">Mapa Histórico</option>
               <option value="porto">Porto</option>
+              <option value="mapa">Mapa Histórico</option>
               <option value="expedicao">Expedição</option>
               <option value="documento">Documento</option>
               <option value="naufragio">Naufrágio</option>
+              <option value="rota">Rota Comercial</option>
             </select>
           </div>
           <div class="form-group">
@@ -1493,6 +1634,7 @@
               <option value="Política">Política</option>
               <option value="Religião">Religião</option>
               <option value="Conflitos">Conflitos</option>
+              <option value="Comércio">Comércio</option>
             </select>
           </div>
         </div>
@@ -1562,13 +1704,11 @@
     </div>
   </div>
 
-  <!-- LIGHTBOX -->
   <div id="lightbox">
     <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
     <img id="lightbox-img" src="" alt="Ampliada" />
   </div>
 
-  <!-- PDF VIEWER -->
   <div id="pdfModal">
     <div>
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1579,7 +1719,6 @@
     </div>
   </div>
 
-  <!-- ACESSIBILIDADE MODAL -->
   <div class="modal-overlay" id="modalAccessibility">
     <div class="modal-content" style="max-width:400px;">
       <div class="modal-header">
@@ -1606,14 +1745,15 @@
 
   <script>
     // =========================================================
-    // DADOS INICIAIS
+    // DADOS COMPLETOS - PORTOS + ROTAS
     // =========================================================
     const CORES_CATEGORIA = {
       mapa: '#1a73e8',
       porto: '#0d9488',
       expedicao: '#7c3aed',
       documento: '#6b7280',
-      naufragio: '#dc2626'
+      naufragio: '#dc2626',
+      rota: '#d4af37'
     };
 
     const NOMES_CATEGORIA = {
@@ -1621,10 +1761,12 @@
       porto: 'Porto',
       expedicao: 'Expedição',
       documento: 'Documento',
-      naufragio: 'Naufrágio'
+      naufragio: 'Naufrágio',
+      rota: 'Rota Comercial'
     };
 
     const DADOS_INICIAIS = [
+      // === MAPAS HISTÓRICOS ===
       {
         nome: "Carta de Piri Reis (1513)",
         subtitulo: "Mapa-múndi Otomano",
@@ -1666,6 +1808,513 @@
         doi: "10.1000/cantino.1502",
         license: "Domínio Público",
         relations: []
+      },
+
+      // === PORTOS - AMÉRICA DO NORTE ===
+      {
+        nome: "Veracruz (México)",
+        subtitulo: "O porto mais antigo do México continental",
+        lat: 19.2029,
+        lon: -96.1382,
+        pais: "México",
+        continente: "América do Norte",
+        categoria: "porto",
+        tema: "Colonização",
+        povo: "Espanhóis e Nahuas",
+        fundacao: 1519,
+        descricao: "Fundado por Hernán Cortés em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Governo de Veracruz",
+        institution: "Administração Portuária de Veracruz",
+        doi: "10.1000/veracruz.1519",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Havana (Cuba)",
+        subtitulo: "O coração do império espanhol no Caribe",
+        lat: 23.1136,
+        lon: -82.3666,
+        pais: "Cuba",
+        continente: "América do Norte",
+        categoria: "porto",
+        tema: "Comércio e Defesa",
+        povo: "Espanhóis e Cubanos",
+        fundacao: 1515,
+        descricao: "O Porto de Havana foi o ponto de encontro da Frota das Índias, sendo o porto mais estratégico do Caribe durante os séculos XVI-XVIII.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Oficina del Historiador",
+        institution: "Patrimônio de Havana",
+        doi: "10.1000/havana.1515",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Nova Orleans (EUA)",
+        subtitulo: "A porta de entrada do Mississippi",
+        lat: 29.9511,
+        lon: -90.0715,
+        pais: "Estados Unidos",
+        continente: "América do Norte",
+        categoria: "porto",
+        tema: "Comércio Fluvial",
+        povo: "Franceses, Africanos e Americanos",
+        fundacao: 1718,
+        descricao: "Fundado pelos franceses, o Porto de Nova Orleans foi crucial para o comércio de algodão e escravizados no século XIX.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Louisiana State Museum",
+        institution: "Port of New Orleans",
+        doi: "10.1000/neworleans.1718",
+        license: "Domínio Público",
+        relations: []
+      },
+
+      // === PORTOS - AMÉRICA CENTRAL ===
+      {
+        nome: "Porto Bello (Panamá)",
+        subtitulo: "O porto das feiras de ouro",
+        lat: 9.5533,
+        lon: -79.6531,
+        pais: "Panamá",
+        continente: "América Central",
+        categoria: "porto",
+        tema: "Comércio Colonial",
+        povo: "Espanhóis e Emberá",
+        fundacao: 1597,
+        descricao: "Porto Bello foi o principal porto espanhol no Caribe para o comércio de ouro e prata vindos do Peru.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
+        fotos: [],
+        documentos: [],
+        author: "UNESCO Panamá",
+        institution: "Patrimônio Histórico do Panamá",
+        doi: "10.1000/portobello.1597",
+        license: "Domínio Público",
+        relations: []
+      },
+
+      // === PORTOS - AMÉRICA DO SUL ===
+      {
+        nome: "Recife (Brasil)",
+        subtitulo: "O 'Veneza Brasileira' e porto do açúcar",
+        lat: -8.0476,
+        lon: -34.8770,
+        pais: "Brasil",
+        continente: "América do Sul",
+        categoria: "porto",
+        tema: "Economia Colonial",
+        povo: "Portugueses, Holandeses e Africanos",
+        fundacao: 1537,
+        descricao: "O Porto do Recife foi o centro da economia açucareira do Nordeste brasileiro. Ocupado pelos holandeses entre 1630-1654.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Fundação Joaquim Nabuco",
+        institution: "Porto do Recife",
+        doi: "10.1000/recife.1537",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Santos (Brasil)",
+        subtitulo: "O maior complexo portuário da América Latina",
+        lat: -23.9608,
+        lon: -46.3350,
+        pais: "Brasil",
+        continente: "América do Sul",
+        categoria: "porto",
+        tema: "Economia",
+        povo: "Brasileiros",
+        fundacao: 1892,
+        descricao: "O Porto de Santos é o maior complexo portuário da América Latina, tendo iniciado suas operações em 1892.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Companhia Docas",
+        institution: "Porto de Santos",
+        doi: "10.1000/santos.1892",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Cartagena (Colômbia)",
+        subtitulo: "A fortaleza do Caribe",
+        lat: 10.3910,
+        lon: -75.4824,
+        pais: "Colômbia",
+        continente: "América do Sul",
+        categoria: "porto",
+        tema: "Defesa e Comércio",
+        povo: "Espanhóis, Africanos e Indígenas",
+        fundacao: 1533,
+        descricao: "Cartagena foi o principal porto da costa norte da América do Sul para o comércio de escravizados e ouro.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Ministério da Cultura da Colômbia",
+        institution: "Patrimônio de Cartagena",
+        doi: "10.1000/cartagena.1533",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Buenos Aires (Argentina)",
+        subtitulo: "A porta do Prata",
+        lat: -34.6037,
+        lon: -58.3816,
+        pais: "Argentina",
+        continente: "América do Sul",
+        categoria: "porto",
+        tema: "Comércio e Imigração",
+        povo: "Espanhóis, Italianos e Argentinos",
+        fundacao: 1536,
+        descricao: "O Porto de Buenos Aires tornou-se o principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Museu Histórico Nacional",
+        institution: "Administração Portuária de Buenos Aires",
+        doi: "10.1000/buenosaires.1536",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Callao (Peru)",
+        subtitulo: "O porto do Vice-Reino do Peru",
+        lat: -12.0658,
+        lon: -77.1500,
+        pais: "Peru",
+        continente: "América do Sul",
+        categoria: "porto",
+        tema: "Comércio de Prata",
+        povo: "Espanhóis, Quechuas e Africanos",
+        fundacao: 1537,
+        descricao: "O Porto do Callao foi o principal porto do Vice-Reino do Peru, escoando a prata de Potosí para o Panamá.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Marinha do Peru",
+        institution: "Porto do Callao",
+        doi: "10.1000/callao.1537",
+        license: "Domínio Público",
+        relations: []
+      },
+
+      // === PORTOS - ÁFRICA ===
+      {
+        nome: "Alexandria (Egito)",
+        subtitulo: "O farol do mundo antigo",
+        lat: 31.2001,
+        lon: 29.9187,
+        pais: "Egito",
+        continente: "África",
+        categoria: "porto",
+        tema: "Antiguidade",
+        povo: "Gregos, Romanos e Egípcios",
+        fundacao: -331,
+        descricao: "Fundado por Alexandre, o Grande em 331 a.C., o Porto de Alexandria foi o maior e mais importante porto do mundo antigo.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Ministério de Antiguidades do Egito",
+        institution: "Biblioteca de Alexandria",
+        doi: "10.1000/alexandria.-331",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Tânger (Marrocos)",
+        subtitulo: "A porta entre dois continentes",
+        lat: 35.7595,
+        lon: -5.8340,
+        pais: "Marrocos",
+        continente: "África",
+        categoria: "porto",
+        tema: "Comércio Mediterrâneo",
+        povo: "Fenícios, Romanos, Árabes e Berberes",
+        fundacao: -500,
+        descricao: "Tânger é um dos portos mais antigos do mundo, fundado pelos fenícios por volta de 500 a.C.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Ministério da Cultura do Marrocos",
+        institution: "Patrimônio de Tânger",
+        doi: "10.1000/tangier.-500",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Elmina (Gana)",
+        subtitulo: "O primeiro entreposto europeu na África Subsaariana",
+        lat: 5.0877,
+        lon: -1.3482,
+        pais: "Gana",
+        continente: "África",
+        categoria: "porto",
+        tema: "Comércio de Escravos",
+        povo: "Portugueses, Holandeses e Africanos",
+        fundacao: 1482,
+        descricao: "O Castelo de São Jorge da Mina, fundado pelos portugueses em 1482, foi o primeiro entreposto europeu na África Subsaariana.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg",
+        fotos: [],
+        documentos: [],
+        author: "UNESCO Gana",
+        institution: "Patrimônio de Elmina",
+        doi: "10.1000/elmina.1482",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Lagos (Nigéria)",
+        subtitulo: "O gigante da África Ocidental",
+        lat: 6.5244,
+        lon: 3.3792,
+        pais: "Nigéria",
+        continente: "África",
+        categoria: "porto",
+        tema: "Comércio Colonial",
+        povo: "Iorubás, Europeus e Nigerianos",
+        fundacao: 1470,
+        descricao: "O Porto de Lagos tornou-se o principal porto da Nigéria durante o período colonial britânico.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Nigerian Ports Authority",
+        institution: "Porto de Lagos",
+        doi: "10.1000/lagos.1470",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Cidade do Cabo (África do Sul)",
+        subtitulo: "A rota do Cabo",
+        lat: -33.9249,
+        lon: 18.4241,
+        pais: "África do Sul",
+        continente: "África",
+        categoria: "porto",
+        tema: "Rota Marítima",
+        povo: "Holandeses, Ingleses, Malaios e Africanos",
+        fundacao: 1652,
+        descricao: "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento para a rota das Índias.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Iziko Museums",
+        institution: "Porto da Cidade do Cabo",
+        doi: "10.1000/capetown.1652",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Kilwa Kisiwani (Tanzânia)",
+        subtitulo: "A pérola da costa swahili",
+        lat: -8.9583,
+        lon: 39.5167,
+        pais: "Tanzânia",
+        continente: "África",
+        categoria: "porto",
+        tema: "Comércio no Oceano Índico",
+        povo: "Suaílis, Árabes e Africanos",
+        fundacao: 900,
+        descricao: "Kilwa Kisiwani foi um dos mais importantes portos da costa swahili entre os séculos IX e XVI.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg",
+        fotos: [],
+        documentos: [],
+        author: "UNESCO Tanzânia",
+        institution: "Patrimônio de Kilwa",
+        doi: "10.1000/kilwa.900",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Mombaça (Quênia)",
+        subtitulo: "A fortaleza portuguesa no Índico",
+        lat: -4.0435,
+        lon: 39.6682,
+        pais: "Quênia",
+        continente: "África",
+        categoria: "porto",
+        tema: "Conflito Colonial",
+        povo: "Suaílis, Portugueses, Árabes e Africanos",
+        fundacao: 900,
+        descricao: "O Porto de Mombaça, com seu famoso Forte Jesus (construído pelos portugueses em 1593), foi um dos principais portos da costa leste africana.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "National Museums of Kenya",
+        institution: "Patrimônio de Mombaça",
+        doi: "10.1000/mombasa.900",
+        license: "Domínio Público",
+        relations: []
+      },
+      {
+        nome: "Zanzibar (Tanzânia)",
+        subtitulo: "A ilha das especiarias",
+        lat: -6.1631,
+        lon: 39.1912,
+        pais: "Tanzânia",
+        continente: "África",
+        categoria: "porto",
+        tema: "Comércio de Especiarias",
+        povo: "Árabes, Suaílis, Indianos e Africanos",
+        fundacao: 1000,
+        descricao: "O Porto de Zanzibar foi o centro do comércio de especiarias, especialmente cravo, no Oceano Índico.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Zanzibar Archives",
+        institution: "Patrimônio de Zanzibar",
+        doi: "10.1000/zanzibar.1000",
+        license: "Domínio Público",
+        relations: []
+      },
+
+      // === ROTAS COMERCIAIS ===
+      {
+        nome: "Rota do Atlântico Sul",
+        subtitulo: "Lisboa ↔ Santos",
+        tipo: "rota",
+        pontos: [
+          { lat: 38.7071, lon: -9.1355 },
+          { lat: 28.9784, lon: -13.0 },
+          { lat: -23.9608, lon: -46.3350 }
+        ],
+        cor: "#d4af37",
+        descricao: "Principal rota comercial entre Portugal e o Brasil colonial. Essencial para o comércio de açúcar, ouro e café.",
+        fundacao: 1500,
+        pais: "Portugal/Brasil",
+        continente: "Europa/América do Sul",
+        categoria: "rota",
+        tema: "Comércio",
+        povo: "Portugueses e Brasileiros",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Companhia de Navegação",
+        institution: "Porto de Santos"
+      },
+      {
+        nome: "Rota do Pacífico",
+        subtitulo: "Panamá ↔ Santos",
+        tipo: "rota",
+        pontos: [
+          { lat: 9.3598, lon: -79.9012 },
+          { lat: -23.9608, lon: -46.3350 }
+        ],
+        cor: "#2ecc71",
+        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá, integrando o comércio da Ásia com o Brasil.",
+        fundacao: 1914,
+        pais: "Panamá/Brasil",
+        continente: "América Central/América do Sul",
+        categoria: "rota",
+        tema: "Comércio",
+        povo: "Panamenhos e Brasileiros",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Canal do Panamá",
+        institution: "Administração do Canal do Panamá"
+      },
+      {
+        nome: "Rota do Mediterrâneo",
+        subtitulo: "Tânger ↔ Alexandria",
+        tipo: "rota",
+        pontos: [
+          { lat: 35.7595, lon: -5.8340 },
+          { lat: 36.0, lon: 0.0 },
+          { lat: 31.2001, lon: 29.9187 }
+        ],
+        cor: "#3498db",
+        descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo, integrando o comércio entre Europa, África e Ásia.",
+        fundacao: -500,
+        pais: "Marrocos/Egito",
+        continente: "África",
+        categoria: "rota",
+        tema: "Comércio",
+        povo: "Fenícios, Romanos, Árabes",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
+        fotos: [],
+        documentos: [],
+        author: "Patrimônio Mediterrâneo",
+        institution: "UNESCO"
+      }
+    ];
+
+    // =========================================================
+    // ESTAÇÕES DE RÁDIO E PLAYLISTS
+    // =========================================================
+    const RADIO_STATIONS = [
+      {
+        id: 'classic-fm',
+        name: 'Classic FM',
+        desc: 'Música Clássica e Erudita',
+        url: 'https://icecast.omroep.nl/radio4-bb-mp3',
+        icon: 'fa-solid fa-music',
+        badge: 'Clássica'
+      },
+      {
+        id: 'radio-batuta',
+        name: 'Rádio Batuta',
+        desc: 'Música Brasileira Histórica',
+        url: 'https://radio.radio-batuta.com.br/radio-batuta.mp3',
+        icon: 'fa-solid fa-guitar',
+        badge: 'Brasil'
+      },
+      {
+        id: 'antena-2',
+        name: 'Antena 2',
+        desc: 'Rádio Clássica Portuguesa',
+        url: 'https://streaming-live.rtp.pt/antena2',
+        icon: 'fa-solid fa-landmark',
+        badge: 'Portugal'
+      },
+      {
+        id: 'bbc-radio3',
+        name: 'BBC Radio 3',
+        desc: 'Música Clássica e Cultura',
+        url: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_three',
+        icon: 'fa-solid fa-broadcast',
+        badge: 'BBC'
+      }
+    ];
+
+    const RADIO_PLAYLISTS = [
+      {
+        id: 'medieval',
+        name: 'Música Medieval',
+        desc: 'Cantos Gregorianos e Trovadores',
+        tracks: [
+          'https://upload.wikimedia.org/wikipedia/commons/d/df/Canto_Gregoriano_-_Kyrie.ogg',
+          'https://upload.wikimedia.org/wikipedia/commons/2/2a/Cantiga_100.ogg'
+        ],
+        icon: 'fa-solid fa-church',
+        badge: 'Medieval'
+      },
+      {
+        id: 'renaissance',
+        name: 'Renascimento',
+        desc: 'Polifonia e Música Instrumental',
+        tracks: [
+          'https://upload.wikimedia.org/wikipedia/commons/a/a6/Palestrina_-_Missa_Papae_Marcelli_-_Kyrie.ogg'
+        ],
+        icon: 'fa-solid fa-palette',
+        badge: 'Renasc.'
+      },
+      {
+        id: 'baroque',
+        name: 'Barroco',
+        desc: 'Bach, Vivaldi e Corelli',
+        tracks: [
+          'https://upload.wikimedia.org/wikipedia/commons/6/6a/Bach_-_Brandenburg_Concerto_No._3_-_1._Allegro.ogg'
+        ],
+        icon: 'fa-solid fa-crown',
+        badge: 'Barroco'
       }
     ];
 
@@ -1677,6 +2326,7 @@
         this.data = [];
         this.map = null;
         this.markers = [];
+        this.routeLayers = [];
         this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
         this.searchQuery = '';
         this.selectedItemName = null;
@@ -1694,14 +2344,20 @@
         this.panoramaCamera = null;
         this.panoramaRenderer = null;
         this.panoramaMesh = null;
-        this.ambientAudio = null;
-        this.audioPlaying = false;
         this.ttsSpeaking = false;
         this.currentStory = null;
         this.storyStepIndex = 0;
         this.storyPlaying = false;
         this.storyInterval = null;
-        this.activeUserRole = 'Administrador';
+
+        // Radio
+        this.currentAudio = null;
+        this.currentStationId = null;
+        this.isRadioPlaying = false;
+        this.radioVolume = 0.3;
+        this.isPlaylistMode = false;
+        this.currentPlaylistIndex = 0;
+        this.playlistTracks = [];
       }
 
       async start() {
@@ -1709,7 +2365,7 @@
         await this.carregarDados();
         this.inicializarMapa();
         this.inicializarComponentes();
-        this.inicializarSons();
+        this.inicializarRadio();
         this.bindEventos();
         this.aplicarFiltros();
         setTimeout(() => {
@@ -1757,7 +2413,6 @@
           addPointForm: this.$('addPointForm'),
           dragDropZone: this.$('dragDropZone'),
           btnToggleGlobe: this.$('btnToggleGlobe'),
-          btnHeaderSound: this.$('btnHeaderSound'),
           modalAccessibility: this.$('modalAccessibility'),
           btnCloseAccessibility: this.$('btnCloseAccessibility'),
           btnHighContrastToggle: this.$('btnHighContrastToggle'),
@@ -1778,133 +2433,62 @@
           inputStartYear: this.$('inputStartYear'),
           inputEndYear: this.$('inputEndYear'),
           lblStartYear: this.$('lbl-start-year'),
-          lblEndYear: this.$('lbl-end-year')
+          lblEndYear: this.$('lbl-end-year'),
+          radioPlayerBtn: this.$('radioPlayerBtn'),
+          radioDropdown: this.$('radioDropdown'),
+          radioStationsList: this.$('radioStationsList'),
+          radioPlaylistsList: this.$('radioPlaylistsList'),
+          radioNowPlaying: this.$('radioNowPlaying'),
+          radioStatusText: this.$('radioStatusText'),
+          radioVolumeSlider: this.$('radioVolumeSlider'),
+          radioVolumeDown: this.$('radioVolumeDown'),
+          radioVolumeUp: this.$('radioVolumeUp'),
+          radioStopBtn: this.$('radioStopBtn')
         };
       }
 
       async carregarDados() {
-        // Verificar localStorage
-        const stored = localStorage.getItem('atlas_data');
+        const stored = localStorage.getItem('atlas_data_completo');
         if (stored) {
           this.data = JSON.parse(stored);
           console.log('✅ Dados carregados do localStorage:', this.data.length, 'registros');
           return;
         }
 
-        // Usar dados iniciais
         this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
-        localStorage.setItem('atlas_data', JSON.stringify(this.data));
+        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
         console.log('✅ Dados iniciais carregados:', this.data.length, 'registros');
       }
 
       salvarDados() {
-        localStorage.setItem('atlas_data', JSON.stringify(this.data));
+        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
       }
 
       inicializarMapa() {
-        const estilo = {
-          version: 8,
-          sources: {
-            'openmaptiles': {
-              type: 'vector',
-              url: 'https://tiles.openmaptiles.org/v4/tiles.json'
-            }
-          },
-          layers: [
-            {
-              id: 'background',
-              type: 'background',
-              paint: {
-                'background-color': '#e8eaed'
-              }
-            },
-            {
-              id: 'landuse',
-              type: 'fill',
-              source: 'openmaptiles',
-              'source-layer': 'landuse',
-              paint: {
-                'fill-color': '#e5e3e0'
-              }
-            },
-            {
-              id: 'waterway',
-              type: 'line',
-              source: 'openmaptiles',
-              'source-layer': 'waterway',
-              paint: {
-                'line-color': '#a0c4ff'
-              }
-            },
-            {
-              id: 'water',
-              type: 'fill',
-              source: 'openmaptiles',
-              'source-layer': 'water',
-              paint: {
-                'fill-color': '#a0c4ff'
-              }
-            },
-            {
-              id: 'building',
-              type: 'fill',
-              source: 'openmaptiles',
-              'source-layer': 'building',
-              paint: {
-                'fill-color': '#e8e5e0'
-              }
-            },
-            {
-              id: 'road',
-              type: 'line',
-              source: 'openmaptiles',
-              'source-layer': 'transportation',
-              paint: {
-                'line-color': '#cdcbc7',
-                'line-width': 1
-              }
-            },
-            {
-              id: 'park',
-              type: 'fill',
-              source: 'openmaptiles',
-              'source-layer': 'park',
-              paint: {
-                'fill-color': '#d5e8d5'
-              }
-            }
-          ]
-        };
-
-        // Fallback para raster se o vector falhar
         const estiloRaster = {
           version: 8,
           sources: {
             'raster-tiles': {
               type: 'raster',
-              tiles: [
-                'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
-              ],
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
               tileSize: 256,
               attribution: '© OpenStreetMap'
             }
           },
-          layers: [
-            {
-              id: 'raster-layer',
-              type: 'raster',
-              source: 'raster-tiles',
-              minzoom: 0,
-              maxzoom: 19
-            }
-          ]
+          layers: [{
+            id: 'raster-layer',
+            type: 'raster',
+            source: 'raster-tiles',
+            minzoom: 0,
+            maxzoom: 19
+          }]
         };
 
         this.map = new maplibregl.Map({
           container: 'map',
           style: estiloRaster,
-          center: [10, 20],
-          zoom: 2.2,
+          center: [-10, 10],
+          zoom: 2.0,
           pitch: 0,
           bearing: 0
         });
@@ -1914,9 +2498,8 @@
             if (this.isGlobeMode) {
               this.map.setProjection({ type: 'globe' });
             }
-          } catch (e) {
-            console.warn('Globe mode not supported');
-          }
+          } catch (e) { /* globo não suportado */ }
+          this.desenharRotas();
         });
 
         this.map.on('click', (e) => {
@@ -1928,12 +2511,93 @@
         });
       }
 
+      desenharRotas() {
+        // Remove rotas anteriores
+        if (this.routeLayers) {
+          this.routeLayers.forEach(layer => {
+            try {
+              if (this.map.getLayer(layer)) this.map.removeLayer(layer);
+              if (this.map.getSource(layer)) this.map.removeSource(layer);
+            } catch(e) {}
+          });
+        }
+        this.routeLayers = [];
+
+        const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
+        
+        rotas.forEach((rota, index) => {
+          const id = 'rota-' + index;
+          const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
+          
+          try {
+            this.map.addSource(id, {
+              type: 'geojson',
+              data: {
+                type: 'Feature',
+                properties: {},
+                geometry: {
+                  type: 'LineString',
+                  coordinates: coordinates
+                }
+              }
+            });
+
+            // Linha principal com traço pontilhado
+            this.map.addLayer({
+              id: id + '-line',
+              type: 'line',
+              source: id,
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: {
+                'line-color': rota.cor || '#d4af37',
+                'line-width': 3,
+                'line-dasharray': [6, 4],
+                'line-opacity': 0.85
+              }
+            });
+
+            // Efeito de brilho
+            this.map.addLayer({
+              id: id + '-glow',
+              type: 'line',
+              source: id,
+              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              paint: {
+                'line-color': rota.cor || '#d4af37',
+                'line-width': 7,
+                'line-dasharray': [6, 4],
+                'line-opacity': 0.15
+              }
+            });
+
+            this.routeLayers.push(id + '-line', id + '-glow');
+
+            // Marcadores nos pontos da rota
+            rota.pontos.forEach((ponto) => {
+              const el = document.createElement('div');
+              el.style.width = '10px';
+              el.style.height = '10px';
+              el.style.borderRadius = '50%';
+              el.style.background = rota.cor || '#d4af37';
+              el.style.border = '2px solid white';
+              el.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+              
+              new maplibregl.Marker({ element: el })
+                .setLngLat([ponto.lon, ponto.lat])
+                .addTo(this.map);
+            });
+          } catch(e) {
+            console.warn('Erro ao desenhar rota:', e);
+          }
+        });
+      }
+
       inicializarComponentes() {
         this.gerarFiltros();
       }
 
       gerarFiltros() {
-        const categorias = ['todos', ...new Set(this.data.map(d => d.categoria))];
+        const categorias = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
         const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
         const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
 
@@ -1995,6 +2659,7 @@
         this.renderizarMarcadores(filtrados);
         this.renderizarTimeline(filtrados);
         this.atualizarContadores(filtrados);
+        this.desenharRotas();
       }
 
       renderizarMarcadores(itens) {
@@ -2002,6 +2667,8 @@
         this.markers = [];
 
         itens.forEach(item => {
+          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
+          
           const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
           
           const el = document.createElement('div');
@@ -2042,12 +2709,13 @@
           const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
           const cover = item.coverImage || 'https://via.placeholder.com/150x100?text=Sem+Imagem';
           const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
+          const tipo = item.tipo === 'rota' ? '🚢 ' : '';
           return `
             <div class="event-card" data-nome="${item.nome}" style="--card-accent: ${cor}" onclick="window.atlasApp.focarPonto('${item.nome.replace(/'/g, "\\'")}')">
               <img class="event-cover" src="${cover}" alt="${item.nome}" />
               <div class="card-content">
                 <div class="event-date"><i class="fa-solid fa-clock"></i> ${anoLabel}</div>
-                <div class="event-title">${item.nome}</div>
+                <div class="event-title">${tipo}${item.nome}</div>
                 <div class="event-desc">${item.descricao && item.descricao.length > 60 ? item.descricao.substring(0,60)+'...' : item.descricao || ''}</div>
               </div>
             </div>
@@ -2059,13 +2727,21 @@
         const item = this.data.find(d => d.nome === nome);
         if (!item) return;
 
-        this.map.flyTo({
-          center: [item.lon, item.lat],
-          zoom: 6.0,
-          pitch: 0,
-          bearing: 0,
-          duration: 2000
-        });
+        if (item.tipo === 'rota' && item.pontos && item.pontos.length > 0) {
+          // Para rotas, centraliza no primeiro ponto
+          const centro = item.pontos[0];
+          this.map.flyTo({
+            center: [centro.lon, centro.lat],
+            zoom: 4.5,
+            duration: 2000
+          });
+        } else {
+          this.map.flyTo({
+            center: [item.lon, item.lat],
+            zoom: 6.0,
+            duration: 2000
+          });
+        }
 
         document.querySelectorAll('.event-card').forEach(c => c.classList.remove('highlight'));
         const card = document.querySelector(`.event-card[data-nome="${nome}"]`);
@@ -2094,7 +2770,13 @@
         const anoLabel = item.fundacao < 0 ? `${Math.abs(item.fundacao)} A.C.` : `${item.fundacao} D.C.`;
         this.dom.detailMetaDate.textContent = anoLabel;
         this.dom.detailMetaLocation.innerHTML = `${item.pais || ''}${item.continente ? ', ' + item.continente : ''}`;
-        this.dom.detailMetaCoords.textContent = `${item.lat.toFixed(4)}°, ${item.lon.toFixed(4)}°`;
+        
+        if (item.tipo === 'rota' && item.pontos) {
+          this.dom.detailMetaCoords.textContent = `${item.pontos.length} pontos de rota`;
+        } else {
+          this.dom.detailMetaCoords.textContent = `${item.lat?.toFixed(4) || ''}°, ${item.lon?.toFixed(4) || ''}°`;
+        }
+        
         this.dom.detailMetaPovo.textContent = item.povo || 'Desconhecido';
         this.dom.detailDescription.textContent = item.descricao || '';
 
@@ -2128,7 +2810,6 @@
 
         this.alternarAbaDetalhes('tab-narrativa');
         
-        // Inicializar 3D se necessário
         setTimeout(() => {
           this.inicializarThreeJS();
           this.inicializarPanorama360();
@@ -2268,8 +2949,8 @@
         }
 
         const stories = {
-          navegacoes: ['Tratado de Tordesilhas (1494)', 'Viagem de Cabral (1500)', 'Carta de Pero Vaz de Caminha (1500)', 'Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
-          imperio_romano: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)']
+          navegacoes: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)', 'Rota do Atlântico Sul'],
+          imperio_romano: ['Alexandria (Egito)', 'Tânger (Marrocos)', 'Rota do Mediterrâneo']
         };
 
         this.currentStory = stories[type] || [];
@@ -2306,22 +2987,166 @@
         }
       }
 
-      inicializarSons() {
-        this.ambientAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3');
-        this.ambientAudio.loop = true;
-        this.ambientAudio.volume = 0.15;
+      // =========================================================
+      // RÁDIO E PLAYLIST
+      // =========================================================
+      inicializarRadio() {
+        this.renderizarEstacoes();
+        this.renderizarPlaylists();
+        
+        this.dom.radioVolumeSlider.addEventListener('input', (e) => {
+          this.radioVolume = parseFloat(e.target.value);
+          if (this.currentAudio) {
+            this.currentAudio.volume = this.radioVolume;
+          }
+        });
+
+        this.dom.radioVolumeDown.addEventListener('click', () => {
+          this.radioVolume = Math.max(0, this.radioVolume - 0.1);
+          this.dom.radioVolumeSlider.value = this.radioVolume;
+          if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
+        });
+
+        this.dom.radioVolumeUp.addEventListener('click', () => {
+          this.radioVolume = Math.min(1, this.radioVolume + 0.1);
+          this.dom.radioVolumeSlider.value = this.radioVolume;
+          if (this.currentAudio) this.currentAudio.volume = this.radioVolume;
+        });
+
+        this.dom.radioStopBtn.addEventListener('click', () => {
+          this.pararRadio();
+        });
+
+        // Toggle dropdown
+        this.dom.radioPlayerBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.dom.radioDropdown.classList.toggle('open');
+        });
+
+        document.addEventListener('click', () => {
+          this.dom.radioDropdown.classList.remove('open');
+        });
       }
 
-      toggleAmbientSound() {
-        if (this.audioPlaying) {
-          this.ambientAudio.pause();
-          this.audioPlaying = false;
-          this.dom.btnHeaderSound.innerHTML = `<i class="fa-solid fa-volume-xmark"></i>`;
-        } else {
-          this.ambientAudio.play();
-          this.audioPlaying = true;
-          this.dom.btnHeaderSound.innerHTML = `<i class="fa-solid fa-volume-high"></i>`;
+      renderizarEstacoes() {
+        this.dom.radioStationsList.innerHTML = RADIO_STATIONS.map(station => `
+          <div class="radio-station" data-id="${station.id}" data-type="station" onclick="window.atlasApp.tocarRadio('${station.id}')">
+            <div class="radio-station-icon"><i class="${station.icon}"></i></div>
+            <div class="radio-station-info">
+              <div class="radio-station-name">${station.name}</div>
+              <div class="radio-station-desc">${station.desc}</div>
+            </div>
+            <span class="radio-station-badge">${station.badge}</span>
+          </div>
+        `).join('');
+      }
+
+      renderizarPlaylists() {
+        this.dom.radioPlaylistsList.innerHTML = RADIO_PLAYLISTS.map(playlist => `
+          <div class="radio-station" data-id="${playlist.id}" data-type="playlist" onclick="window.atlasApp.tocarPlaylist('${playlist.id}')">
+            <div class="radio-station-icon"><i class="${playlist.icon}"></i></div>
+            <div class="radio-station-info">
+              <div class="radio-station-name">${playlist.name}</div>
+              <div class="radio-station-desc">${playlist.desc}</div>
+            </div>
+            <span class="radio-station-badge">${playlist.badge}</span>
+          </div>
+        `).join('');
+      }
+
+      tocarRadio(stationId) {
+        const station = RADIO_STATIONS.find(s => s.id === stationId);
+        if (!station) return;
+
+        this.pararRadio();
+        
+        this.currentAudio = new Audio(station.url);
+        this.currentAudio.volume = this.radioVolume;
+        this.currentAudio.play().catch(e => {
+          console.warn('Erro ao tocar rádio:', e);
+          this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-exclamation-triangle"></i> Não foi possível conectar à rádio`;
+        });
+
+        this.isRadioPlaying = true;
+        this.isPlaylistMode = false;
+        this.currentStationId = stationId;
+        this.dom.radioStatusText.textContent = '🔴 Ao Vivo';
+        this.dom.radioPlayerBtn.classList.add('playing');
+        this.dom.radioNowPlaying.innerHTML = `
+          <i class="fa-solid fa-radio"></i> <strong>${station.name}</strong> - ${station.desc}
+          <span class="radio-pulse"></span>
+        `;
+
+        // Destacar estação
+        document.querySelectorAll('.radio-station').forEach(el => {
+          el.classList.toggle('active', el.dataset.id === stationId && el.dataset.type === 'station');
+        });
+        
+        this.dom.radioDropdown.classList.remove('open');
+      }
+
+      tocarPlaylist(playlistId) {
+        const playlist = RADIO_PLAYLISTS.find(p => p.id === playlistId);
+        if (!playlist || !playlist.tracks || playlist.tracks.length === 0) return;
+
+        this.pararRadio();
+        
+        this.isPlaylistMode = true;
+        this.playlistTracks = playlist.tracks;
+        this.currentPlaylistIndex = 0;
+        this.currentStationId = playlistId;
+        this.dom.radioStatusText.textContent = '🎵 Playlist';
+        this.dom.radioPlayerBtn.classList.add('playing');
+        this.dom.radioNowPlaying.innerHTML = `
+          <i class="fa-solid fa-headphones"></i> <strong>${playlist.name}</strong> - ${playlist.desc}
+          <span class="radio-pulse"></span>
+        `;
+
+        // Destacar playlist
+        document.querySelectorAll('.radio-station').forEach(el => {
+          el.classList.toggle('active', el.dataset.id === playlistId && el.dataset.type === 'playlist');
+        });
+
+        this.tocarProximaFaixaPlaylist();
+        this.dom.radioDropdown.classList.remove('open');
+      }
+
+      tocarProximaFaixaPlaylist() {
+        if (!this.isPlaylistMode || this.playlistTracks.length === 0) return;
+        if (this.currentPlaylistIndex >= this.playlistTracks.length) {
+          this.currentPlaylistIndex = 0;
         }
+
+        const track = this.playlistTracks[this.currentPlaylistIndex];
+        this.currentAudio = new Audio(track);
+        this.currentAudio.volume = this.radioVolume;
+        this.currentAudio.play().catch(e => console.warn('Erro ao tocar faixa:', e));
+        
+        this.currentAudio.onended = () => {
+          this.currentPlaylistIndex++;
+          this.tocarProximaFaixaPlaylist();
+        };
+
+        this.dom.radioNowPlaying.innerHTML = `
+          <i class="fa-solid fa-music"></i> Tocando: <strong>${this.currentPlaylistIndex + 1}/${this.playlistTracks.length}</strong>
+          <span class="radio-pulse"></span>
+        `;
+      }
+
+      pararRadio() {
+        if (this.currentAudio) {
+          this.currentAudio.pause();
+          this.currentAudio = null;
+        }
+        this.isRadioPlaying = false;
+        this.isPlaylistMode = false;
+        this.dom.radioStatusText.textContent = 'Rádio';
+        this.dom.radioPlayerBtn.classList.remove('playing');
+        this.dom.radioNowPlaying.innerHTML = `<i class="fa-solid fa-music"></i> Nenhuma estação selecionada`;
+        
+        document.querySelectorAll('.radio-station').forEach(el => {
+          el.classList.remove('active');
+        });
       }
 
       toggleHighContrast() {
@@ -2436,13 +3261,8 @@
           this.dom.btnToggleGlobe.classList.toggle('active', this.isGlobeMode);
           try {
             this.map.setProjection({ type: this.isGlobeMode ? 'globe' : 'mercator' });
-          } catch (e) {
-            console.warn('Projection not supported');
-          }
+          } catch (e) { /* projeção não suportada */ }
         });
-
-        // Som
-        this.dom.btnHeaderSound.addEventListener('click', () => this.toggleAmbientSound());
 
         // TTS
         this.dom.btnAudioTTS.addEventListener('click', () => this.toggleTTS());
@@ -2535,13 +3355,12 @@
         // Logo reset
         this.dom.logoReset.addEventListener('click', (e) => {
           e.preventDefault();
-          this.map.flyTo({ center: [10, 20], zoom: 2.2, duration: 1500 });
+          this.map.flyTo({ center: [-10, 10], zoom: 2.0, duration: 1500 });
           this.dom.detailPanel.classList.remove('open');
         });
       }
     }
 
-    // Inicialização
     window.addEventListener('DOMContentLoaded', () => {
       window.atlasApp = new AtlasApp();
       window.atlasApp.start();
