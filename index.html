@@ -235,14 +235,6 @@
       display: block;
     }
 
-    .radio-dropdown::-webkit-scrollbar {
-      width: 4px;
-    }
-    .radio-dropdown::-webkit-scrollbar-thumb {
-      background: var(--color-accent);
-      border-radius: 4px;
-    }
-
     .radio-section-title {
       font-size: 0.7rem;
       text-transform: uppercase;
@@ -1316,18 +1308,6 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
-    .points-counter {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.7rem;
-      color: var(--color-muted);
-    }
-
-    .points-counter strong {
-      color: var(--color-accent);
-    }
-
     @media (max-width: 1024px) {
       #detail-panel {
         width: 100%;
@@ -1393,10 +1373,6 @@
       .form-row-3 {
         grid-template-columns: 1fr 1fr;
       }
-    }
-
-    .hidden {
-      display: none !important;
     }
   </style>
 </head>
@@ -1716,12 +1692,15 @@
             <button type="button" class="btn-header" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar Ponto</button>
           </div>
           <div style="font-size:0.65rem; color:var(--color-muted); margin-top:4px;">
-            Clique no mapa para preencher as coordenadas automaticamente
+            💡 Clique no mapa para preencher as coordenadas automaticamente
           </div>
         </div>
 
-        <div id="routePointsList" style="display:flex; flex-direction:column; gap:4px; max-height:150px; overflow-y:auto; padding:4px; background:#f8f9fa; border-radius:4px;">
+        <div id="routePointsList" style="display:flex; flex-direction:column; gap:4px; max-height:150px; overflow-y:auto; padding:4px; background:#f8f9fa; border-radius:4px; border:1px solid var(--border);">
           <!-- Pontos adicionados aparecerão aqui -->
+          <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">
+            Nenhum ponto adicionado. Clique no mapa ou digite as coordenadas.
+          </div>
         </div>
 
         <div class="form-group">
@@ -2150,6 +2129,7 @@
         this.sidebarVisible = false;
         this.timelineVisible = true;
         this.isGlobeMode = false;
+        this._pendingDraw = false;
         this.threeScene = null;
         this.threeCamera = null;
         this.threeRenderer = null;
@@ -2280,6 +2260,9 @@
         localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
       }
 
+      // =========================================================
+      // MAPA - CORRIGIDO
+      // =========================================================
       inicializarMapa() {
         const estiloRaster = {
           version: 8,
@@ -2309,56 +2292,104 @@
           bearing: 0
         });
 
+        // Aguarda o carregamento completo do mapa
         this.map.on('load', () => {
+          console.log('✅ Mapa carregado com sucesso!');
+          
           try {
             if (this.isGlobeMode) {
               this.map.setProjection({ type: 'globe' });
             }
           } catch (e) { /* globo não suportado */ }
+          
+          // Desenha as rotas após o mapa carregar
           this.desenharRotas();
         });
+
+        // Fallback: se o mapa não carregar em 5 segundos, tenta desenhar mesmo assim
+        setTimeout(() => {
+          if (this.map && !this.map.loaded()) {
+            console.warn('⚠️ Mapa demorou para carregar, tentando desenhar rotas mesmo assim...');
+            this.desenharRotas();
+          }
+        }, 5000);
 
         this.map.on('click', (e) => {
           if (this.dom.modalAddRoute.classList.contains('open')) {
             const { lng, lat } = e.lngLat;
             this.$('routePointLat').value = lat.toFixed(6);
             this.$('routePointLon').value = lng.toFixed(6);
-            // Adiciona automaticamente o ponto ao clicar no mapa
             this.adicionarPontoRota();
           }
         });
       }
 
+      // =========================================================
+      // DESENHAR ROTAS - CORRIGIDO
+      // =========================================================
       desenharRotas() {
-        if (!this.map || !this.map.loaded()) {
-          this.map.once('load', () => {
-            this.desenharRotas();
-          });
+        // Verificação mais robusta
+        if (!this.map) {
+          console.warn('⚠️ Mapa não inicializado, agendando desenho...');
+          setTimeout(() => this.desenharRotas(), 1000);
           return;
         }
 
+        // Verifica se o estilo está carregado
+        if (!this.map.loaded()) {
+          console.warn('⚠️ Estilo do mapa não carregado, agendando...');
+          // Usa uma única vez para evitar loops
+          if (!this._pendingDraw) {
+            this._pendingDraw = true;
+            this.map.once('load', () => {
+              this._pendingDraw = false;
+              this.desenharRotas();
+            });
+          }
+          return;
+        }
+
+        // Remove rotas anteriores
         if (this.routeLayers) {
           this.routeLayers.forEach(layer => {
             try {
-              if (this.map.getLayer(layer)) this.map.removeLayer(layer);
-              if (this.map.getSource(layer)) this.map.removeSource(layer);
-            } catch(e) {}
+              if (this.map.getLayer(layer)) {
+                this.map.removeLayer(layer);
+              }
+              if (this.map.getSource(layer)) {
+                this.map.removeSource(layer);
+              }
+            } catch(e) {
+              // Ignora erros ao remover
+            }
           });
         }
         this.routeLayers = [];
 
+        // Filtra apenas os itens do tipo "rota"
         const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
         
+        if (rotas.length === 0) {
+          console.log('ℹ️ Nenhuma rota para desenhar');
+          return;
+        }
+
+        console.log(`🔄 Desenhando ${rotas.length} rotas...`);
+
         rotas.forEach((rota, index) => {
           const id = 'rota-' + index;
           const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
           
           try {
+            // Adiciona a fonte GeoJSON
             this.map.addSource(id, {
               type: 'geojson',
               data: {
                 type: 'Feature',
-                properties: {},
+                properties: {
+                  name: rota.nome,
+                  description: rota.descricao
+                },
                 geometry: {
                   type: 'LineString',
                   coordinates: coordinates
@@ -2366,11 +2397,15 @@
               }
             });
 
+            // Linha principal com traço pontilhado
             this.map.addLayer({
               id: id + '-line',
               type: 'line',
               source: id,
-              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              },
               paint: {
                 'line-color': rota.cor || '#d4af37',
                 'line-width': 3,
@@ -2379,11 +2414,15 @@
               }
             });
 
+            // Efeito de brilho
             this.map.addLayer({
               id: id + '-glow',
               type: 'line',
               source: id,
-              layout: { 'line-join': 'round', 'line-cap': 'round' },
+              layout: {
+                'line-join': 'round',
+                'line-cap': 'round'
+              },
               paint: {
                 'line-color': rota.cor || '#d4af37',
                 'line-width': 7,
@@ -2394,7 +2433,8 @@
 
             this.routeLayers.push(id + '-line', id + '-glow');
 
-            rota.pontos.forEach((ponto) => {
+            // Marcadores nos pontos da rota
+            rota.pontos.forEach((ponto, i) => {
               const el = document.createElement('div');
               el.style.width = '10px';
               el.style.height = '10px';
@@ -2402,15 +2442,33 @@
               el.style.background = rota.cor || '#d4af37';
               el.style.border = '2px solid white';
               el.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+              el.title = `${rota.nome} - Ponto ${i + 1}`;
               
               new maplibregl.Marker({ element: el })
                 .setLngLat([ponto.lon, ponto.lat])
                 .addTo(this.map);
             });
+
+            console.log(`✅ Rota "${rota.nome}" desenhada com sucesso`);
+
           } catch(e) {
-            console.warn('Erro ao desenhar rota:', e);
+            console.warn(`❌ Erro ao desenhar rota "${rota.nome}":`, e.message);
           }
         });
+      }
+
+      // =========================================================
+      // REDESENHAR ROTAS - MÉTODO AUXILIAR
+      // =========================================================
+      redesenharRotas() {
+        if (this.map && this.map.loaded()) {
+          this.desenharRotas();
+        } else {
+          console.warn('⚠️ Aguardando mapa carregar para redesenhar rotas...');
+          this.map.once('load', () => {
+            this.desenharRotas();
+          });
+        }
       }
 
       // =========================================================
@@ -2438,6 +2496,15 @@
       }
 
       renderizarPontosRota() {
+        if (this.routePoints.length === 0) {
+          this.dom.routePointsList.innerHTML = `
+            <div style="text-align:center; color:var(--color-muted); font-size:0.7rem; padding:8px;">
+              Nenhum ponto adicionado. Clique no mapa ou digite as coordenadas.
+            </div>
+          `;
+          return;
+        }
+
         this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) => `
           <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#fff; border:1px solid var(--border); border-radius:4px;">
             <span style="font-size:0.75rem;">${i+1}. ${p.lat.toFixed(4)}°, ${p.lon.toFixed(4)}°</span>
@@ -2639,7 +2706,9 @@
         this.renderizarMarcadores(filtrados);
         this.renderizarTimeline(filtrados);
         this.atualizarContadores(filtrados);
-        this.desenharRotas();
+        
+        // Usa o método seguro para desenhar rotas
+        this.redesenharRotas();
       }
 
       renderizarMarcadores(itens) {
@@ -3262,7 +3331,7 @@
         });
 
         // =========================================================
-        // BOTÕES DE ROTA - ADICIONAR, IMPORTAR, EXPORTAR
+        // BOTÕES DE ROTA
         // =========================================================
         this.dom.btnAddRoute.addEventListener('click', () => {
           this.dom.modalAddRoute.classList.add('open');
@@ -3278,7 +3347,6 @@
 
         this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
 
-        // Enter para adicionar ponto
         this.$('routePointLat').addEventListener('keypress', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
@@ -3292,13 +3360,9 @@
           }
         });
 
-        // Importar Rotas
         this.dom.btnImportRoutes.addEventListener('click', () => this.importarRotas());
-
-        // Exportar Rotas
         this.dom.btnExportRoutes.addEventListener('click', () => this.exportarRotas());
 
-        // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             this.dom.modalAddRoute.classList.remove('open');
