@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Atlas Atlantes – Atlas Histórico Digital Interativo</title>
+  <title>Atlas Atlantes – Atlas Histórico Digital</title>
 
   <!-- Maplibre GL -->
   <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
@@ -13,582 +13,166 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 
   <style>
-    /* ===== RESET & BASE ===== */
+    /* ===== RESET ===== */
     * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      font-family: 'Segoe UI', system-ui, sans-serif;
-      background: #f0f2f5;
-      color: #202124;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    #app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+    body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #202124; height: 100vh; overflow: hidden; }
+    #app { display: flex; flex-direction: column; height: 100vh; }
 
     /* ===== HEADER ===== */
     .header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 20px;
-      height: 60px;
-      background: #ffffff;
-      border-bottom: 1px solid #e0e0e0;
-      flex-shrink: 0;
-      z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 20px; height: 60px; background: #fff; border-bottom: 1px solid #e0e0e0;
+      flex-shrink: 0; z-index: 10;
     }
-    .header-logo {
-      font-weight: 800;
-      font-size: 1.3rem;
-      color: #1a73e8;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .header-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
+    .header-logo { font-weight: 800; font-size: 1.3rem; color: #1a73e8; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+    .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
     .btn {
-      padding: 6px 14px;
-      border-radius: 20px;
-      border: 1px solid #d0d0d0;
-      background: #f8f9fa;
-      color: #202124;
-      font-size: 0.8rem;
-      font-weight: 500;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.2s;
+      padding: 6px 14px; border-radius: 20px; border: 1px solid #d0d0d0;
+      background: #f8f9fa; color: #202124; font-size: 0.8rem; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;
     }
-    .btn:hover {
-      background: #e8eaed;
-      border-color: #1a73e8;
-      color: #1a73e8;
-    }
-    .btn-success {
-      background: #27ae60;
-      color: #fff;
-      border-color: #27ae60;
-    }
-    .btn-success:hover {
-      background: #2ecc71;
-      border-color: #2ecc71;
-      color: #fff;
-    }
+    .btn:hover { background: #e8eaed; border-color: #1a73e8; color: #1a73e8; }
+    .btn-success { background: #27ae60; color: #fff; border-color: #27ae60; }
+    .btn-success:hover { background: #2ecc71; border-color: #2ecc71; color: #fff; }
 
-    .search-wrapper {
-      position: relative;
-    }
-    .search-wrapper i {
-      position: absolute;
-      left: 10px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #777;
-      font-size: 0.8rem;
-    }
+    .search-wrapper { position: relative; }
+    .search-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #777; font-size: 0.8rem; }
     #searchInput {
-      padding: 6px 12px 6px 30px;
-      border-radius: 20px;
-      border: 1px solid #d0d0d0;
-      background: #f8f9fa;
-      width: 200px;
-      font-size: 0.8rem;
-      transition: 0.3s;
+      padding: 6px 12px 6px 30px; border-radius: 20px; border: 1px solid #d0d0d0;
+      background: #f8f9fa; width: 200px; font-size: 0.8rem; transition: 0.3s;
     }
-    #searchInput:focus {
-      outline: none;
-      width: 260px;
-      border-color: #1a73e8;
-      background: #fff;
-      box-shadow: 0 0 0 3px rgba(26,115,232,0.15);
-    }
+    #searchInput:focus { outline: none; width: 260px; border-color: #1a73e8; background: #fff; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
 
     /* ===== MAPA ===== */
-    .main-area {
-      display: flex;
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-    }
-    #map-container {
-      flex: 1;
-      height: 100%;
-      position: relative;
-      background: #e8eaed;
-    }
-    #map {
-      width: 100%;
-      height: 100%;
-      min-height: 400px;
-    }
+    .main-area { display: flex; flex: 1; overflow: hidden; position: relative; }
+    #map-container { flex: 1; height: 100%; position: relative; background: #e8eaed; }
+    #map { width: 100%; height: 100%; min-height: 400px; }
 
     /* ===== SIDEBAR ===== */
     #sidebar {
-      width: 280px;
-      background: #fff;
-      border-right: 1px solid #e0e0e0;
-      padding: 16px;
-      overflow-y: auto;
-      transition: 0.3s;
-      flex-shrink: 0;
+      width: 280px; background: #fff; border-right: 1px solid #e0e0e0;
+      padding: 16px; overflow-y: auto; transition: 0.3s; flex-shrink: 0;
     }
-    #sidebar.collapsed {
-      width: 0;
-      padding: 0;
-      border: none;
-      opacity: 0;
-      pointer-events: none;
-    }
-    .sidebar-title {
-      font-weight: 600;
-      color: #1a73e8;
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
-      display: flex;
-      justify-content: space-between;
-    }
-    .filter-group {
-      margin-bottom: 12px;
-    }
-    .filter-header {
-      display: flex;
-      justify-content: space-between;
-      cursor: pointer;
-      padding: 4px 0;
-      font-weight: 500;
-      font-size: 0.85rem;
-    }
-    .filter-content {
-      padding-left: 8px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
+    #sidebar.collapsed { width: 0; padding: 0; border: none; opacity: 0; pointer-events: none; }
+    .sidebar-title { font-weight: 600; color: #1a73e8; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; }
+    .filter-group { margin-bottom: 12px; }
+    .filter-header { display: flex; justify-content: space-between; cursor: pointer; padding: 4px 0; font-weight: 500; font-size: 0.85rem; }
+    .filter-content { padding-left: 8px; display: flex; flex-direction: column; gap: 4px; }
     .filter-btn {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      border: none;
-      background: transparent;
-      color: #5f6368;
-      font-size: 0.8rem;
-      cursor: pointer;
-      border-radius: 4px;
-      transition: 0.2s;
-      width: 100%;
-      text-align: left;
+      display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: none;
+      background: transparent; color: #5f6368; font-size: 0.8rem; cursor: pointer;
+      border-radius: 4px; transition: 0.2s; width: 100%; text-align: left;
     }
-    .filter-btn:hover {
-      background: #f1f3f4;
-    }
-    .filter-btn.active {
-      background: #e8f0fe;
-      color: #1a73e8;
-      font-weight: 500;
-    }
-    .filter-btn .count {
-      margin-left: auto;
-      background: #e8eaed;
-      padding: 0 8px;
-      border-radius: 10px;
-      font-size: 0.65rem;
-    }
+    .filter-btn:hover { background: #f1f3f4; }
+    .filter-btn.active { background: #e8f0fe; color: #1a73e8; font-weight: 500; }
+    .filter-btn .count { margin-left: auto; background: #e8eaed; padding: 0 8px; border-radius: 10px; font-size: 0.65rem; }
 
-    .range-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      font-size: 0.8rem;
-      margin-top: 6px;
-    }
-    .range-row input {
-      width: 80px;
-      padding: 4px 6px;
-      border: 1px solid #d0d0d0;
-      border-radius: 4px;
-      text-align: center;
-    }
-
-    #count-visible {
-      color: #1a73e8;
-      font-weight: 700;
-    }
+    .range-row { display: flex; gap: 8px; align-items: center; font-size: 0.8rem; margin-top: 6px; }
+    .range-row input { width: 80px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 4px; text-align: center; }
+    #count-visible { color: #1a73e8; font-weight: 700; }
 
     /* ===== TIMELINE ===== */
     .timeline-section {
-      position: absolute;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      height: 180px;
-      background: rgba(255,255,255,0.92);
-      backdrop-filter: blur(8px);
-      border-radius: 12px;
-      padding: 10px 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-      border: 1px solid rgba(0,0,0,0.08);
-      transition: 0.4s;
-      z-index: 4;
+      position: absolute; bottom: 20px; left: 20px; right: 20px; height: 180px;
+      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+      border-radius: 12px; padding: 10px 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08);
+      transition: 0.4s; z-index: 4;
     }
-    .timeline-section.collapsed {
-      transform: translateY(220px);
-      opacity: 0;
-      pointer-events: none;
-    }
-    .timeline-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      color: #1a73e8;
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 4px;
-      margin-bottom: 8px;
-    }
-    .timeline-wrapper {
-      overflow-x: auto;
-      height: calc(100% - 30px);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding-bottom: 4px;
-    }
-    .timeline-wrapper::-webkit-scrollbar {
-      height: 4px;
-    }
-    .timeline-wrapper::-webkit-scrollbar-thumb {
-      background: #1a73e8;
-      border-radius: 4px;
-    }
+    .timeline-section.collapsed { transform: translateY(220px); opacity: 0; pointer-events: none; }
+    .timeline-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #1a73e8; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; margin-bottom: 8px; }
+    .timeline-wrapper { overflow-x: auto; height: calc(100% - 30px); display: flex; align-items: center; gap: 12px; padding-bottom: 4px; }
+    .timeline-wrapper::-webkit-scrollbar { height: 4px; }
+    .timeline-wrapper::-webkit-scrollbar-thumb { background: #1a73e8; border-radius: 4px; }
     .event-card {
-      min-width: 180px;
-      height: 90px;
-      background: #fff;
-      border-radius: 8px;
+      min-width: 180px; height: 90px; background: #fff; border-radius: 8px;
       border-left: 4px solid var(--card-color, #1a73e8);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      display: flex;
-      overflow: hidden;
-      cursor: pointer;
-      transition: 0.2s;
-      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; overflow: hidden;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
     }
-    .event-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 6px 16px rgba(0,0,0,0.12);
-    }
-    .event-card.highlight {
-      border-color: #1a73e8;
-      box-shadow: 0 0 0 3px rgba(26,115,232,0.25);
-    }
-    .event-cover {
-      width: 60px;
-      height: 100%;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
-    .event-info {
-      padding: 6px 10px;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      flex: 1;
-      overflow: hidden;
-    }
-    .event-date {
-      font-size: 0.6rem;
-      color: #1a73e8;
-      font-weight: 600;
-    }
-    .event-title {
-      font-size: 0.75rem;
-      font-weight: 600;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .event-desc {
-      font-size: 0.6rem;
-      color: #5f6368;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
+    .event-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
+    .event-card.highlight { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.25); }
+    .event-cover { width: 60px; height: 100%; object-fit: cover; flex-shrink: 0; }
+    .event-info { padding: 6px 10px; display: flex; flex-direction: column; justify-content: space-between; flex: 1; overflow: hidden; }
+    .event-date { font-size: 0.6rem; color: #1a73e8; font-weight: 600; }
+    .event-title { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .event-desc { font-size: 0.6rem; color: #5f6368; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
     /* ===== DETAIL PANEL ===== */
     #detail-panel {
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      width: 400px;
-      background: #fff;
-      border-left: 1px solid #e0e0e0;
-      transform: translateX(100%);
-      transition: 0.35s cubic-bezier(0.4,0,0.2,1);
-      z-index: 15;
-      display: flex;
-      flex-direction: column;
-      box-shadow: -4px 0 20px rgba(0,0,0,0.08);
+      position: absolute; top: 0; right: 0; bottom: 0; width: 400px;
+      background: #fff; border-left: 1px solid #e0e0e0;
+      transform: translateX(100%); transition: 0.35s cubic-bezier(0.4,0,0.2,1);
+      z-index: 15; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.08);
     }
-    #detail-panel.open {
-      transform: translateX(0);
-    }
-    .panel-cover {
-      height: 140px;
-      background: #e8eaed;
-      position: relative;
-      overflow: hidden;
-    }
-    .panel-cover img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .panel-cover .overlay {
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4));
-    }
-    .panel-close {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: rgba(0,0,0,0.5);
-      color: #fff;
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .panel-close:hover {
-      background: #1a73e8;
-    }
-    .panel-tabs {
-      display: flex;
-      background: #f8f9fa;
-      border-bottom: 1px solid #e0e0e0;
-      flex-shrink: 0;
-    }
-    .panel-tabs button {
-      flex: 1;
-      padding: 8px 4px;
-      border: none;
-      background: transparent;
-      font-size: 0.7rem;
-      font-weight: 500;
-      color: #5f6368;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: 0.2s;
-    }
-    .panel-tabs button.active {
-      color: #1a73e8;
-      border-bottom-color: #1a73e8;
-    }
-    .panel-body {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .panel-body .tab-content {
-      display: none;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .panel-body .tab-content.active {
-      display: flex;
-    }
-    .panel-title {
-      font-size: 1.2rem;
-      font-weight: 700;
-    }
-    .panel-sub {
-      color: #5f6368;
-      font-size: 0.85rem;
-    }
-    .panel-meta {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 6px 12px;
-      background: #f8f9fa;
-      padding: 10px;
-      border-radius: 6px;
-    }
-    .panel-meta .label {
-      font-size: 0.6rem;
-      text-transform: uppercase;
-      color: #5f6368;
-    }
-    .panel-meta .value {
-      font-weight: 500;
-    }
-    .panel-desc {
-      font-size: 0.85rem;
-      line-height: 1.5;
-      text-align: justify;
-    }
+    #detail-panel.open { transform: translateX(0); }
+    .panel-cover { height: 140px; background: #e8eaed; position: relative; overflow: hidden; }
+    .panel-cover img { width: 100%; height: 100%; object-fit: cover; }
+    .panel-cover .overlay { position: absolute; inset: 0; background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.4)); }
+    .panel-close { position: absolute; top: 10px; right: 10px; width: 30px; height: 30px; border-radius: 50%; background: rgba(0,0,0,0.5); color: #fff; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .panel-close:hover { background: #1a73e8; }
+    .panel-tabs { display: flex; background: #f8f9fa; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; }
+    .panel-tabs button { flex: 1; padding: 8px 4px; border: none; background: transparent; font-size: 0.7rem; font-weight: 500; color: #5f6368; cursor: pointer; border-bottom: 2px solid transparent; transition: 0.2s; }
+    .panel-tabs button.active { color: #1a73e8; border-bottom-color: #1a73e8; }
+    .panel-body { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .panel-body .tab-content { display: none; flex-direction: column; gap: 12px; }
+    .panel-body .tab-content.active { display: flex; }
+    .panel-title { font-size: 1.2rem; font-weight: 700; }
+    .panel-sub { color: #5f6368; font-size: 0.85rem; }
+    .panel-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 12px; background: #f8f9fa; padding: 10px; border-radius: 6px; }
+    .panel-meta .label { font-size: 0.6rem; text-transform: uppercase; color: #5f6368; }
+    .panel-meta .value { font-weight: 500; }
+    .panel-desc { font-size: 0.85rem; line-height: 1.5; text-align: justify; }
 
     /* ===== LOADING ===== */
     #loading-overlay {
-      position: fixed;
-      inset: 0;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      z-index: 9999;
-      transition: 0.6s;
+      position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; z-index: 9999; transition: 0.6s;
     }
-    #loading-overlay.hide {
-      opacity: 0;
-      pointer-events: none;
-    }
-    .spinner {
-      width: 50px;
-      height: 50px;
-      border: 4px solid #e0e0e0;
-      border-top-color: #1a73e8;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+    #loading-overlay.hide { opacity: 0; pointer-events: none; }
+    .spinner { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top-color: #1a73e8; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
 
     /* ===== MARKERS ===== */
-    .marker-container {
-      width: 30px;
-      height: 30px;
-      position: relative;
-      cursor: pointer;
-    }
+    .marker-container { width: 30px; height: 30px; position: relative; cursor: pointer; }
     .marker-pin {
-      width: 16px;
-      height: 16px;
-      border-radius: 50% 50% 50% 0;
+      width: 16px; height: 16px; border-radius: 50% 50% 50% 0;
       background: var(--marker-color, #1a73e8);
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -100%) rotate(-45deg);
+      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -100%) rotate(-45deg);
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
-    .marker-pin::after {
-      content: '';
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #fff;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-    }
+    .marker-pin::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
     .marker-pulse {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      background: var(--marker-color, #1a73e8);
-      opacity: 0.15;
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
+      width: 30px; height: 30px; border-radius: 50%; background: var(--marker-color, #1a73e8);
+      opacity: 0.15; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
       animation: pulse 2s infinite;
     }
-    @keyframes pulse {
-      0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; }
-      100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
-    }
+    @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
 
     /* ===== MODAL ===== */
     .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(4px);
-      z-index: 999;
-      display: none;
-      align-items: center;
-      justify-content: center;
+      position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
+      z-index: 999; display: none; align-items: center; justify-content: center;
     }
     .modal-overlay.open { display: flex; }
     .modal-box {
-      background: #fff;
-      border-radius: 16px;
-      padding: 24px;
-      max-width: 640px;
-      width: 90%;
-      max-height: 90vh;
-      overflow-y: auto;
+      background: #fff; border-radius: 16px; padding: 24px;
+      max-width: 640px; width: 90%; max-height: 90vh; overflow-y: auto;
       box-shadow: 0 20px 60px rgba(0,0,0,0.2);
     }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #e0e0e0;
-      padding-bottom: 12px;
-      margin-bottom: 16px;
-    }
-    .modal-header h3 {
-      color: #1a73e8;
-    }
-    .modal-close {
-      cursor: pointer;
-      font-size: 1.4rem;
-      color: #5f6368;
-    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 12px; margin-bottom: 16px; }
+    .modal-header h3 { color: #1a73e8; }
+    .modal-close { cursor: pointer; font-size: 1.4rem; color: #5f6368; }
     .modal-close:hover { color: #202124; }
-
     .form-group { margin-bottom: 12px; }
     .form-group label { font-size: 0.7rem; text-transform: uppercase; color: #5f6368; font-weight: 600; display: block; margin-bottom: 2px; }
-    .form-control {
-      width: 100%;
-      padding: 8px 12px;
-      border: 1px solid #d0d0d0;
-      border-radius: 6px;
-      font-size: 0.85rem;
-    }
+    .form-control { width: 100%; padding: 8px 12px; border: 1px solid #d0d0d0; border-radius: 6px; font-size: 0.85rem; }
     .form-control:focus { outline: none; border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.1); }
     .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
-
-    .btn-submit {
-      width: 100%;
-      padding: 12px;
-      background: #1a73e8;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: 0.2s;
-    }
+    .btn-submit { width: 100%; padding: 12px; background: #1a73e8; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #1557b0; }
 
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 768px) {
       .header { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 6px; }
       .header-logo { font-size: 1rem; }
@@ -612,11 +196,8 @@
   </div>
 
   <div id="app">
-    <!-- HEADER -->
     <header class="header">
-      <a href="#" class="header-logo" id="logoReset">
-        <i class="fa-solid fa-compass"></i> Atlas Atlantes
-      </a>
+      <a href="#" class="header-logo" id="logoReset"><i class="fa-solid fa-compass"></i> Atlas Atlantes</a>
       <div class="header-controls">
         <div class="search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
@@ -628,24 +209,16 @@
       </div>
     </header>
 
-    <!-- MAIN -->
     <div class="main-area">
-      <!-- SIDEBAR -->
       <aside id="sidebar">
-        <div class="sidebar-title">
-          <span>Período</span>
-          <i class="fa-regular fa-calendar"></i>
-        </div>
+        <div class="sidebar-title"><span>Período</span> <i class="fa-regular fa-calendar"></i></div>
         <div class="range-row">
           <input type="number" id="inputStartYear" value="-2000" />
           <span>até</span>
           <input type="number" id="inputEndYear" value="2026" />
         </div>
 
-        <div class="sidebar-title" style="margin-top:16px;">
-          <span>Filtros</span>
-          <i class="fa-solid fa-sliders"></i>
-        </div>
+        <div class="sidebar-title" style="margin-top:16px;"><span>Filtros</span> <i class="fa-solid fa-sliders"></i></div>
 
         <div class="filter-group">
           <div class="filter-header" data-target="cat">Categoria <i class="fa-solid fa-chevron-down"></i></div>
@@ -665,28 +238,24 @@
         </button>
 
         <div style="margin-top:20px; border-top:1px solid #e0e0e0; padding-top:12px; font-size:0.8rem; color:#5f6368; display:flex; justify-content:space-between;">
-          <span>Registros:</span>
-          <strong id="count-visible">0</strong>
+          <span>Registros:</span> <strong id="count-visible">0</strong>
         </div>
       </aside>
 
-      <!-- MAPA -->
       <div id="map-container">
         <div id="map"></div>
 
-        <!-- TIMELINE -->
         <div class="timeline-section" id="timelineSection">
           <div class="timeline-header">
             <span><i class="fa-regular fa-clock"></i> Linha do Tempo</span>
             <button class="btn" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 10px;">Ocultar</button>
           </div>
-          <div class="timeline-wrapper" id="timelineWrapper">
+          <div class="timeline-wrapper">
             <div id="timelineContainer" style="display:flex; gap:12px; height:100%; align-items:center;"></div>
           </div>
         </div>
       </div>
 
-      <!-- DETAIL PANEL -->
       <aside id="detail-panel">
         <div class="panel-cover">
           <img id="detailCover" src="" alt="capa" />
@@ -733,40 +302,17 @@
       </div>
       <form id="addRouteForm">
         <div class="form-row">
-          <div class="form-group">
-            <label>Nome *</label>
-            <input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required />
-          </div>
-          <div class="form-group">
-            <label>Subtítulo</label>
-            <input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" />
-          </div>
+          <div class="form-group"><label>Nome *</label><input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required /></div>
+          <div class="form-group"><label>Subtítulo</label><input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" /></div>
         </div>
         <div class="form-row-3">
-          <div class="form-group">
-            <label>Ano *</label>
-            <input type="number" id="routeYear" class="form-control" placeholder="1500" required />
-          </div>
-          <div class="form-group">
-            <label>Cor</label>
-            <input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" />
-          </div>
-          <div class="form-group">
-            <label>Tema</label>
-            <select id="routeCategory" class="form-control">
-              <option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option>
-            </select>
-          </div>
+          <div class="form-group"><label>Ano *</label><input type="number" id="routeYear" class="form-control" placeholder="1500" required /></div>
+          <div class="form-group"><label>Cor</label><input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" /></div>
+          <div class="form-group"><label>Tema</label><select id="routeCategory" class="form-control"><option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option></select></div>
         </div>
         <div class="form-row">
-          <div class="form-group">
-            <label>Países</label>
-            <input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" />
-          </div>
-          <div class="form-group">
-            <label>Continentes</label>
-            <input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" />
-          </div>
+          <div class="form-group"><label>Países</label><input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" /></div>
+          <div class="form-group"><label>Continentes</label><input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" /></div>
         </div>
         <div class="form-group">
           <label>Pontos da Rota (clique no mapa)</label>
@@ -780,10 +326,7 @@
         <div id="routePointsList" style="max-height:100px; overflow-y:auto; background:#f8f9fa; border-radius:6px; padding:4px; border:1px solid #e0e0e0; margin-bottom:10px;">
           <div style="text-align:center; color:#777; font-size:0.8rem; padding:6px;">Nenhum ponto</div>
         </div>
-        <div class="form-group">
-          <label>Descrição *</label>
-          <textarea id="routeDescription" class="form-control" rows="3" placeholder="Descreva a rota..." required></textarea>
-        </div>
+        <div class="form-group"><label>Descrição *</label><textarea id="routeDescription" class="form-control" rows="3" placeholder="Descreva a rota..." required></textarea></div>
         <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota</button>
       </form>
     </div>
@@ -791,9 +334,13 @@
 
   <script>
     // =========================================================
-    // DADOS INICIAIS (com rotas e pontos)
+    // DADOS COMPLETOS E CORRETOS (TODOS OS PORTOS + ROTAS)
     // =========================================================
+    const CORES_CATEGORIA = { mapa: '#1a73e8', porto: '#0d9488', rota: '#d4af37' };
+    const NOMES_CATEGORIA = { mapa: 'Mapa', porto: 'Porto', rota: 'Rota Comercial' };
+
     const DADOS_INICIAIS = [
+      // ======== MAPAS HISTÓRICOS ========
       {
         nome: "Carta de Piri Reis (1513)",
         subtitulo: "Mapa-múndi Otomano",
@@ -801,8 +348,9 @@
         pais: "Turquia", continente: "Europa/Ásia",
         categoria: "mapa", tema: "Cultura", povo: "Otomanos",
         fundacao: 1513,
-        descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg"
+        descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg",
+        fotos: [], documentos: []
       },
       {
         nome: "Mapa de Cantino (1502)",
@@ -812,19 +360,206 @@
         categoria: "mapa", tema: "Cultura", povo: "Portugueses",
         fundacao: 1502,
         descricao: "O mais antigo mapa a retratar a costa do Brasil.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg"
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
+        fotos: [], documentos: []
+      },
+
+      // ======== PORTOS - AMÉRICA DO NORTE ========
+      {
+        nome: "Veracruz (México)",
+        subtitulo: "O porto mais antigo do México continental",
+        lat: 19.2029, lon: -96.1382,
+        pais: "México", continente: "América do Norte",
+        categoria: "porto", tema: "Colonização", povo: "Espanhóis e Nahuas",
+        fundacao: 1519,
+        descricao: "Fundado por Hernán Cortés em 1519, foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Havana (Cuba)",
+        subtitulo: "O coração do império espanhol no Caribe",
+        lat: 23.1136, lon: -82.3666,
+        pais: "Cuba", continente: "América do Norte",
+        categoria: "porto", tema: "Comércio e Defesa", povo: "Espanhóis e Cubanos",
+        fundacao: 1515,
+        descricao: "Porto estratégico do Caribe, ponto de encontro da Frota das Índias.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Nova Orleans (EUA)",
+        subtitulo: "A porta de entrada do Mississippi",
+        lat: 29.9511, lon: -90.0715,
+        pais: "Estados Unidos", continente: "América do Norte",
+        categoria: "porto", tema: "Comércio Fluvial", povo: "Franceses, Africanos e Americanos",
+        fundacao: 1718,
+        descricao: "Crucial para o comércio de algodão e escravizados no século XIX.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
+        fotos: [], documentos: []
+      },
+
+      // ======== PORTOS - AMÉRICA CENTRAL ========
+      {
+        nome: "Porto Bello (Panamá)",
+        subtitulo: "O porto das feiras de ouro",
+        lat: 9.5533, lon: -79.6531,
+        pais: "Panamá", continente: "América Central",
+        categoria: "porto", tema: "Comércio Colonial", povo: "Espanhóis e Emberá",
+        fundacao: 1597,
+        descricao: "Principal porto espanhol no Caribe para o comércio de ouro e prata.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
+        fotos: [], documentos: []
+      },
+
+      // ======== PORTOS - AMÉRICA DO SUL ========
+      {
+        nome: "Recife (Brasil)",
+        subtitulo: "O 'Veneza Brasileira' e porto do açúcar",
+        lat: -8.0476, lon: -34.8770,
+        pais: "Brasil", continente: "América do Sul",
+        categoria: "porto", tema: "Economia Colonial", povo: "Portugueses, Holandeses e Africanos",
+        fundacao: 1537,
+        descricao: "Centro da economia açucareira do Nordeste brasileiro, ocupado pelos holandeses entre 1630-1654.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Cartagena (Colômbia)",
+        subtitulo: "A fortaleza do Caribe",
+        lat: 10.3910, lon: -75.4824,
+        pais: "Colômbia", continente: "América do Sul",
+        categoria: "porto", tema: "Defesa e Comércio", povo: "Espanhóis, Africanos e Indígenas",
+        fundacao: 1533,
+        descricao: "Principal porto para o comércio de escravizados e ouro, fortificado contra piratas.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Buenos Aires (Argentina)",
+        subtitulo: "A porta do Prata",
+        lat: -34.6037, lon: -58.3816,
+        pais: "Argentina", continente: "América do Sul",
+        categoria: "porto", tema: "Comércio e Imigração", povo: "Espanhóis, Italianos e Argentinos",
+        fundacao: 1536,
+        descricao: "Principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Callao (Peru)",
+        subtitulo: "O porto do Vice-Reino do Peru",
+        lat: -12.0658, lon: -77.1500,
+        pais: "Peru", continente: "América do Sul",
+        categoria: "porto", tema: "Comércio de Prata", povo: "Espanhóis, Quechuas e Africanos",
+        fundacao: 1537,
+        descricao: "Principal porto do Vice-Reino do Peru, escoando a prata de Potosí.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
+        fotos: [], documentos: []
+      },
+
+      // ======== PORTOS - ÁFRICA ========
+      {
+        nome: "Alexandria (Egito)",
+        subtitulo: "O farol do mundo antigo",
+        lat: 31.2001, lon: 29.9187,
+        pais: "Egito", continente: "África",
+        categoria: "porto", tema: "Antiguidade", povo: "Gregos, Romanos e Egípcios",
+        fundacao: -331,
+        descricao: "Fundado por Alexandre, o Grande em 331 a.C., foi o maior porto do mundo antigo.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Tânger (Marrocos)",
+        subtitulo: "A porta entre dois continentes",
+        lat: 35.7595, lon: -5.8340,
+        pais: "Marrocos", continente: "África",
+        categoria: "porto", tema: "Comércio Mediterrâneo", povo: "Fenícios, Romanos, Árabes e Berberes",
+        fundacao: -500,
+        descricao: "Um dos portos mais antigos do mundo, fundado pelos fenícios.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Cidade do Cabo (África do Sul)",
+        subtitulo: "A rota do Cabo",
+        lat: -33.9249, lon: 18.4241,
+        pais: "África do Sul", continente: "África",
+        categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses e Africanos",
+        fundacao: 1652,
+        descricao: "Posto de reabastecimento da Companhia Holandesa das Índias Orientais.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Elmina (Gana)",
+        subtitulo: "Primeiro entreposto europeu na África Subsaariana",
+        lat: 5.0877, lon: -1.3482,
+        pais: "Gana", continente: "África",
+        categoria: "porto", tema: "Comércio de Escravos", povo: "Portugueses, Holandeses e Africanos",
+        fundacao: 1482,
+        descricao: "Castelo de São Jorge da Mina, o mais importante centro de comércio de escravizados.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Lagos (Nigéria)",
+        subtitulo: "O gigante da África Ocidental",
+        lat: 6.5244, lon: 3.3792,
+        pais: "Nigéria", continente: "África",
+        categoria: "porto", tema: "Comércio Colonial", povo: "Iorubás, Europeus e Nigerianos",
+        fundacao: 1470,
+        descricao: "Principal porto da Nigéria durante o período colonial britânico.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Kilwa Kisiwani (Tanzânia)",
+        subtitulo: "A pérola da costa swahili",
+        lat: -8.9583, lon: 39.5167,
+        pais: "Tanzânia", continente: "África",
+        categoria: "porto", tema: "Comércio no Oceano Índico", povo: "Suaílis, Árabes e Africanos",
+        fundacao: 900,
+        descricao: "Importante porto da costa swahili entre os séculos IX e XVI.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Mombaça (Quênia)",
+        subtitulo: "A fortaleza portuguesa no Índico",
+        lat: -4.0435, lon: 39.6682,
+        pais: "Quênia", continente: "África",
+        categoria: "porto", tema: "Conflito Colonial", povo: "Suaílis, Portugueses, Árabes e Africanos",
+        fundacao: 900,
+        descricao: "Forte Jesus, disputado entre portugueses, árabes e britânicos.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Zanzibar (Tanzânia)",
+        subtitulo: "A ilha das especiarias",
+        lat: -6.1631, lon: 39.1912,
+        pais: "Tanzânia", continente: "África",
+        categoria: "porto", tema: "Comércio de Especiarias", povo: "Árabes, Suaílis, Indianos e Africanos",
+        fundacao: 1000,
+        descricao: "Centro do comércio de especiarias, especialmente cravo.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg",
+        fotos: [], documentos: []
       },
       {
         nome: "Santos (Brasil)",
-        subtitulo: "Maior porto da América Latina",
+        subtitulo: "O maior complexo portuário da América Latina",
         lat: -23.9608, lon: -46.3350,
         pais: "Brasil", continente: "América do Sul",
         categoria: "porto", tema: "Economia", povo: "Brasileiros",
         fundacao: 1892,
-        descricao: "O Porto de Santos é o maior complexo portuário da América Latina.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg"
+        descricao: "Maior complexo portuário da América Latina, fundamental para a economia cafeeira.",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
+        fotos: [], documentos: []
       },
-      // ROTAS
+
+      // ======== ROTAS COMERCIAIS ========
       {
         nome: "Rota do Atlântico Sul",
         subtitulo: "Lisboa ↔ Santos",
@@ -841,7 +576,9 @@
         continente: "Europa/América do Sul",
         categoria: "rota",
         tema: "Comércio",
-        povo: "Portugueses"
+        povo: "Portugueses e Brasileiros",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
+        fotos: [], documentos: []
       },
       {
         nome: "Rota do Pacífico",
@@ -852,419 +589,37 @@
           { lat: -23.9608, lon: -46.3350 }
         ],
         cor: "#2ecc71",
-        descricao: "Conexão entre os oceanos Pacífico e Atlântico.",
+        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.",
         fundacao: 1914,
         pais: "Panamá/Brasil",
         continente: "América Central/América do Sul",
         categoria: "rota",
         tema: "Comércio",
-        povo: "Panamenhos"
+        povo: "Panamenhos e Brasileiros",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
+        fotos: [], documentos: []
+      },
+      {
+        nome: "Rota do Mediterrâneo",
+        subtitulo: "Tânger ↔ Alexandria",
+        tipo: "rota",
+        pontos: [
+          { lat: 35.7595, lon: -5.8340 },
+          { lat: 36.0, lon: 0.0 },
+          { lat: 31.2001, lon: 29.9187 }
+        ],
+        cor: "#3498db",
+        descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.",
+        fundacao: -500,
+        pais: "Marrocos/Egito",
+        continente: "África",
+        categoria: "rota",
+        tema: "Comércio",
+        povo: "Fenícios, Romanos, Árabes",
+        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
+        fotos: [], documentos: []
       }
-    
-  // === AMÉRICA DO NORTE ===
-  {
-    "nome": "Veracruz (México)",
-    "subtitulo": "O porto mais antigo do México continental",
-    "lat": 19.2029,
-    "lon": -96.1382,
-    "pais": "México",
-    "continente": "América do Norte",
-    "categoria": "porto",
-    "tema": "Colonização",
-    "povo": "Espanhóis e Nahuas",
-    "fundacao": 1519,
-    "descricao": "Fundado por Hernán Cortés em 1519, o Porto de Veracruz foi a principal porta de entrada de mercadorias e escravizados durante o período colonial. Foi palco de importantes batalhas, incluindo a invasão estadunidense de 1847 e a Revolução Mexicana.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Governo de Veracruz",
-    "institution": "Administração Portuária de Veracruz",
-    "doi": "10.1000/veracruz.1519",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Havana (Cuba)",
-    "subtitulo": "O coração do império espanhol no Caribe",
-    "lat": 23.1136,
-    "lon": -82.3666,
-    "pais": "Cuba",
-    "continente": "América do Norte",
-    "categoria": "porto",
-    "tema": "Comércio e Defesa",
-    "povo": "Espanhóis e Cubanos",
-    "fundacao": 1515,
-    "descricao": "O Porto de Havana foi o ponto de encontro da Frota das Índias, sendo o porto mais estratégico do Caribe durante os séculos XVI-XVIII. Sua baía natural abrigava galeões carregados de ouro e prata antes da viagem para a Espanha, sendo fortemente fortificado contra piratas.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Oficina del Historiador",
-    "institution": "Patrimônio de Havana",
-    "doi": "10.1000/havana.1515",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Nova Orleans (EUA)",
-    "subtitulo": "A porta de entrada do Mississippi",
-    "lat": 29.9511,
-    "lon": -90.0715,
-    "pais": "Estados Unidos",
-    "continente": "América do Norte",
-    "categoria": "porto",
-    "tema": "Comércio Fluvial",
-    "povo": "Franceses, Africanos e Americanos",
-    "fundacao": 1718,
-    "descricao": "Fundado pelos franceses, o Porto de Nova Orleans foi crucial para o comércio de algodão e escravizados no século XIX. Controlar o porto significava controlar o comércio do Rio Mississippi. Foi palco da Batalha de Nova Orleans em 1815 e um dos maiores centros de comércio de escravos dos EUA.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Louisiana State Museum",
-    "institution": "Port of New Orleans",
-    "doi": "10.1000/neworleans.1718",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // === AMÉRICA CENTRAL E CARIBE ===
-  {
-    "nome": "Porto Bello (Panamá)",
-    "subtitulo": "O porto das feiras de ouro",
-    "lat": 9.5533,
-    "lon": -79.6531,
-    "pais": "Panamá",
-    "continente": "América Central",
-    "categoria": "porto",
-    "tema": "Comércio Colonial",
-    "povo": "Espanhóis e Emberá",
-    "fundacao": 1597,
-    "descricao": "Porto Bello foi o principal porto espanhol no Caribe para o comércio de ouro e prata vindos do Peru. Suas famosas 'feiras' atraíam mercadores de todo o mundo. Foi palco de ataques de piratas como Henry Morgan e está hoje na lista de Patrimônio Mundial da UNESCO.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "UNESCO Panamá",
-    "institution": "Patrimônio Histórico do Panamá",
-    "doi": "10.1000/portobello.1597",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // === AMÉRICA DO SUL ===
-  {
-    "nome": "Recife (Brasil)",
-    "subtitulo": "O 'Veneza Brasileira' e porto do açúcar",
-    "lat": -8.0476,
-    "lon": -34.8770,
-    "pais": "Brasil",
-    "continente": "América do Sul",
-    "categoria": "porto",
-    "tema": "Economia Colonial",
-    "povo": "Portugueses, Holandeses e Africanos",
-    "fundacao": 1537,
-    "descricao": "O Porto do Recife foi o centro da economia açucareira do Nordeste brasileiro. Ocupado pelos holandeses entre 1630-1654, tornou-se um dos portos mais cosmopolitas da América. Foi palco da primeira batalha naval do Brasil e principal escoadouro do açúcar para a Europa.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Fundação Joaquim Nabuco",
-    "institution": "Porto do Recife",
-    "doi": "10.1000/recife.1537",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Cartagena (Colômbia)",
-    "subtitulo": "A fortaleza do Caribe",
-    "lat": 10.3910,
-    "lon": -75.4824,
-    "pais": "Colômbia",
-    "continente": "América do Sul",
-    "categoria": "porto",
-    "tema": "Defesa e Comércio",
-    "povo": "Espanhóis, Africanos e Indígenas",
-    "fundacao": 1533,
-    "descricao": "Cartagena foi o principal porto da costa norte da América do Sul para o comércio de escravizados e ouro. Suas muralhas e fortificações são as mais impressionantes da América, protegendo o porto de ataques de piratas e corsários. Hoje é Patrimônio da Humanidade.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Ministério da Cultura da Colômbia",
-    "institution": "Patrimônio de Cartagena",
-    "doi": "10.1000/cartagena.1533",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Buenos Aires (Argentina)",
-    "subtitulo": "A porta do Prata",
-    "lat": -34.6037,
-    "lon": -58.3816,
-    "pais": "Argentina",
-    "continente": "América do Sul",
-    "categoria": "porto",
-    "tema": "Comércio e Imigração",
-    "povo": "Espanhóis, Italianos e Argentinos",
-    "fundacao": 1536,
-    "descricao": "Fundado duas vezes (1536 e 1580), o Porto de Buenos Aires tornou-se o principal escoadouro da prata de Potosí e, depois, o centro da imigração europeia no século XIX. Foi palco das invasões inglesas de 1806-1807 e da Revolução de Maio de 1810.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Museu Histórico Nacional",
-    "institution": "Administração Portuária de Buenos Aires",
-    "doi": "10.1000/buenosaires.1536",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Callao (Peru)",
-    "subtitulo": "O porto do Vice-Reino do Peru",
-    "lat": -12.0658,
-    "lon": -77.1500,
-    "pais": "Peru",
-    "continente": "América do Sul",
-    "categoria": "porto",
-    "tema": "Comércio de Prata",
-    "povo": "Espanhóis, Quechuas e Africanos",
-    "fundacao": 1537,
-    "descricao": "O Porto do Callao foi o principal porto do Vice-Reino do Peru, escoando a prata de Potosí para o Panamá e depois para a Espanha. Foi destruído pelo terremoto de 1746 e reconstruído. Foi palco de combates durante a Guerra do Pacífico em 1881.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Marinha do Peru",
-    "institution": "Porto do Callao",
-    "doi": "10.1000/callao.1537",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // === ÁFRICA (NORTE) ===
-  {
-    "nome": "Alexandria (Egito)",
-    "subtitulo": "O farol do mundo antigo",
-    "lat": 31.2001,
-    "lon": 29.9187,
-    "pais": "Egito",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Antiguidade",
-    "povo": "Gregos, Romanos e Egípcios",
-    "fundacao": -331,
-    "descricao": "Fundado por Alexandre, o Grande em 331 a.C., o Porto de Alexandria foi o maior e mais importante porto do mundo antigo. Abrigou o Farol de Alexandria (uma das Sete Maravilhas) e a famosa Biblioteca. Foi o centro do comércio entre o Mediterrâneo, a África e a Índia.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Ministério de Antiguidades do Egito",
-    "institution": "Biblioteca de Alexandria",
-    "doi": "10.1000/alexandria.-331",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Tânger (Marrocos)",
-    "subtitulo": "A porta entre dois continentes",
-    "lat": 35.7595,
-    "lon": -5.8340,
-    "pais": "Marrocos",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio Mediterrâneo",
-    "povo": "Fenícios, Romanos, Árabes e Berberes",
-    "fundacao": -500,
-    "descricao": "Tânger é um dos portos mais antigos do mundo, fundado pelos fenícios por volta de 500 a.C. Controlado por romanos, árabes, portugueses, espanhóis e ingleses, foi uma base estratégica para o comércio entre a Europa e a África. Foi porto internacional entre 1923-1956.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Ministério da Cultura do Marrocos",
-    "institution": "Patrimônio de Tânger",
-    "doi": "10.1000/tangier.-500",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // === ÁFRICA (OESTE) ===
-  {
-    "nome": "Arguin (Mauritânia)",
-    "subtitulo": "O entreposto português no Saara",
-    "lat": 20.6000,
-    "lon": -16.4500,
-    "pais": "Mauritânia",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio de Escravos",
-    "povo": "Portugueses, Árabes e Berberes",
-    "fundacao": 1445,
-    "descricao": "A ilha de Arguin foi um dos primeiros entrepostos europeus na África Ocidental, fundado pelos portugueses em 1445. Foi um importante centro de comércio de ouro, marfim e escravizados, controlado posteriormente pelos holandeses e franceses. Simboliza o início da era dos descobrimentos.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Arguin_island.jpg/400px-Arguin_island.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Instituto Português de Patrimônio",
-    "institution": "Centro de História dos Descobrimentos",
-    "doi": "10.1000/arguin.1445",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Cidade do Cabo (África do Sul)",
-    "subtitulo": "A rota do Cabo",
-    "lat": -33.9249,
-    "lon": 18.4241,
-    "pais": "África do Sul",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Rota Marítima",
-    "povo": "Holandeses, Ingleses, Malaios e Africanos",
-    "fundacao": 1652,
-    "descricao": "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento para a rota das Índias, o Porto da Cidade do Cabo tornou-se uma das mais importantes escalas marítimas do mundo. Foi palco de batalhas entre holandeses e ingleses e centro do comércio de diamantes.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Iziko Museums",
-    "institution": "Porto da Cidade do Cabo",
-    "doi": "10.1000/capetown.1652",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Elmina (Gana)",
-    "subtitulo": "O primeiro entreposto europeu na África Subsaariana",
-    "lat": 5.0877,
-    "lon": -1.3482,
-    "pais": "Gana",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio de Escravos",
-    "povo": "Portugueses, Holandeses e Africanos",
-    "fundacao": 1482,
-    "descricao": "O Castelo de São Jorge da Mina, fundado pelos portugueses em 1482, foi o primeiro entreposto europeu na África Subsaariana e o mais importante centro de comércio de escravizados da Costa do Ouro. Controlado pelos holandeses desde 1637, é hoje Patrimônio Mundial da UNESCO.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "UNESCO Gana",
-    "institution": "Patrimônio de Elmina",
-    "doi": "10.1000/elmina.1482",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Lagos (Nigéria)",
-    "subtitulo": "O gigante da África Ocidental",
-    "lat": 6.5244,
-    "lon": 3.3792,
-    "pais": "Nigéria",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio Colonial",
-    "povo": "Iorubás, Europeus e Nigerianos",
-    "fundacao": 1470,
-    "descricao": "O Porto de Lagos, em sua localização histórica na Ilha de Lagos, foi fundado como entreposto comercial no século XV. Tornou-se o principal porto da Nigéria durante o período colonial britânico, escoando óleo de palma, amendoim e, posteriormente, petróleo. É o maior porto da África Ocidental.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Nigerian Ports Authority",
-    "institution": "Porto de Lagos",
-    "doi": "10.1000/lagos.1470",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // === ÁFRICA (LESTE) ===
-  {
-    "nome": "Kilwa Kisiwani (Tanzânia)",
-    "subtitulo": "A pérola da costa swahili",
-    "lat": -8.9583,
-    "lon": 39.5167,
-    "pais": "Tanzânia",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio no Oceano Índico",
-    "povo": "Suaílis, Árabes e Africanos",
-    "fundacao": 900,
-    "descricao": "Kilwa Kisiwani foi um dos mais importantes portos da costa swahili entre os séculos IX e XVI, controlando o comércio de ouro, marfim e escravizados no Oceano Índico. Visitada por Ibn Battuta e Vasco da Gama, era a porta de entrada para o comércio com a Ásia.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "UNESCO Tanzânia",
-    "institution": "Patrimônio de Kilwa",
-    "doi": "10.1000/kilwa.900",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Mombaça (Quênia)",
-    "subtitulo": "A fortaleza portuguesa no Índico",
-    "lat": -4.0435,
-    "lon": 39.6682,
-    "pais": "Quênia",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Conflito Colonial",
-    "povo": "Suaílis, Portugueses, Árabes e Africanos",
-    "fundacao": 900,
-    "descricao": "O Porto de Mombaça, com seu famoso Forte Jesus (construído pelos portugueses em 1593), foi um dos principais portos da costa leste africana. Disputado entre portugueses, árabes de Omã e britânicos, foi uma escala crucial na rota para a Índia e centro do comércio de especiarias e marfim.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "National Museums of Kenya",
-    "institution": "Patrimônio de Mombaça",
-    "doi": "10.1000/mombasa.900",
-    "license": "Domínio Público",
-    "relations": []
-  },
-  {
-    "nome": "Zanzibar (Tanzânia)",
-    "subtitulo": "A ilha das especiarias",
-    "lat": -6.1631,
-    "lon": 39.1912,
-    "pais": "Tanzânia",
-    "continente": "África",
-    "categoria": "porto",
-    "tema": "Comércio de Especiarias",
-    "povo": "Árabes, Suaílis, Indianos e Africanos",
-    "fundacao": 1000,
-    "descricao": "O Porto de Zanzibar foi o centro do comércio de especiarias, especialmente cravo, no Oceano Índico. Foi uma importante base para o comércio de escravizados na África Oriental e ficou sob domínio português, depois de Omã e finalmente britânico. Foi palco da revolução de 1964.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Zanzibar Archives",
-    "institution": "Patrimônio de Zanzibar",
-    "doi": "10.1000/zanzibar.1000",
-    "license": "Domínio Público",
-    "relations": []
-  },
-
-  // Santos (já existente)
-  {
-    "nome": "Santos (Brasil)",
-    "subtitulo": "O maior complexo portuário da América Latina",
-    "lat": -23.9608,
-    "lon": -46.3350,
-    "pais": "Brasil",
-    "continente": "América do Sul",
-    "categoria": "porto",
-    "tema": "Economia",
-    "povo": "Brasileiros",
-    "fundacao": 1892,
-    "descricao": "O Porto de Santos é o maior complexo portuário da América Latina, tendo iniciado suas operações em 1892. Foi fundamental para a economia cafeeira do Brasil e hoje movimenta a maior parte do comércio exterior brasileiro, sendo um dos portos mais importantes do mundo.",
-    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
-    "fotos": [],
-    "documentos": [],
-    "author": "Companhia Docas",
-    "institution": "Porto de Santos",
-    "doi": "10.1000/santos.1892",
-    "license": "Domínio Público",
-    "relations": []
-  }
-];
     ];
-
-    const CORES_CATEGORIA = {
-      mapa: '#1a73e8',
-      porto: '#0d9488',
-      rota: '#d4af37'
-    };
-    const NOMES_CATEGORIA = {
-      mapa: 'Mapa',
-      porto: 'Porto',
-      rota: 'Rota Comercial'
-    };
 
     // =========================================================
     // APLICAÇÃO PRINCIPAL
@@ -1273,18 +628,16 @@
       constructor() {
         this.data = [];
         this.map = null;
-        this.markers = [];        // instâncias atuais
-        this.markerData = [];     // referência dos dados
+        this.markers = [];
+        this.markerData = [];
         this.routeLayers = [];
         this.routePointMarkers = [];
         this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
         this.searchQuery = '';
         this.startYear = -2000;
         this.endYear = 2026;
-        this.sidebarVisible = false;
-        this.timelineVisible = true;
-        this.selectedItem = null;
         this.routePoints = [];
+        this._pending = false;
       }
 
       async start() {
@@ -1351,26 +704,25 @@
       }
 
       async carregarDados() {
-        const stored = localStorage.getItem('atlas_data');
+        const stored = localStorage.getItem('atlas_data_completo');
         if (stored) {
           this.data = JSON.parse(stored);
           console.log('✅ Carregado do localStorage:', this.data.length);
           return;
         }
         this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
-        localStorage.setItem('atlas_data', JSON.stringify(this.data));
+        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
         console.log('✅ Dados iniciais:', this.data.length);
       }
 
       salvarDados() {
-        localStorage.setItem('atlas_data', JSON.stringify(this.data));
+        localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
       }
 
       // =========================================================
       // MAPA
       // =========================================================
       inicializarMapa() {
-        // Estilo claro e confiável (OSM raster)
         const style = {
           version: 8,
           sources: {
@@ -1398,14 +750,12 @@
           pitch: 0
         });
 
-        // Força redimensionamento após carregar
         this.map.on('load', () => {
           console.log('✅ Mapa carregado');
           this.map.resize();
           this.desenharRotas();
         });
 
-        // Fallback: se não carregar em 4s, tenta redesenhar
         setTimeout(() => {
           if (this.map && !this.map.loaded()) {
             console.warn('⏳ Mapa demorou, forçando redesenho...');
@@ -1413,7 +763,6 @@
           }
         }, 4000);
 
-        // Clique no mapa para adicionar ponto da rota
         this.map.on('click', (e) => {
           if (this.dom.modalAddRoute.classList.contains('open')) {
             const { lng, lat } = e.lngLat;
@@ -1428,7 +777,6 @@
       // =========================================================
       desenharRotas() {
         if (!this.map || !this.map.loaded()) {
-          console.warn('⏳ Aguardando mapa para desenhar rotas...');
           if (!this._pending) {
             this._pending = true;
             this.map.once('load', () => {
@@ -1439,7 +787,6 @@
           return;
         }
 
-        // Remove layers antigos
         if (this.routeLayers.length) {
           this.routeLayers.forEach(id => {
             try {
@@ -1449,7 +796,6 @@
           });
           this.routeLayers = [];
         }
-        // Remove marcadores de pontos antigos
         this.routePointMarkers.forEach(m => m.remove());
         this.routePointMarkers = [];
 
@@ -1469,7 +815,6 @@
               }
             });
 
-            // Linha principal
             this.map.addLayer({
               id: id + '-line',
               type: 'line',
@@ -1482,7 +827,6 @@
                 'line-opacity': 0.85
               }
             });
-            // Brilho
             this.map.addLayer({
               id: id + '-glow',
               type: 'line',
@@ -1497,7 +841,6 @@
             });
             this.routeLayers.push(id + '-line', id + '-glow');
 
-            // Marcadores circulares nos pontos
             rota.pontos.forEach(p => {
               const el = document.createElement('div');
               el.style.cssText = `
@@ -1526,17 +869,13 @@
       }
 
       // =========================================================
-      // MARCADORES FIXOS (não recriam se dados não mudarem)
+      // MARCADORES FIXOS
       // =========================================================
       renderizarMarcadores(itens) {
-        // Compara se os dados mudaram (evita recriação desnecessária)
         const newIds = itens.map(i => i.nome).sort().join(',');
         const oldIds = this.markerData.map(i => i.nome).sort().join(',');
-        if (newIds === oldIds && this.markers.length > 0) {
-          return; // mesmos dados, mantém marcadores
-        }
+        if (newIds === oldIds && this.markers.length > 0) return;
 
-        // Remove antigos
         this.markers.forEach(m => m.remove());
         this.markers = [];
         this.markerData = itens.slice();
@@ -1603,9 +942,7 @@
           group.querySelectorAll('.filter-btn').forEach(btn => {
             const key = btn.dataset.key;
             const val = btn.dataset.val;
-            const count = val === 'todos'
-              ? this.data.length
-              : this.data.filter(d => d[key] === val).length;
+            const count = val === 'todos' ? this.data.length : this.data.filter(d => d[key] === val).length;
             btn.querySelector('.count').textContent = count;
           });
         });
@@ -1689,7 +1026,6 @@
       abrirDetalhes(nome) {
         const item = this.data.find(d => d.nome === nome);
         if (!item) return;
-        this.selectedItem = nome;
         this.dom.detailPanel.classList.add('open');
 
         this.dom.detailCover.src = item.coverImage || '';
@@ -1720,7 +1056,6 @@
           </div>`
         ).join('');
 
-        // Ativa aba Narrativa
         document.querySelectorAll('.panel-tabs button').forEach(b => b.classList.remove('active'));
         document.querySelector('.panel-tabs button[data-tab="tab-narrativa"]').classList.add('active');
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
@@ -1848,12 +1183,10 @@
       // EVENTOS
       // =========================================================
       bindEventos() {
-        // Sidebar
         this.dom.btnToggleFilters.addEventListener('click', () => {
           this.dom.sidebar.classList.toggle('collapsed');
         });
 
-        // Timeline
         this.dom.btnToggleTimeline.addEventListener('click', () => {
           this.dom.timelineSection.classList.toggle('collapsed');
         });
@@ -1861,7 +1194,6 @@
           this.dom.timelineSection.classList.add('collapsed');
         });
 
-        // Filtros com accordion
         document.querySelectorAll('.filter-header').forEach(header => {
           header.addEventListener('click', () => {
             const content = header.nextElementSibling;
@@ -1869,7 +1201,6 @@
           });
         });
 
-        // Clique nos botões de filtro
         document.addEventListener('click', (e) => {
           const btn = e.target.closest('.filter-btn');
           if (btn) {
@@ -1882,7 +1213,6 @@
           }
         });
 
-        // Reset filtros
         this.dom.btnResetFilters.addEventListener('click', () => {
           this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1890,7 +1220,6 @@
           this.aplicarFiltros();
         });
 
-        // Anos
         const updateAnos = () => {
           this.startYear = parseInt(this.dom.inputStart.value) || -2000;
           this.endYear = parseInt(this.dom.inputEnd.value) || 2026;
@@ -1899,18 +1228,15 @@
         this.dom.inputStart.addEventListener('change', updateAnos);
         this.dom.inputEnd.addEventListener('change', updateAnos);
 
-        // Busca
         this.dom.search.addEventListener('input', (e) => {
           this.searchQuery = e.target.value.toLowerCase();
           this.aplicarFiltros();
         });
 
-        // Detalhes - fechar
         this.dom.btnCloseDetail.addEventListener('click', () => {
           this.dom.detailPanel.classList.remove('open');
         });
 
-        // Abas no detail panel
         document.querySelectorAll('.panel-tabs button').forEach(btn => {
           btn.addEventListener('click', () => {
             document.querySelectorAll('.panel-tabs button').forEach(b => b.classList.remove('active'));
@@ -1920,14 +1246,12 @@
           });
         });
 
-        // Logo reset
         this.dom.logoReset.addEventListener('click', (e) => {
           e.preventDefault();
           this.map.flyTo({ center: [-10,10], zoom:2, duration:1500 });
           this.dom.detailPanel.classList.remove('open');
         });
 
-        // Modal Nova Rota
         this.dom.btnAddRoute.addEventListener('click', () => {
           this.dom.modalAddRoute.classList.add('open');
           this.routePoints = [];
@@ -1939,11 +1263,6 @@
         this.dom.addRouteForm.addEventListener('submit', (e) => this.adicionarRota(e));
         this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
 
-        // Enter nas coordenadas
-        this.dom.routePointLat.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
-        this.dom.routePointLon.addEventListener('keydown', (e) => { if (e.key === 'Enter') e.preventDefault(); });
-
-        // Fechar modal com ESC
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
             this.dom.modalAddRoute.classList.remove('open');
@@ -1953,7 +1272,6 @@
       }
     }
 
-    // Inicialização
     window.addEventListener('DOMContentLoaded', () => {
       window.atlasApp = new AtlasApp();
       window.atlasApp.start();
