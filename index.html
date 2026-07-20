@@ -2234,28 +2234,26 @@
   }
 
   // 2. Tenta carregar do arquivo dados.json
-  try {
-    console.log('📂 Tentando carregar dados.json...');
-    const response = await fetch('dados.json');
-    
+  // 2. Tenta carregar do arquivo dados.json
+try {
+    console.log('Tentando carregar dados.json...');
+    const response = await fetch('https://brmarlonsampaio-code.github.io/atlas-historico/dados.json');
     if (!response.ok) {
-      throw new Error('Arquivo não encontrado');
+        throw new Error('Arquivo não encontrado');
     }
-    
     const dados = await response.json();
-    
     if (dados && dados.length > 0) {
-      this.data = dados;
-      for (const pt of this.data) {
-        pt.status = 'Aprovado';
-        await this.db.savePoint(pt);
-      }
-      console.log('✅ ' + this.data.length + ' registros carregados do dados.json');
-      return;
+        this.data = dados;
+        for (const pt of this.data) {
+            pt.status = 'Aprovado';
+            await this.db.savePoint(pt);
+        }
+        console.log('✅ ' + this.data.length + ' registros carregados do dados.json');
+        return;
     }
-  } catch (e) {
+} catch (e) {
     console.warn('⚠️ Erro ao carregar dados.json:', e.message);
-  }
+}
 
   // 3. Fallback: cria dados mínimos para não quebrar
   console.log('📂 Nenhum dado encontrado, criando registro de exemplo...');
