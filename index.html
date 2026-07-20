@@ -331,7 +331,7 @@
       flex: 1;
       width: 100%;
       height: 100%;
-      min-height: 500px; /* ← GARANTE ALTURA VISÍVEL */
+      min-height: 500px;
     }
 
     .globe-controls {
@@ -1497,7 +1497,7 @@
 
   <script>
     // =========================================================
-    // DADOS - (mesmos do original, mantidos)
+    // DADOS
     // =========================================================
     const CORES_CATEGORIA = {
       mapa: '#1a73e8',
@@ -1699,7 +1699,7 @@
     ];
 
     // =========================================================
-    // CLASSE ATLAS APP (CORRIGIDA - COM OPENSTREETMAP)
+    // CLASSE ATLAS APP (com CartoDB)
     // =========================================================
     class AtlasApp {
       constructor() {
@@ -1844,18 +1844,18 @@
       }
 
       // =========================================================
-      // MAPA (CORRIGIDO - USANDO OPENSTREETMAP)
+      // MAPA (USANDO CARTODB - SEM CORS)
       // =========================================================
       inicializarMapa() {
-        // Usando OpenStreetMap (sem problemas de CORS)
+        // CartoDB - light_all (ótimo, sem CORS)
         const estiloRaster = {
           version: 8,
           sources: {
             'raster-tiles': {
               type: 'raster',
-              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tiles: ['https://basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'],
               tileSize: 256,
-              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>, &copy; <a href="https://carto.com/">CARTO</a>'
             }
           },
           layers: [{
@@ -1878,9 +1878,8 @@
             hash: false
           });
 
-          console.log('🗺️ Mapa inicializando...');
+          console.log('🗺️ Mapa inicializando com CartoDB...');
 
-          // Evento load – desenha rotas imediatamente
           this.map.on('load', () => {
             console.log('✅ Mapa carregado com sucesso!');
             setTimeout(() => {
@@ -1893,7 +1892,6 @@
             console.warn('⚠️ Erro no mapa:', e);
           });
 
-          // Fallback: se o mapa já estiver carregado
           if (this.map.loaded()) {
             this.desenharRotas();
           }
@@ -1902,7 +1900,6 @@
           console.error('❌ Erro ao inicializar mapa:', e);
         }
 
-        // Clique no mapa para adicionar ponto de rota
         this.map.on('click', (e) => {
           if (this.dom.modalAddRoute.classList.contains('open')) {
             const { lng, lat } = e.lngLat;
@@ -1912,7 +1909,6 @@
           }
         });
 
-        // Redimensionamento forçado
         setTimeout(() => {
           if (this.map) {
             this.map.resize();
@@ -1922,7 +1918,7 @@
       }
 
       // =========================================================
-      // DESENHAR ROTAS (SIMPLIFICADO)
+      // DESENHAR ROTAS
       // =========================================================
       desenharRotas() {
         if (!this.map) {
@@ -1943,7 +1939,6 @@
           return;
         }
 
-        // Limpa layers anteriores
         if (this.routeLayers) {
           this.routeLayers.forEach(layer => {
             try {
@@ -2003,7 +1998,6 @@
 
             this.routeLayers.push(id + '-line', id + '-glow');
 
-            // Marcadores nos pontos
             rota.pontos.forEach((ponto, i) => {
               const el = document.createElement('div');
               el.style.width = '10px';
@@ -2037,7 +2031,7 @@
       }
 
       // =========================================================
-      // ADICIONAR ROTA (igual ao original)
+      // ADICIONAR ROTA
       // =========================================================
       adicionarPontoRota() {
         const lat = parseFloat(this.$('routePointLat').value);
@@ -2116,7 +2110,7 @@
       }
 
       // =========================================================
-      // FILTROS E RENDERIZAÇÃO (mantidos)
+      // FILTROS E RENDERIZAÇÃO
       // =========================================================
       inicializarComponentes() { this.gerarFiltros(); }
 
@@ -2485,7 +2479,7 @@
       }
 
       // =========================================================
-      // RÁDIO (mantido)
+      // RÁDIO
       // =========================================================
       inicializarRadio() {
         this.renderizarEstacoes();
