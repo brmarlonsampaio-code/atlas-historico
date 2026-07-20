@@ -841,7 +841,6 @@
       <i class="fa-solid fa-compass"></i><span>Atlas Atlantes</span>
     </a>
     <div class="header-controls">
-      <!-- Rádio removido -->
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
@@ -1309,9 +1308,8 @@ class AtlasApp {
       this.inicializarMapa();
       this.inicializarComponentes();
       this.bindEventos();
-      // Primeira renderização: marcadores fixos + timeline inicial
-      this.renderizarMarcadoresFixos();
-      this.aplicarFiltrosTimelineERotas();
+      // Primeira renderização: marcadores fixos e timeline
+      this.atualizarTudo();
       setTimeout(() => {
         if (this.dom.loading) this.dom.loading.classList.add('hide');
       }, 600);
@@ -1395,12 +1393,8 @@ class AtlasApp {
     console.log('✅ Dados iniciais carregados:', this.data.length, 'registros');
   }
 
-  salvarDados() {
-    localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
-  }
-
   // ================================================================
-  // MAPA (sem rótulos de países)
+  // MAPA
   // ================================================================
   inicializarMapa() {
     const estiloSemLabels = {
@@ -1432,10 +1426,12 @@ class AtlasApp {
         bearing: 0,
         projection: { type: 'mercator' }
       });
-      console.log('🗺️ Mapa inicializando (sem rótulos)');
+      console.log('🗺️ Mapa inicializando');
       this.map.on('load', () => {
         console.log('✅ Mapa carregado!');
         setTimeout(() => { if (this.map) this.map.resize(); }, 50);
+        // Força renderização após carregar
+        this.atualizarTudo();
       });
       this.map.on('error', (e) => console.warn('⚠️ Erro no mapa:', e));
     } catch (e) {
@@ -1453,15 +1449,28 @@ class AtlasApp {
   }
 
   // ================================================================
+  // ATUALIZAR TUDO (marcadores sempre fixos + timeline + rotas)
+  // ================================================================
+  atualizarTudo() {
+    console.log('🔄 Atualizando mapa...');
+    // 1. Marcadores: sempre todos os itens que não são rotas (SEM FILTROS)
+    this.renderizarMarcadoresFixos();
+    // 2. Timeline e rotas: com filtros
+    this.aplicarFiltrosTimelineERotas();
+  }
+
+  // ================================================================
   // MARCADORES FIXOS (NUNCA FILTRADOS)
   // ================================================================
   renderizarMarcadoresFixos() {
+    if (!this.map) return;
     // Remove marcadores antigos
     this.markers.forEach(m => m.remove());
     this.markers = [];
 
-    // Pegamos TODOS os itens que NÃO são rotas (portos, mapas, etc.) e têm lat/lon
+    // Pegamos TODOS os itens que NÃO são rotas e têm lat/lon
     const itens = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
+    console.log(`📍 Renderizando ${itens.length} marcadores fixos.`);
 
     itens.forEach(item => {
       const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
@@ -1495,11 +1504,10 @@ class AtlasApp {
         .addTo(this.map);
       this.markers.push(marker);
     });
-    console.log(`📍 Renderizados ${this.markers.length} marcadores fixos.`);
   }
 
   // ================================================================
-  // ROTAS (toggle) - aplica todos os filtros
+  // ROTAS
   // ================================================================
   desenharRotas() {
     if (!this.map || !this.map.loaded()) {
@@ -1507,6 +1515,7 @@ class AtlasApp {
       setTimeout(() => this.desenharRotas(), 500);
       return;
     }
+    // Remove layers antigas
     this.routeLayers.forEach(layer => {
       try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
     });
@@ -1524,10 +1533,11 @@ class AtlasApp {
     });
 
     if (!rotasFiltradas.length) {
-      console.log('ℹ️ Nenhuma rota encontrada com os filtros atuais.');
+      console.log('ℹ️ Nenhuma rota com os filtros atuais.');
       return;
     }
 
+    console.log(`🛣️ Desenhando ${rotasFiltradas.length} rotas.`);
     rotasFiltradas.forEach((rota, index) => {
       const id = 'rota-' + index;
       const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
@@ -1575,17 +1585,16 @@ class AtlasApp {
   toggleRotas() { this.routesVisible ? this.ocultarRotas() : this.desenharRotas(); }
 
   // ================================================================
-  // TIMELINE E ROTAS - aplicam todos os filtros (incluindo produto)
+  // TIMELINE E ROTAS (com filtros)
   // ================================================================
   aplicarFiltrosTimelineERotas() {
-    // 1. Timeline: todos os itens (incluindo rotas) com TODOS os filtros
+    // Timeline: todos os itens com todos os filtros
     const timelineItens = this.data.filter(item => {
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
       const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
       const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
       const matchProduto = this.activeFilters.produto === 'todos' || item.produto === this.activeFilters.produto;
       const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
-      // busca textual
       if (this.searchQuery) {
         const q = this.searchQuery.toLowerCase();
         const textMatch = 
@@ -1603,7 +1612,7 @@ class AtlasApp {
     this.renderizarTimeline(timelineItens);
     this.atualizarContadores(timelineItens);
 
-    // 2. Se as rotas estiverem visíveis, redesenhá-las (já aplica os filtros)
+    // Rotas (se visíveis)
     if (this.routesVisible) {
       this.desenharRotas();
     }
@@ -1661,7 +1670,7 @@ class AtlasApp {
   }
 
   // ================================================================
-  // FOCAR PONTO E DETALHES (sem alterações)
+  // FOCAR PONTO E DETALHES
   // ================================================================
   focarPonto(nome) {
     const item = this.data.find(d => d.nome === nome);
@@ -1762,7 +1771,7 @@ class AtlasApp {
   toggleDetailAudio(url) { const audio = new Audio(url); audio.play(); }
 
   // ================================================================
-  // 3D / Panorama (simplificado)
+  // 3D / Panorama
   // ================================================================
   inicializarThreeJS() {
     const container = this.$('threeReplicaViewport');
@@ -1896,7 +1905,7 @@ class AtlasApp {
         this.activeFilters[key] = val;
         btn.parentElement.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Aplica os filtros NA TIMELINE E ROTAS (marcadores permanecem fixos)
+        // Atualiza apenas timeline e rotas, marcadores permanecem fixos
         this.aplicarFiltrosTimelineERotas();
       }
     });
