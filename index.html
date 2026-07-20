@@ -2125,7 +2125,7 @@
       }
 
 async carregarDados() {
-  console.log('🔄 Carregando dados...');
+  console.log('🔄 Carregando dados');
   
   const stored = await this.db.getPoints();
   if (stored && stored.length > 0) {
@@ -2144,41 +2144,36 @@ async carregarDados() {
     return;
   }
 
-  this.data = [];
-  console.warn('⚠️ Nenhum dado!');
-}
-
-  // 3. Fallback: cria dados mínimos para não quebrar
-  console.log('📂 Nenhum dado encontrado, criando registro de exemplo...');
+  // Fallback
+  console.warn('⚠️ Nenhum dado encontrado, criando registro de exemplo...');
   this.data = [{
-    nome: "📌 Carregue o dados.json",
-    subtitulo: "Coloque o arquivo dados.json na mesma pasta",
+    nome: 'Exemplo - Carregue o dados.json',
+    subtitulo: 'Coloque o arquivo dados.json na mesma pasta',
     lat: -23.5505,
     lon: -46.6333,
-    pais: "Brasil",
-    continente: "América do Sul",
-    categoria: "porto",
-    tema: "Economia",
-    povo: "Brasileiros",
+    pais: 'Brasil',
+    continente: 'América do Sul',
+    categoria: 'porto',
+    tema: 'Economia',
+    povo: 'Brasileiros',
     fundacao: 1892,
-    descricao: "Para carregar os dados, coloque o arquivo dados.json na mesma pasta do index.html e recarregue a página.",
-    coverImage: "",
+    descricao: 'Para carregar os dados, coloque o arquivo dados.json na mesma pasta do index.html',
+    coverImage: '',
     fotos: [],
     documentos: [],
-    author: "Atlas Digital",
-    institution: "",
-    doi: "",
-    license: "",
+    author: 'Atlas Digital',
+    institution: '',
+    doi: '',
+    license: '',
     relations: [],
-    status: "Aprovado"
+    status: 'Aprovado'
   }];
   
   for (const pt of this.data) {
     await this.db.savePoint(pt);
   }
-  console.log('✅ Registro de exemplo criado');
+  console.log('✅ Dados de exemplo criados');
 }
-
       // PARTÍCULAS BACKGROUND
       inicializarParticulas() {
         const canvas = this.$('particle-canvas');
