@@ -1306,9 +1306,8 @@ class AtlasApp {
       this.initDOMRefs();
       await this.carregarDados();
       this.inicializarMapa();
-      this.inicializarComponentes();
+      this.gerarFiltros();   // <--- CORREÇÃO: função existe
       this.bindEventos();
-      // Primeira renderização: marcadores fixos e timeline
       this.atualizarTudo();
       setTimeout(() => {
         if (this.dom.loading) this.dom.loading.classList.add('hide');
@@ -1430,7 +1429,6 @@ class AtlasApp {
       this.map.on('load', () => {
         console.log('✅ Mapa carregado!');
         setTimeout(() => { if (this.map) this.map.resize(); }, 50);
-        // Força renderização após carregar
         this.atualizarTudo();
       });
       this.map.on('error', (e) => console.warn('⚠️ Erro no mapa:', e));
@@ -1449,13 +1447,39 @@ class AtlasApp {
   }
 
   // ================================================================
+  // GERAR FILTROS
+  // ================================================================
+  gerarFiltros() {
+    const categorias = ['todos', ...new Set(this.data.map(d => d.categoria).filter(Boolean))];
+    const temas = ['todos', ...new Set(this.data.map(d => d.tema).filter(Boolean))];
+    const povos = ['todos', ...new Set(this.data.map(d => d.povo).filter(Boolean))];
+    const produtos = ['todos', ...new Set(this.data.map(d => d.produto).filter(Boolean))];
+
+    const popularContainer = (container, itens, chave, labelMap = {}) => {
+      if (!container) return;
+      container.innerHTML = itens.map(item => {
+        const label = item === 'todos' ? 'Todos' : (labelMap[item] || item);
+        return `
+          <button class="filtro-btn ${item === 'todos' ? 'active' : ''}" data-key="${chave}" data-val="${item}">
+            <span>${label}</span>
+            <span class="count">0</span>
+          </button>
+        `;
+      }).join('');
+    };
+
+    popularContainer(this.dom.categoriaFiltros, categorias, 'categoria', NOMES_CATEGORIA);
+    popularContainer(this.dom.temaFiltros, temas, 'tema');
+    popularContainer(this.dom.povoFiltros, povos, 'povo');
+    popularContainer(this.dom.produtoFiltros, produtos, 'produto');
+  }
+
+  // ================================================================
   // ATUALIZAR TUDO (marcadores sempre fixos + timeline + rotas)
   // ================================================================
   atualizarTudo() {
     console.log('🔄 Atualizando mapa...');
-    // 1. Marcadores: sempre todos os itens que não são rotas (SEM FILTROS)
     this.renderizarMarcadoresFixos();
-    // 2. Timeline e rotas: com filtros
     this.aplicarFiltrosTimelineERotas();
   }
 
@@ -1464,11 +1488,9 @@ class AtlasApp {
   // ================================================================
   renderizarMarcadoresFixos() {
     if (!this.map) return;
-    // Remove marcadores antigos
     this.markers.forEach(m => m.remove());
     this.markers = [];
 
-    // Pegamos TODOS os itens que NÃO são rotas e têm lat/lon
     const itens = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
     console.log(`📍 Renderizando ${itens.length} marcadores fixos.`);
 
@@ -1515,13 +1537,11 @@ class AtlasApp {
       setTimeout(() => this.desenharRotas(), 500);
       return;
     }
-    // Remove layers antigas
     this.routeLayers.forEach(layer => {
       try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
     });
     this.routeLayers = [];
 
-    // Filtra rotas com todos os filtros (categoria, tema, povo, produto, ano)
     const rotasFiltradas = this.data.filter(item => {
       if (item.tipo !== 'rota') return false;
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
@@ -1588,7 +1608,6 @@ class AtlasApp {
   // TIMELINE E ROTAS (com filtros)
   // ================================================================
   aplicarFiltrosTimelineERotas() {
-    // Timeline: todos os itens com todos os filtros
     const timelineItens = this.data.filter(item => {
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
       const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
@@ -1612,7 +1631,6 @@ class AtlasApp {
     this.renderizarTimeline(timelineItens);
     this.atualizarContadores(timelineItens);
 
-    // Rotas (se visíveis)
     if (this.routesVisible) {
       this.desenharRotas();
     }
@@ -1905,7 +1923,6 @@ class AtlasApp {
         this.activeFilters[key] = val;
         btn.parentElement.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        // Atualiza apenas timeline e rotas, marcadores permanecem fixos
         this.aplicarFiltrosTimelineERotas();
       }
     });
