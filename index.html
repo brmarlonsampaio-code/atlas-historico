@@ -352,6 +352,12 @@
     }
 
     /* MAP CONTAINER */
+    .main-area {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
     #map-container {
       flex: 1;
       display: flex;
@@ -364,6 +370,7 @@
       flex: 1;
       width: 100%;
       height: 100%;
+      min-height: 400px;
     }
 
     .globe-controls {
@@ -963,6 +970,7 @@
       gap: 16px;
       background: #ffffff;
       border-right: 1px solid var(--border);
+      flex-shrink: 0;
     }
 
     #sidebar.collapsed {
@@ -971,6 +979,7 @@
       border-right: none;
       opacity: 0;
       pointer-events: none;
+      overflow: hidden;
     }
 
     .panel-narrative-controls {
@@ -1412,7 +1421,6 @@
         <div class="search-wrapper">
           <i class="fa-solid fa-magnifying-glass"></i>
           <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
-          <div class="autocomplete-list" id="searchAutocomplete"></div>
         </div>
 
         <button class="btn-header" id="btnToggleFilters">
@@ -2265,14 +2273,17 @@
       // MAPA
       // =========================================================
       inicializarMapa() {
+        // Usando um estilo do OpenStreetMap mais confiável
         const estiloRaster = {
           version: 8,
           sources: {
             'raster-tiles': {
               type: 'raster',
-              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tiles: [
+                'https://tile.openstreetmap.org/{z}/{x}/{y}.png'
+              ],
               tileSize: 256,
-              attribution: '© OpenStreetMap'
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }
           },
           layers: [{
@@ -2284,26 +2295,38 @@
           }]
         };
 
-        this.map = new maplibregl.Map({
-          container: 'map',
-          style: estiloRaster,
-          center: [-10, 10],
-          zoom: 2.0,
-          pitch: 0,
-          bearing: 0
-        });
+        try {
+          this.map = new maplibregl.Map({
+            container: 'map',
+            style: estiloRaster,
+            center: [-10, 10],
+            zoom: 2.0,
+            pitch: 0,
+            bearing: 0,
+            hash: false
+          });
 
-        this.map.on('load', () => {
-          console.log('✅ Mapa carregado com sucesso!');
-          
-          try {
-            if (this.isGlobeMode) {
-              this.map.setProjection({ type: 'globe' });
-            }
-          } catch (e) { /* globo não suportado */ }
-          
-          this.desenharRotas();
-        });
+          console.log('🗺️ Mapa inicializando...');
+
+          this.map.on('load', () => {
+            console.log('✅ Mapa carregado com sucesso!');
+            
+            try {
+              if (this.isGlobeMode) {
+                this.map.setProjection({ type: 'globe' });
+              }
+            } catch (e) { /* globo não suportado */ }
+            
+            this.desenharRotas();
+          });
+
+          this.map.on('error', (e) => {
+            console.warn('⚠️ Erro no mapa:', e);
+          });
+
+        } catch (e) {
+          console.error('❌ Erro ao inicializar mapa:', e);
+        }
 
         setTimeout(() => {
           if (this.map && !this.map.loaded()) {
@@ -2320,6 +2343,13 @@
             this.adicionarPontoRota();
           }
         });
+
+        // Forçar resize após um tempo para garantir que o mapa renderize
+        setTimeout(() => {
+          if (this.map) {
+            this.map.resize();
+          }
+        }, 100);
       }
 
       // =========================================================
@@ -2439,9 +2469,11 @@
           this.desenharRotas();
         } else {
           console.warn('⚠️ Aguardando mapa carregar para redesenhar rotas...');
-          this.map.once('load', () => {
-            this.desenharRotas();
-          });
+          if (this.map) {
+            this.map.once('load', () => {
+              this.desenharRotas();
+            });
+          }
         }
       }
 
@@ -3170,7 +3202,9 @@
         this.dom.btnToggleFilters.addEventListener('click', () => {
           this.sidebarVisible = !this.sidebarVisible;
           this.dom.sidebar.classList.toggle('collapsed', !this.sidebarVisible);
-          setTimeout(() => this.map.resize(), 300);
+          setTimeout(() => {
+            if (this.map) this.map.resize();
+          }, 300);
         });
 
         // Toggle timeline
@@ -3269,6 +3303,13 @@
           if (e.key === 'Escape') {
             this.dom.modalAddRoute.classList.remove('open');
             this.dom.modalAccessibility.classList.remove('open');
+          }
+        });
+
+        // Forçar resize do mapa quando a janela for redimensionada
+        window.addEventListener('resize', () => {
+          if (this.map) {
+            setTimeout(() => this.map.resize(), 100);
           }
         });
       }
