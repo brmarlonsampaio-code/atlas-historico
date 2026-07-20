@@ -161,6 +161,28 @@
       box-shadow: 0 2px 8px rgba(26, 115, 232, 0.3);
     }
 
+    .btn-header.success {
+      background: #27ae60;
+      color: #ffffff;
+      border-color: #27ae60;
+    }
+
+    .btn-header.success:hover {
+      background: #2ecc71;
+      box-shadow: 0 2px 8px rgba(39, 174, 96, 0.3);
+    }
+
+    .btn-header.warning {
+      background: #f39c12;
+      color: #ffffff;
+      border-color: #f39c12;
+    }
+
+    .btn-header.warning:hover {
+      background: #e67e22;
+      box-shadow: 0 2px 8px rgba(243, 156, 18, 0.3);
+    }
+
     /* RADIO PLAYER */
     .radio-player-container {
       position: relative;
@@ -738,7 +760,7 @@
 
     .modal-content {
       width: 90%;
-      max-width: 600px;
+      max-width: 700px;
       background: #ffffff;
       border-radius: 16px;
       padding: 24px;
@@ -791,6 +813,12 @@
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-row-3 {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 12px;
     }
 
@@ -1288,6 +1316,18 @@
       100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; }
     }
 
+    .points-counter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.7rem;
+      color: var(--color-muted);
+    }
+
+    .points-counter strong {
+      color: var(--color-accent);
+    }
+
     @media (max-width: 1024px) {
       #detail-panel {
         width: 100%;
@@ -1350,6 +1390,13 @@
         width: 250px;
         right: -120px;
       }
+      .form-row-3 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .hidden {
+      display: none !important;
     }
   </style>
 </head>
@@ -1411,8 +1458,16 @@
           <i class="fa-solid fa-timeline"></i> Linha do Tempo
         </button>
 
-        <button class="btn-header primary" id="btnAdminPanel">
-          <i class="fa-solid fa-plus"></i> Adicionar
+        <button class="btn-header success" id="btnAddRoute">
+          <i class="fa-solid fa-route"></i> Nova Rota
+        </button>
+
+        <button class="btn-header warning" id="btnImportRoutes">
+          <i class="fa-solid fa-file-import"></i> Importar
+        </button>
+
+        <button class="btn-header" id="btnExportRoutes">
+          <i class="fa-solid fa-file-export"></i> Exportar
         </button>
       </div>
     </header>
@@ -1595,120 +1650,113 @@
     </div>
   </div>
 
-  <div class="modal-overlay" id="modalAdmin">
+  <!-- MODAL: ADICIONAR ROTA -->
+  <div class="modal-overlay" id="modalAddRoute">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 class="modal-title"><i class="fa-solid fa-plus" style="color:var(--color-accent)"></i> Adicionar Registro</h3>
-        <span class="modal-close" id="btnCloseAdmin"><i class="fa-solid fa-xmark"></i></span>
+        <h3 class="modal-title"><i class="fa-solid fa-route" style="color:var(--color-accent)"></i> Adicionar Nova Rota Comercial</h3>
+        <span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span>
       </div>
 
-      <form id="addPointForm" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
+      <form id="addRouteForm" style="display:flex; flex-direction:column; gap:10px; margin-top:10px;">
         <div class="form-row">
           <div class="form-group">
-            <label>Nome do Registro</label>
-            <input type="text" id="addName" class="form-control" placeholder="Ex: Porto de Santos" required />
+            <label>Nome da Rota *</label>
+            <input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Atlântico Sul" required />
           </div>
           <div class="form-group">
             <label>Subtítulo</label>
-            <input type="text" id="addSubtitle" class="form-control" placeholder="Breve descrição" />
+            <input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" />
           </div>
         </div>
 
-        <div class="form-row">
+        <div class="form-row-3">
           <div class="form-group">
-            <label>Categoria</label>
-            <select id="addCategory" class="form-control">
-              <option value="porto">Porto</option>
-              <option value="mapa">Mapa Histórico</option>
-              <option value="expedicao">Expedição</option>
-              <option value="documento">Documento</option>
-              <option value="naufragio">Naufrágio</option>
-              <option value="rota">Rota Comercial</option>
-            </select>
+            <label>Ano de Início *</label>
+            <input type="number" id="routeYear" class="form-control" placeholder="1500" required />
           </div>
           <div class="form-group">
-            <label>Tema</label>
-            <select id="addTheme" class="form-control">
+            <label>Cor da Rota</label>
+            <input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" />
+          </div>
+          <div class="form-group">
+            <label>Categoria</label>
+            <select id="routeCategory" class="form-control">
+              <option value="Comércio">Comércio</option>
               <option value="Cultura">Cultura</option>
-              <option value="Economia">Economia</option>
               <option value="Política">Política</option>
               <option value="Religião">Religião</option>
               <option value="Conflitos">Conflitos</option>
-              <option value="Comércio">Comércio</option>
+              <option value="Economia">Economia</option>
             </select>
           </div>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Ano</label>
-            <input type="number" id="addFundacao" class="form-control" placeholder="Use negativo para A.C." required />
+            <label>Países/Regiões</label>
+            <input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" />
           </div>
           <div class="form-group">
-            <label>Cultura</label>
-            <input type="text" id="addPovo" class="form-control" placeholder="Ex: Gregos" required />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>País</label>
-            <input type="text" id="addPais" class="form-control" placeholder="Ex: Egito" required />
-          </div>
-          <div class="form-group">
-            <label>Continente</label>
-            <input type="text" id="addContinente" class="form-control" placeholder="Ex: África" required />
-          </div>
-        </div>
-
-        <div class="form-row">
-          <div class="form-group">
-            <label>Latitude</label>
-            <input type="number" step="any" id="addLat" class="form-control" placeholder="Clique no mapa" required />
-          </div>
-          <div class="form-group">
-            <label>Longitude</label>
-            <input type="number" step="any" id="addLon" class="form-control" placeholder="Clique no mapa" required />
+            <label>Continentes</label>
+            <input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América do Sul" />
           </div>
         </div>
 
         <div class="form-group">
-          <label>Imagem de Capa (URL)</label>
-          <input type="url" id="addCoverImage" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
-        </div>
-
-        <div class="upload-zone" id="dragDropZone">
-          <i class="fa-solid fa-cloud-arrow-up" style="font-size:1.8rem; color:var(--color-accent);"></i>
-          <p style="margin-top:6px;">Arraste imagens para anexar</p>
-          <input type="file" id="adminFileInput" style="display:none;" multiple accept="image/*" />
+          <label>Cultura/Povos</label>
+          <input type="text" id="routePeople" class="form-control" placeholder="Ex: Portugueses, Africanos" />
         </div>
 
         <div class="form-group">
-          <label>Descrição</label>
-          <textarea id="addDescricao" class="form-control" placeholder="Descreva o registro histórico..." rows="3" required></textarea>
+          <label>Pontos da Rota (Latitude, Longitude) *</label>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:80px;" />
+            <input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:80px;" />
+            <button type="button" class="btn-header" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar Ponto</button>
+          </div>
+          <div style="font-size:0.65rem; color:var(--color-muted); margin-top:4px;">
+            Clique no mapa para preencher as coordenadas automaticamente
+          </div>
+        </div>
+
+        <div id="routePointsList" style="display:flex; flex-direction:column; gap:4px; max-height:150px; overflow-y:auto; padding:4px; background:#f8f9fa; border-radius:4px;">
+          <!-- Pontos adicionados aparecerão aqui -->
+        </div>
+
+        <div class="form-group">
+          <label>URL da Imagem de Capa</label>
+          <input type="url" id="routeCoverImage" class="form-control" placeholder="https://exemplo.com/imagem.jpg" />
+        </div>
+
+        <div class="form-group">
+          <label>Descrição da Rota *</label>
+          <textarea id="routeDescription" class="form-control" placeholder="Descreva a história da rota..." rows="3" required></textarea>
         </div>
 
         <div class="form-row">
           <div class="form-group">
-            <label>Autor</label>
-            <input type="text" id="addAuthor" class="form-control" placeholder="Seu nome" />
+            <label>Autor/Pesquisador</label>
+            <input type="text" id="routeAuthor" class="form-control" placeholder="Seu nome" />
           </div>
           <div class="form-group">
             <label>Instituição</label>
-            <input type="text" id="addInstitution" class="form-control" placeholder="Sua instituição" />
+            <input type="text" id="routeInstitution" class="form-control" placeholder="Sua instituição" />
           </div>
         </div>
 
-        <button type="submit" class="btn-submit">Registrar no Atlas</button>
+        <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota ao Atlas</button>
       </form>
     </div>
   </div>
 
+  <!-- LIGHTBOX -->
   <div id="lightbox">
     <span id="btnLightboxClose" style="position:absolute; top:25px; right:35px; font-size:2.5rem; color:#fff; cursor:pointer;">&times;</span>
     <img id="lightbox-img" src="" alt="Ampliada" />
   </div>
 
+  <!-- PDF MODAL -->
   <div id="pdfModal">
     <div>
       <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border); padding-bottom:8px;">
@@ -1853,50 +1901,6 @@
         license: "Domínio Público",
         relations: []
       },
-      {
-        nome: "Nova Orleans (EUA)",
-        subtitulo: "A porta de entrada do Mississippi",
-        lat: 29.9511,
-        lon: -90.0715,
-        pais: "Estados Unidos",
-        continente: "América do Norte",
-        categoria: "porto",
-        tema: "Comércio Fluvial",
-        povo: "Franceses, Africanos e Americanos",
-        fundacao: 1718,
-        descricao: "Fundado pelos franceses, o Porto de Nova Orleans foi crucial para o comércio de algodão e escravizados no século XIX.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Louisiana State Museum",
-        institution: "Port of New Orleans",
-        doi: "10.1000/neworleans.1718",
-        license: "Domínio Público",
-        relations: []
-      },
-
-      // === PORTOS - AMÉRICA CENTRAL ===
-      {
-        nome: "Porto Bello (Panamá)",
-        subtitulo: "O porto das feiras de ouro",
-        lat: 9.5533,
-        lon: -79.6531,
-        pais: "Panamá",
-        continente: "América Central",
-        categoria: "porto",
-        tema: "Comércio Colonial",
-        povo: "Espanhóis e Emberá",
-        fundacao: 1597,
-        descricao: "Porto Bello foi o principal porto espanhol no Caribe para o comércio de ouro e prata vindos do Peru.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
-        fotos: [],
-        documentos: [],
-        author: "UNESCO Panamá",
-        institution: "Patrimônio Histórico do Panamá",
-        doi: "10.1000/portobello.1597",
-        license: "Domínio Público",
-        relations: []
-      },
 
       // === PORTOS - AMÉRICA DO SUL ===
       {
@@ -1910,7 +1914,7 @@
         tema: "Economia Colonial",
         povo: "Portugueses, Holandeses e Africanos",
         fundacao: 1537,
-        descricao: "O Porto do Recife foi o centro da economia açucareira do Nordeste brasileiro. Ocupado pelos holandeses entre 1630-1654.",
+        descricao: "O Porto do Recife foi o centro da economia açucareira do Nordeste brasileiro.",
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
         fotos: [],
         documentos: [],
@@ -1931,7 +1935,7 @@
         tema: "Economia",
         povo: "Brasileiros",
         fundacao: 1892,
-        descricao: "O Porto de Santos é o maior complexo portuário da América Latina, tendo iniciado suas operações em 1892.",
+        descricao: "O Porto de Santos é o maior complexo portuário da América Latina.",
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
         fotos: [],
         documentos: [],
@@ -1959,48 +1963,6 @@
         author: "Ministério da Cultura da Colômbia",
         institution: "Patrimônio de Cartagena",
         doi: "10.1000/cartagena.1533",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Buenos Aires (Argentina)",
-        subtitulo: "A porta do Prata",
-        lat: -34.6037,
-        lon: -58.3816,
-        pais: "Argentina",
-        continente: "América do Sul",
-        categoria: "porto",
-        tema: "Comércio e Imigração",
-        povo: "Espanhóis, Italianos e Argentinos",
-        fundacao: 1536,
-        descricao: "O Porto de Buenos Aires tornou-se o principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Museu Histórico Nacional",
-        institution: "Administração Portuária de Buenos Aires",
-        doi: "10.1000/buenosaires.1536",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Callao (Peru)",
-        subtitulo: "O porto do Vice-Reino do Peru",
-        lat: -12.0658,
-        lon: -77.1500,
-        pais: "Peru",
-        continente: "América do Sul",
-        categoria: "porto",
-        tema: "Comércio de Prata",
-        povo: "Espanhóis, Quechuas e Africanos",
-        fundacao: 1537,
-        descricao: "O Porto do Callao foi o principal porto do Vice-Reino do Peru, escoando a prata de Potosí para o Panamá.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Marinha do Peru",
-        institution: "Porto do Callao",
-        doi: "10.1000/callao.1537",
         license: "Domínio Público",
         relations: []
       },
@@ -2049,48 +2011,6 @@
         relations: []
       },
       {
-        nome: "Elmina (Gana)",
-        subtitulo: "O primeiro entreposto europeu na África Subsaariana",
-        lat: 5.0877,
-        lon: -1.3482,
-        pais: "Gana",
-        continente: "África",
-        categoria: "porto",
-        tema: "Comércio de Escravos",
-        povo: "Portugueses, Holandeses e Africanos",
-        fundacao: 1482,
-        descricao: "O Castelo de São Jorge da Mina, fundado pelos portugueses em 1482, foi o primeiro entreposto europeu na África Subsaariana.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg",
-        fotos: [],
-        documentos: [],
-        author: "UNESCO Gana",
-        institution: "Patrimônio de Elmina",
-        doi: "10.1000/elmina.1482",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Lagos (Nigéria)",
-        subtitulo: "O gigante da África Ocidental",
-        lat: 6.5244,
-        lon: 3.3792,
-        pais: "Nigéria",
-        continente: "África",
-        categoria: "porto",
-        tema: "Comércio Colonial",
-        povo: "Iorubás, Europeus e Nigerianos",
-        fundacao: 1470,
-        descricao: "O Porto de Lagos tornou-se o principal porto da Nigéria durante o período colonial britânico.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Nigerian Ports Authority",
-        institution: "Porto de Lagos",
-        doi: "10.1000/lagos.1470",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
         nome: "Cidade do Cabo (África do Sul)",
         subtitulo: "A rota do Cabo",
         lat: -33.9249,
@@ -2101,76 +2021,13 @@
         tema: "Rota Marítima",
         povo: "Holandeses, Ingleses, Malaios e Africanos",
         fundacao: 1652,
-        descricao: "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento para a rota das Índias.",
+        descricao: "Fundado pela Companhia Holandesa das Índias Orientais em 1652 como posto de reabastecimento.",
         coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
         fotos: [],
         documentos: [],
         author: "Iziko Museums",
         institution: "Porto da Cidade do Cabo",
         doi: "10.1000/capetown.1652",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Kilwa Kisiwani (Tanzânia)",
-        subtitulo: "A pérola da costa swahili",
-        lat: -8.9583,
-        lon: 39.5167,
-        pais: "Tanzânia",
-        continente: "África",
-        categoria: "porto",
-        tema: "Comércio no Oceano Índico",
-        povo: "Suaílis, Árabes e Africanos",
-        fundacao: 900,
-        descricao: "Kilwa Kisiwani foi um dos mais importantes portos da costa swahili entre os séculos IX e XVI.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg",
-        fotos: [],
-        documentos: [],
-        author: "UNESCO Tanzânia",
-        institution: "Patrimônio de Kilwa",
-        doi: "10.1000/kilwa.900",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Mombaça (Quênia)",
-        subtitulo: "A fortaleza portuguesa no Índico",
-        lat: -4.0435,
-        lon: 39.6682,
-        pais: "Quênia",
-        continente: "África",
-        categoria: "porto",
-        tema: "Conflito Colonial",
-        povo: "Suaílis, Portugueses, Árabes e Africanos",
-        fundacao: 900,
-        descricao: "O Porto de Mombaça, com seu famoso Forte Jesus (construído pelos portugueses em 1593), foi um dos principais portos da costa leste africana.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg",
-        fotos: [],
-        documentos: [],
-        author: "National Museums of Kenya",
-        institution: "Patrimônio de Mombaça",
-        doi: "10.1000/mombasa.900",
-        license: "Domínio Público",
-        relations: []
-      },
-      {
-        nome: "Zanzibar (Tanzânia)",
-        subtitulo: "A ilha das especiarias",
-        lat: -6.1631,
-        lon: 39.1912,
-        pais: "Tanzânia",
-        continente: "África",
-        categoria: "porto",
-        tema: "Comércio de Especiarias",
-        povo: "Árabes, Suaílis, Indianos e Africanos",
-        fundacao: 1000,
-        descricao: "O Porto de Zanzibar foi o centro do comércio de especiarias, especialmente cravo, no Oceano Índico.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Zanzibar Archives",
-        institution: "Patrimônio de Zanzibar",
-        doi: "10.1000/zanzibar.1000",
         license: "Domínio Público",
         relations: []
       },
@@ -2208,7 +2065,7 @@
           { lat: -23.9608, lon: -46.3350 }
         ],
         cor: "#2ecc71",
-        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá, integrando o comércio da Ásia com o Brasil.",
+        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.",
         fundacao: 1914,
         pais: "Panamá/Brasil",
         continente: "América Central/América do Sul",
@@ -2220,29 +2077,6 @@
         documentos: [],
         author: "Canal do Panamá",
         institution: "Administração do Canal do Panamá"
-      },
-      {
-        nome: "Rota do Mediterrâneo",
-        subtitulo: "Tânger ↔ Alexandria",
-        tipo: "rota",
-        pontos: [
-          { lat: 35.7595, lon: -5.8340 },
-          { lat: 36.0, lon: 0.0 },
-          { lat: 31.2001, lon: 29.9187 }
-        ],
-        cor: "#3498db",
-        descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo, integrando o comércio entre Europa, África e Ásia.",
-        fundacao: -500,
-        pais: "Marrocos/Egito",
-        continente: "África",
-        categoria: "rota",
-        tema: "Comércio",
-        povo: "Fenícios, Romanos, Árabes",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
-        fotos: [],
-        documentos: [],
-        author: "Patrimônio Mediterrâneo",
-        institution: "UNESCO"
       }
     ];
 
@@ -2273,14 +2107,6 @@
         url: 'https://streaming-live.rtp.pt/antena2',
         icon: 'fa-solid fa-landmark',
         badge: 'Portugal'
-      },
-      {
-        id: 'bbc-radio3',
-        name: 'BBC Radio 3',
-        desc: 'Música Clássica e Cultura',
-        url: 'https://stream.live.vc.bbcmedia.co.uk/bbc_radio_three',
-        icon: 'fa-solid fa-broadcast',
-        badge: 'BBC'
       }
     ];
 
@@ -2290,8 +2116,7 @@
         name: 'Música Medieval',
         desc: 'Cantos Gregorianos e Trovadores',
         tracks: [
-          'https://upload.wikimedia.org/wikipedia/commons/d/df/Canto_Gregoriano_-_Kyrie.ogg',
-          'https://upload.wikimedia.org/wikipedia/commons/2/2a/Cantiga_100.ogg'
+          'https://upload.wikimedia.org/wikipedia/commons/d/df/Canto_Gregoriano_-_Kyrie.ogg'
         ],
         icon: 'fa-solid fa-church',
         badge: 'Medieval'
@@ -2305,16 +2130,6 @@
         ],
         icon: 'fa-solid fa-palette',
         badge: 'Renasc.'
-      },
-      {
-        id: 'baroque',
-        name: 'Barroco',
-        desc: 'Bach, Vivaldi e Corelli',
-        tracks: [
-          'https://upload.wikimedia.org/wikipedia/commons/6/6a/Bach_-_Brandenburg_Concerto_No._3_-_1._Allegro.ogg'
-        ],
-        icon: 'fa-solid fa-crown',
-        badge: 'Barroco'
       }
     ];
 
@@ -2349,15 +2164,13 @@
         this.storyStepIndex = 0;
         this.storyPlaying = false;
         this.storyInterval = null;
-
-        // Radio
+        this.routePoints = [];
         this.currentAudio = null;
-        this.currentStationId = null;
         this.isRadioPlaying = false;
         this.radioVolume = 0.3;
         this.isPlaylistMode = false;
-        this.currentPlaylistIndex = 0;
         this.playlistTracks = [];
+        this.currentPlaylistIndex = 0;
       }
 
       async start() {
@@ -2407,11 +2220,6 @@
           detailDocuments: this.$('detailDocuments'),
           btnCloseDetail: this.$('btnCloseDetail'),
           btnAudioTTS: this.$('btnAudioTTS'),
-          btnAdminPanel: this.$('btnAdminPanel'),
-          modalAdmin: this.$('modalAdmin'),
-          btnCloseAdmin: this.$('btnCloseAdmin'),
-          addPointForm: this.$('addPointForm'),
-          dragDropZone: this.$('dragDropZone'),
           btnToggleGlobe: this.$('btnToggleGlobe'),
           modalAccessibility: this.$('modalAccessibility'),
           btnCloseAccessibility: this.$('btnCloseAccessibility'),
@@ -2443,7 +2251,15 @@
           radioVolumeSlider: this.$('radioVolumeSlider'),
           radioVolumeDown: this.$('radioVolumeDown'),
           radioVolumeUp: this.$('radioVolumeUp'),
-          radioStopBtn: this.$('radioStopBtn')
+          radioStopBtn: this.$('radioStopBtn'),
+          modalAddRoute: this.$('modalAddRoute'),
+          btnCloseAddRoute: this.$('btnCloseAddRoute'),
+          addRouteForm: this.$('addRouteForm'),
+          btnAddRoute: this.$('btnAddRoute'),
+          btnImportRoutes: this.$('btnImportRoutes'),
+          btnExportRoutes: this.$('btnExportRoutes'),
+          btnAddRoutePoint: this.$('btnAddRoutePoint'),
+          routePointsList: this.$('routePointsList')
         };
       }
 
@@ -2503,16 +2319,24 @@
         });
 
         this.map.on('click', (e) => {
-          if (this.dom.modalAdmin.classList.contains('open')) {
+          if (this.dom.modalAddRoute.classList.contains('open')) {
             const { lng, lat } = e.lngLat;
-            this.$('addLat').value = lat.toFixed(6);
-            this.$('addLon').value = lng.toFixed(6);
+            this.$('routePointLat').value = lat.toFixed(6);
+            this.$('routePointLon').value = lng.toFixed(6);
+            // Adiciona automaticamente o ponto ao clicar no mapa
+            this.adicionarPontoRota();
           }
         });
       }
 
       desenharRotas() {
-        // Remove rotas anteriores
+        if (!this.map || !this.map.loaded()) {
+          this.map.once('load', () => {
+            this.desenharRotas();
+          });
+          return;
+        }
+
         if (this.routeLayers) {
           this.routeLayers.forEach(layer => {
             try {
@@ -2542,7 +2366,6 @@
               }
             });
 
-            // Linha principal com traço pontilhado
             this.map.addLayer({
               id: id + '-line',
               type: 'line',
@@ -2556,7 +2379,6 @@
               }
             });
 
-            // Efeito de brilho
             this.map.addLayer({
               id: id + '-glow',
               type: 'line',
@@ -2572,7 +2394,6 @@
 
             this.routeLayers.push(id + '-line', id + '-glow');
 
-            // Marcadores nos pontos da rota
             rota.pontos.forEach((ponto) => {
               const el = document.createElement('div');
               el.style.width = '10px';
@@ -2592,6 +2413,165 @@
         });
       }
 
+      // =========================================================
+      // ADICIONAR ROTA
+      // =========================================================
+      adicionarPontoRota() {
+        const lat = parseFloat(this.$('routePointLat').value);
+        const lon = parseFloat(this.$('routePointLon').value);
+        
+        if (isNaN(lat) || isNaN(lon)) {
+          alert('Preencha latitude e longitude válidas.');
+          return;
+        }
+
+        this.routePoints.push({ lat, lon });
+        this.renderizarPontosRota();
+        
+        this.$('routePointLat').value = '';
+        this.$('routePointLon').value = '';
+      }
+
+      removerPontoRota(index) {
+        this.routePoints.splice(index, 1);
+        this.renderizarPontosRota();
+      }
+
+      renderizarPontosRota() {
+        this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:4px 8px; background:#fff; border:1px solid var(--border); border-radius:4px;">
+            <span style="font-size:0.75rem;">${i+1}. ${p.lat.toFixed(4)}°, ${p.lon.toFixed(4)}°</span>
+            <button type="button" class="btn-header" style="padding:2px 8px; font-size:0.65rem; color:#e74c3c; border-color:#e74c3c;" onclick="window.atlasApp.removerPontoRota(${i})">
+              <i class="fa-solid fa-times"></i>
+            </button>
+          </div>
+        `).join('');
+      }
+
+      async adicionarRota(e) {
+        e.preventDefault();
+        
+        const nome = this.$('routeName').value.trim();
+        const subtitulo = this.$('routeSubtitle').value.trim();
+        const year = parseInt(this.$('routeYear').value);
+        const color = this.$('routeColor').value;
+        const category = this.$('routeCategory').value;
+        const countries = this.$('routeCountries').value.trim();
+        const continents = this.$('routeContinents').value.trim();
+        const people = this.$('routePeople').value.trim();
+        const coverImage = this.$('routeCoverImage').value.trim();
+        const description = this.$('routeDescription').value.trim();
+        const author = this.$('routeAuthor').value.trim() || 'Anônimo';
+        const institution = this.$('routeInstitution').value.trim();
+
+        if (!nome || !description || isNaN(year) || this.routePoints.length < 2) {
+          alert('Preencha todos os campos obrigatórios e adicione pelo menos 2 pontos.');
+          return;
+        }
+
+        const novaRota = {
+          nome,
+          subtitulo,
+          tipo: 'rota',
+          pontos: [...this.routePoints],
+          cor: color,
+          descricao: description,
+          fundacao: year,
+          pais: countries || 'Não especificado',
+          continente: continents || 'Não especificado',
+          categoria: 'rota',
+          tema: category,
+          povo: people || 'Não especificado',
+          coverImage: coverImage || '',
+          fotos: [],
+          documentos: [],
+          author,
+          institution
+        };
+
+        this.data.push(novaRota);
+        this.salvarDados();
+        
+        this.dom.modalAddRoute.classList.remove('open');
+        this.dom.addRouteForm.reset();
+        this.routePoints = [];
+        this.renderizarPontosRota();
+
+        this.gerarFiltros();
+        this.aplicarFiltros();
+        alert(`✅ Rota "${nome}" adicionada com sucesso!`);
+      }
+
+      // =========================================================
+      // IMPORTAR / EXPORTAR ROTAS
+      // =========================================================
+      importarRotas() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        input.style.display = 'none';
+        document.body.appendChild(input);
+
+        input.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+
+          const reader = new FileReader();
+          reader.onload = (event) => {
+            try {
+              const novasRotas = JSON.parse(event.target.result);
+              
+              if (!Array.isArray(novasRotas)) {
+                alert('O arquivo deve conter um array de rotas.');
+                return;
+              }
+
+              const rotasValidas = novasRotas.filter(rota => {
+                if (rota.tipo !== 'rota') return false;
+                if (!rota.pontos || rota.pontos.length < 2) return false;
+                return true;
+              });
+
+              if (rotasValidas.length === 0) {
+                alert('Nenhuma rota válida encontrada.');
+                return;
+              }
+
+              this.data = this.data.concat(rotasValidas);
+              this.salvarDados();
+              this.gerarFiltros();
+              this.aplicarFiltros();
+              alert(`✅ ${rotasValidas.length} rota(s) importada(s) com sucesso!`);
+            } catch (err) {
+              alert('Erro ao ler o arquivo: ' + err.message);
+            }
+          };
+          reader.readAsText(file);
+          input.remove();
+        });
+
+        input.click();
+      }
+
+      exportarRotas() {
+        const rotas = this.data.filter(item => item.tipo === 'rota');
+        
+        if (rotas.length === 0) {
+          alert('Nenhuma rota para exportar.');
+          return;
+        }
+
+        const dataStr = "data:text/json;charset=utf-8," + 
+          encodeURIComponent(JSON.stringify(rotas, null, 2));
+        const dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "rotas_historicas.json");
+        dlAnchor.click();
+      }
+
+      // =========================================================
+      // FILTROS E RENDERIZAÇÃO
+      // =========================================================
       inicializarComponentes() {
         this.gerarFiltros();
       }
@@ -2728,7 +2708,6 @@
         if (!item) return;
 
         if (item.tipo === 'rota' && item.pontos && item.pontos.length > 0) {
-          // Para rotas, centraliza no primeiro ponto
           const centro = item.pontos[0];
           this.map.flyTo({
             center: [centro.lon, centro.lat],
@@ -2825,6 +2804,9 @@
         });
       }
 
+      // =========================================================
+      // TTS e ÁUDIO
+      // =========================================================
       toggleTTS() {
         const item = this.data.find(d => d.nome === this.selectedItemName);
         if (!item) return;
@@ -2851,6 +2833,9 @@
         audio.play();
       }
 
+      // =========================================================
+      // 3D e Panorama
+      // =========================================================
       inicializarThreeJS() {
         const container = this.$('threeReplicaViewport');
         const canvas = this.$('three-canvas');
@@ -2929,6 +2914,9 @@
         animate();
       }
 
+      // =========================================================
+      // LIGHTBOX E PDF
+      // =========================================================
       abrirLightbox(url) {
         this.dom.lightboxImg.src = url;
         this.dom.lightbox.style.display = 'flex';
@@ -2940,6 +2928,9 @@
         this.dom.pdfModal.style.display = 'flex';
       }
 
+      // =========================================================
+      // STORYTELLING
+      // =========================================================
       iniciarStoryline(type) {
         if (type === 'none') {
           this.dom.storytellingHud.style.display = 'none';
@@ -2950,7 +2941,7 @@
 
         const stories = {
           navegacoes: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)', 'Rota do Atlântico Sul'],
-          imperio_romano: ['Alexandria (Egito)', 'Tânger (Marrocos)', 'Rota do Mediterrâneo']
+          imperio_romano: ['Alexandria (Egito)', 'Tânger (Marrocos)']
         };
 
         this.currentStory = stories[type] || [];
@@ -2988,7 +2979,7 @@
       }
 
       // =========================================================
-      // RÁDIO E PLAYLIST
+      // RÁDIO
       // =========================================================
       inicializarRadio() {
         this.renderizarEstacoes();
@@ -3017,7 +3008,6 @@
           this.pararRadio();
         });
 
-        // Toggle dropdown
         this.dom.radioPlayerBtn.addEventListener('click', (e) => {
           e.stopPropagation();
           this.dom.radioDropdown.classList.toggle('open');
@@ -3077,7 +3067,6 @@
           <span class="radio-pulse"></span>
         `;
 
-        // Destacar estação
         document.querySelectorAll('.radio-station').forEach(el => {
           el.classList.toggle('active', el.dataset.id === stationId && el.dataset.type === 'station');
         });
@@ -3102,7 +3091,6 @@
           <span class="radio-pulse"></span>
         `;
 
-        // Destacar playlist
         document.querySelectorAll('.radio-station').forEach(el => {
           el.classList.toggle('active', el.dataset.id === playlistId && el.dataset.type === 'playlist');
         });
@@ -3149,6 +3137,9 @@
         });
       }
 
+      // =========================================================
+      // ACESSIBILIDADE
+      // =========================================================
       toggleHighContrast() {
         document.body.classList.toggle('high-contrast');
       }
@@ -3158,46 +3149,9 @@
         document.body.style.fontSize = (currentSize + action) + 'px';
       }
 
-      async registrarNovoPonto(e) {
-        e.preventDefault();
-        
-        const nome = this.$('addName').value.trim();
-        const subtitulo = this.$('addSubtitle').value.trim();
-        const categoria = this.$('addCategory').value;
-        const tema = this.$('addTheme').value;
-        const fundacao = parseInt(this.$('addFundacao').value);
-        const povo = this.$('addPovo').value.trim();
-        const pais = this.$('addPais').value.trim();
-        const continente = this.$('addContinente').value.trim();
-        const lat = parseFloat(this.$('addLat').value);
-        const lon = parseFloat(this.$('addLon').value);
-        const coverImage = this.$('addCoverImage').value.trim();
-        const descricao = this.$('addDescricao').value.trim();
-        const author = this.$('addAuthor').value.trim() || 'Anônimo';
-        const institution = this.$('addInstitution').value.trim();
-
-        if (!nome || !pais || isNaN(lat) || isNaN(lon) || isNaN(fundacao)) {
-          alert('Preencha todos os campos obrigatórios.');
-          return;
-        }
-
-        const novoPonto = {
-          nome, subtitulo, lat, lon, pais, continente, categoria, tema, povo,
-          fundacao, descricao, coverImage, author, institution,
-          fotos: [], documentos: [], relations: []
-        };
-
-        this.data.push(novoPonto);
-        this.salvarDados();
-        this.dom.modalAdmin.classList.remove('open');
-        this.dom.addPointForm.reset();
-
-        this.gerarFiltros();
-        this.aplicarFiltros();
-        this.focarPonto(nome);
-        alert('Registro adicionado com sucesso!');
-      }
-
+      // =========================================================
+      // EVENTOS
+      // =========================================================
       bindEventos() {
         // Acordeões
         document.querySelectorAll('.filter-accordion-header').forEach(header => {
@@ -3267,58 +3221,6 @@
         // TTS
         this.dom.btnAudioTTS.addEventListener('click', () => this.toggleTTS());
 
-        // Admin
-        this.dom.btnAdminPanel.addEventListener('click', () => this.dom.modalAdmin.classList.add('open'));
-        this.dom.btnCloseAdmin.addEventListener('click', () => this.dom.modalAdmin.classList.remove('open'));
-        this.dom.addPointForm.addEventListener('submit', (e) => this.registrarNovoPonto(e));
-
-        // Drag & Drop
-        this.dom.dragDropZone.addEventListener('click', () => this.$('adminFileInput').click());
-        this.dom.dragDropZone.addEventListener('dragover', (e) => {
-          e.preventDefault();
-          this.dom.dragDropZone.classList.add('dragover');
-        });
-        this.dom.dragDropZone.addEventListener('dragleave', () => this.dom.dragDropZone.classList.remove('dragover'));
-        this.dom.dragDropZone.addEventListener('drop', (e) => {
-          e.preventDefault();
-          this.dom.dragDropZone.classList.remove('dragover');
-          const files = e.dataTransfer.files;
-          for (let file of files) {
-            if (file.type.startsWith('image/')) {
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                if (!this.$('addCoverImage').value) {
-                  this.$('addCoverImage').value = ev.target.result;
-                }
-                alert(`Imagem "${file.name}" carregada!`);
-              };
-              reader.readAsDataURL(file);
-            }
-          }
-        });
-        this.$('adminFileInput').addEventListener('change', (e) => {
-          const files = e.target.files;
-          for (let file of files) {
-            if (file.type.startsWith('image/')) {
-              const reader = new FileReader();
-              reader.onload = (ev) => {
-                if (!this.$('addCoverImage').value) {
-                  this.$('addCoverImage').value = ev.target.result;
-                }
-                alert(`Imagem "${file.name}" carregada!`);
-              };
-              reader.readAsDataURL(file);
-            }
-          }
-        });
-
-        // Abas
-        document.querySelectorAll('.tab-btn').forEach(btn => {
-          btn.addEventListener('click', () => {
-            this.alternarAbaDetalhes(btn.getAttribute('data-tab'));
-          });
-        });
-
         // Fechar detalhes
         this.dom.btnCloseDetail.addEventListener('click', () => {
           this.dom.detailPanel.classList.remove('open');
@@ -3357,6 +3259,51 @@
           e.preventDefault();
           this.map.flyTo({ center: [-10, 10], zoom: 2.0, duration: 1500 });
           this.dom.detailPanel.classList.remove('open');
+        });
+
+        // =========================================================
+        // BOTÕES DE ROTA - ADICIONAR, IMPORTAR, EXPORTAR
+        // =========================================================
+        this.dom.btnAddRoute.addEventListener('click', () => {
+          this.dom.modalAddRoute.classList.add('open');
+          this.routePoints = [];
+          this.renderizarPontosRota();
+        });
+
+        this.dom.btnCloseAddRoute.addEventListener('click', () => {
+          this.dom.modalAddRoute.classList.remove('open');
+        });
+
+        this.dom.addRouteForm.addEventListener('submit', (e) => this.adicionarRota(e));
+
+        this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
+
+        // Enter para adicionar ponto
+        this.$('routePointLat').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.adicionarPontoRota();
+          }
+        });
+        this.$('routePointLon').addEventListener('keypress', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            this.adicionarPontoRota();
+          }
+        });
+
+        // Importar Rotas
+        this.dom.btnImportRoutes.addEventListener('click', () => this.importarRotas());
+
+        // Exportar Rotas
+        this.dom.btnExportRoutes.addEventListener('click', () => this.exportarRotas());
+
+        // Fechar modal com ESC
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            this.dom.modalAddRoute.classList.remove('open');
+            this.dom.modalAccessibility.classList.remove('open');
+          }
         });
       }
     }
