@@ -1712,149 +1712,49 @@
     };
 
     const DADOS_INICIAIS = [
-      {
-        nome: 'Carta de Piri Reis (1513)',
-        subtitulo: 'Mapa-múndi Otomano e a cartografia do Novo Mundo',
-        lat: 41.0082, lon: 28.9784,
-        pais: 'Turquia', continente: 'Europa/Ásia',
-        categoria: 'mapa', tema: 'Cultura', povo: 'Otomanos',
-        fundacao: 1513, periodo: 'Séc. XVI',
-        descricao: 'Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão. Elaborado pelo almirante otomano Piri Reis, o fragmento sobrevivente mostra o Oceano Atlântico, a costa brasileira e partes da Antártica. A representação detalhada gerou diversas teorias historiográficas sobre o conhecimento de navegação na época.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg',
-        fotos: [
-          { url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/800px-Piri_Reis_1513_world_map.jpg', descricao: 'Detalhe do Mapa' },
-          { url: 'https://upload.wikimedia.org/wikipedia/commons/a/ad/Piri_reis_portrait.jpg', descricao: 'Retrato de Piri Reis' }
-        ],
-        documentos: [{ titulo: 'Estudo Cartográfico Otomano', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Piri Reis', institution: 'Museu de Topkapi', doi: '10.1000/piri.1513', license: 'Domínio Público',
-        relations: ['Porto de Lisboa', 'Tratado de Tordesilhas'],
-        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
-        audioUrl: 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3'
-      },
-      {
-        nome: 'Mapa de Cantino (1502)',
-        subtitulo: 'Planisfério espião das rotas ultramarinas portuguesas',
-        lat: 38.7071, lon: -9.1355,
-        pais: 'Portugal', continente: 'Europa',
-        categoria: 'mapa', tema: 'Cultura', povo: 'Portugueses',
-        fundacao: 1502, periodo: 'Séc. XVI',
-        descricao: 'O planisfério de Cantino é o mais antigo mapa sobrevivente que retrata a costa do Brasil e as descobertas portuguesas no Oriente. Foi contrabandeado de Lisboa para a Itália por Alberto Cantino, agente do Duque de Ferrara. Apresenta o Tratado de Tordesilhas delimitando as esferas de influência das potências ibéricas.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/800px-Cantino_Planisphere_%281502%29.jpg', descricao: 'Planisfério de Cantino' }],
-        documentos: [{ titulo: 'Análise do Cantino', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Desconhecido', institution: 'Biblioteca Estense', doi: '10.1000/cantino.1502', license: 'Domínio Público',
-        relations: ['Porto de Lisboa', 'Tratado de Tordesilhas', 'Viagem de Cabral (1500)'],
-        panoramaUrl: '', audioUrl: ''
-      },
-      {
-        nome: 'Biblioteca de Alexandria (-285)',
-        subtitulo: 'O epicentro intelectual da Antiguidade Clássica',
-        lat: 31.2001, lon: 29.9187,
-        pais: 'Egito', continente: 'África',
-        categoria: 'documento', tema: 'Cultura', povo: 'Gregos/Egípcios',
-        fundacao: -285, periodo: 'Antiguidade',
-        descricao: 'Fundada pelo general ptolemaico Ptolomeu I Sóter, a Biblioteca abrigava centenas de milhares de rolos de papiro que reuniam todo o conhecimento científico, filosófico e poético do mundo antigo. Seu incêndio e destruição progressiva marcaram uma das maiores perdas de memória e patrimônio da humanidade.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Alexandria_Bibliotheca_exterior.jpg/400px-Alexandria_Bibliotheca_exterior.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/2/23/Alexandrina_inside.jpg', descricao: 'Reconstituição Interna' }],
-        documentos: [{ titulo: 'Pápiros de Alexandria - Historiografia', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Demetrius de Phalerum', institution: 'Império Ptolemaico', doi: '10.1000/alexandria.285bce', license: 'Domínio Público',
-        relations: [],
-        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
-        audioUrl: ''
-      },
-      {
-        nome: 'Porto de Lisboa',
-        subtitulo: 'Centro nevrálgico do comércio marítimo global quinhentista',
-        lat: 38.7071, lon: -9.1390,
-        pais: 'Portugal', continente: 'Europa',
-        categoria: 'porto', tema: 'Economia', povo: 'Portugueses',
-        fundacao: 1500, periodo: 'Séc. XVI',
-        descricao: 'Situado na foz do Rio Tejo, o Porto de Lisboa era o coração comercial e naval do Império Português. Dali partiam as carracas e caravelas rumo ao Brasil e à Rota da Seda Marítima na Índia. A Casa da Índia controlava o monopólio das especiarias orientais.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg/400px-Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/c/cd/Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg/800px-Torre_de_Bel%C3%A9m_setembro_de_2013_a.jpg', descricao: 'Torre de Belém' }],
-        documentos: [],
-        author: 'Coroa Portuguesa', institution: 'Arquivo Nacional da Torre do Tombo', doi: '10.1000/lisboa.1500', license: 'Creative Commons BY',
-        relations: ['Viagem de Cabral (1500)', 'Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
-        panoramaUrl: '', audioUrl: ''
-      },
-      {
-        nome: 'Machu Picchu (1450)',
-        subtitulo: 'A cidadela sagrada dos Incas nos Andes',
-        lat: -13.1631, lon: -72.5450,
-        pais: 'Peru', continente: 'América do Sul',
-        categoria: 'documento', tema: 'Política', povo: 'Incas',
-        fundacao: 1450, periodo: 'Séc. XV',
-        descricao: 'Construída pelo Imperador Pachacuti como residência real e centro cerimonial, a cidade de pedra demonstra o incrível avanço da engenharia, agricultura em terraços e astronomia do povo Inca. Localizada a 2430 metros de altitude, sobreviveu à conquista espanhola ocultada pela densa vegetação andina.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/400px-Machu_Picchu%2C_Peru.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/e/eb/Machu_Picchu%2C_Peru.jpg/800px-Machu_Picchu%2C_Peru.jpg', descricao: 'Vista de Machu Picchu' }],
-        documentos: [],
-        author: 'Inca Pachacuti', institution: 'Patrimônio Mundial UNESCO', doi: '10.1000/machupicchu.1450', license: 'Domínio Público',
-        relations: [],
-        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
-        audioUrl: ''
-      },
-      {
-        nome: 'Viagem de Cabral (1500)',
-        subtitulo: 'A frota das especiarias e a chegada ao Monte Pascoal',
-        lat: -16.5, lon: -39.0,
-        pais: 'Portugal', continente: 'América do Sul',
-        categoria: 'expedicao', tema: 'Política', povo: 'Portugueses',
-        fundacao: 1500, periodo: 'Séc. XVI',
-        descricao: 'A frota comandada por Pedro Álvares Cabral partiu de Lisboa para realizar uma rota ao redor do Cabo da Boa Esperança rumo à Índia. Contudo, desviando-se a oeste, a expedição avistou o Monte Pascoal e desembarcou em Porto Seguro, oficializando o descobrimento do Brasil pela Coroa Portuguesa.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Pedro_%C3%81lvares_Cabral_%28cropped%29.jpg/400px-Pedro_%C3%81lvares_Cabral_%28cropped%29.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/9b/Descobrimento_do_Brasil.jpg/800px-Descobrimento_do_Brasil.jpg', descricao: 'Desembarque de Cabral' }],
-        documentos: [{ titulo: 'Carta de Caminha', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Pedro Álvares Cabral', institution: 'Arquivo do Império Português', doi: '10.1000/cabral.1500', license: 'Domínio Público',
-        relations: ['Porto de Lisboa', 'Carta de Pero Vaz de Caminha (1500)', 'Mapa de Cantino (1502)'],
-        panoramaUrl: '', audioUrl: ''
-      },
-      {
-        nome: 'Carta de Pero Vaz de Caminha (1500)',
-        subtitulo: 'A certidão de nascimento oficial do Brasil colonial',
-        lat: -16.48, lon: -39.06,
-        pais: 'Portugal', continente: 'América do Sul',
-        categoria: 'documento', tema: 'Cultura', povo: 'Portugueses',
-        fundacao: 1500, periodo: 'Séc. XVI',
-        descricao: 'Redigida por Pero Vaz de Caminha, escrivão da armada de Cabral, esta epístola ao rei D. Manuel I descreve em detalhes o primeiro contato dos portugueses com as terras brasileiras e seus habitantes indígenas. É considerada a certidão de nascimento oficial do Brasil.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Carta_de_Caminha.jpg/400px-Carta_de_Caminha.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Carta_de_Caminha.jpg/800px-Carta_de_Caminha.jpg', descricao: 'Páginas da Carta' }],
-        documentos: [{ titulo: 'Transcrição Paleográfica', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Pero Vaz de Caminha', institution: 'Torre do Tombo', doi: '10.1000/caminha.1500', license: 'Domínio Público',
-        relations: ['Viagem de Cabral (1500)'],
-        panoramaUrl: '', audioUrl: ''
-      },
-      {
-        nome: 'Tratado de Tordesilhas (1494)',
-        subtitulo: 'A divisão política do novo mundo ultramarino',
-        lat: 41.5161, lon: -5.2678,
-        pais: 'Espanha/Portugal', continente: 'Europa',
-        categoria: 'documento', tema: 'Política', povo: 'Espanhóis/Portugueses',
-        fundacao: 1494, periodo: 'Séc. XV',
-        descricao: 'Tratado assinado na cidade de Tordesilhas dividindo as terras descobertas e por descobrir fora da Europa entre o Reino de Portugal e a Coroa de Castela. A linha de demarcação foi definida a 370 léguas a oeste de Cabo Verde, moldando a colonização da América.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Tratado_de_Tordesillas.jpg/400px-Tratado_de_Tordesillas.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/b/b3/Tratado_de_Tordesillas.jpg/800px-Tratado_de_Tordesillas.jpg', descricao: 'Manuscrito original' }],
-        documentos: [{ titulo: 'Texto Histórico Integral', url: 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf' }],
-        author: 'Papa Alexandre VI', institution: 'Arquivo Geral de Simancas', doi: '10.1000/tordesillas.1494', license: 'Domínio Público',
-        relations: ['Mapa de Cantino (1502)', 'Carta de Piri Reis (1513)'],
-        panoramaUrl: '', audioUrl: ''
-      },
-      {
-        nome: 'Império Romano e Fórum de Roma (117)',
-        subtitulo: 'O apogeu da expansão romana sob o imperador Trajano',
-        lat: 41.8925, lon: 12.4853,
-        pais: 'Itália', continente: 'Europa',
-        categoria: 'documento', tema: 'Política', povo: 'Romanos',
-        fundacao: 117, periodo: 'Antiguidade',
-        descricao: 'Em 117 d.C., o Império Romano atingiu sua máxima extensão territorial sob o comando de Trajano. O Fórum de Roma funcionava como o centro político, religioso e comercial do império, onde senadores e magistrados ditavam as leis que governariam mais de 50 milhões de súditos ao redor do Mediterrâneo.',
-        coverImage: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Rome_Forum_Romanum_Atrium_Vestae.jpg/400px-Rome_Forum_Romanum_Atrium_Vestae.jpg',
-        fotos: [{ url: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Rome_Forum_Romanum_Atrium_Vestae.jpg/800px-Rome_Forum_Romanum_Atrium_Vestae.jpg', descricao: 'Fórum Romano' }],
-        documentos: [],
-        author: 'Senatus Populusque Romanus', institution: 'Patrimônio Arqueológico de Roma', doi: '10.1000/spqr.117', license: 'Domínio Público',
-        relations: [],
-        panoramaUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Pantheon_360.jpg/1024px-Pantheon_360.jpg',
-        audioUrl: ''
-      }
-    ];
+  {
+    "nome": "Carta de Piri Reis (1513)",
+    "subtitulo": "Mapa-múndi Otomano",
+    "lat": 41.0082,
+    "lon": 28.9784,
+    "pais": "Turquia",
+    "continente": "Europa/Ásia",
+    "categoria": "mapa",
+    "tema": "Cultura",
+    "povo": "Otomanos",
+    "fundacao": 1513,
+    "descricao": "Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg",
+    "fotos": [],
+    "documentos": [],
+    "author": "Piri Reis",
+    "institution": "Museu de Topkapi",
+    "doi": "10.1000/piri.1513",
+    "license": "Domínio Público",
+    "relations": []
+  },
+  {
+    "nome": "Mapa de Cantino (1502)",
+    "subtitulo": "Planisfério português",
+    "lat": 38.7071,
+    "lon": -9.1355,
+    "pais": "Portugal",
+    "continente": "Europa",
+    "categoria": "mapa",
+    "tema": "Cultura",
+    "povo": "Portugueses",
+    "fundacao": 1502,
+    "descricao": "O mais antigo mapa a retratar a costa do Brasil.",
+    "coverImage": "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
+    "fotos": [],
+    "documentos": [],
+    "author": "Desconhecido",
+    "institution": "Biblioteca Estense",
+    "doi": "10.1000/cantino.1502",
+    "license": "Domínio Público",
+    "relations": []
+  }
+];
 
     // =========================================================
     // INDEXEDDB HELPER (PARA PERSISTÊNCIA ROBUSTA)
@@ -2224,35 +2124,28 @@
         };
       }
 
-    async carregarDados() {
-  // 1. Tenta carregar do IndexedDB
+async carregarDados() {
+  console.log('🔄 Carregando dados...');
+  
   const stored = await this.db.getPoints();
   if (stored && stored.length > 0) {
     this.data = stored;
-    console.log('✅ ' + this.data.length + ' registros carregados do IndexedDB');
+    console.log('✅ ' + this.data.length + ' registros do IndexedDB');
     return;
   }
 
-  // 2. Tenta carregar do arquivo dados.json
-  // 2. Tenta carregar do arquivo dados.json
-try {
-    console.log('Tentando carregar dados.json...');
-    const response = await fetch('https://brmarlonsampaio-code.github.io/atlas-historico/dados.json');
-    if (!response.ok) {
-        throw new Error('Arquivo não encontrado');
+  if (DADOS_INICIAIS && DADOS_INICIAIS.length > 0) {
+    this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
+    for (const pt of this.data) {
+      pt.status = 'Aprovado';
+      await this.db.savePoint(pt);
     }
-    const dados = await response.json();
-    if (dados && dados.length > 0) {
-        this.data = dados;
-        for (const pt of this.data) {
-            pt.status = 'Aprovado';
-            await this.db.savePoint(pt);
-        }
-        console.log('✅ ' + this.data.length + ' registros carregados do dados.json');
-        return;
-    }
-} catch (e) {
-    console.warn('⚠️ Erro ao carregar dados.json:', e.message);
+    console.log('✅ ' + this.data.length + ' registros carregados!');
+    return;
+  }
+
+  this.data = [];
+  console.warn('⚠️ Nenhum dado!');
 }
 
   // 3. Fallback: cria dados mínimos para não quebrar
