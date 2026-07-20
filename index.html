@@ -1810,8 +1810,10 @@
       constructor() {
         this.data = [];
         this.map = null;
-        this.markers = [];
+        this.markerInstances = [];   // Marcadores fixos
+        this.markerData = [];        // Dados dos marcadores atuais
         this.routeLayers = [];
+        this.routePointMarkers = []; // Marcadores dos pontos das rotas
         this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
         this.searchQuery = '';
         this.selectedItemName = null;
@@ -1833,6 +1835,7 @@
         this.storyPlaying = false;
         this.storyInterval = null;
         this._pendingDraw = false;
+        this._lastMarkerIds = '';
       }
 
       async start() {
@@ -1937,7 +1940,7 @@
       }
 
       // =========================================================
-      // MAPA - CORRIGIDO
+      // MAPA
       // =========================================================
       inicializarMapa() {
         const estiloRaster = {
@@ -1981,20 +1984,77 @@
           }
         });
 
-        // Força o redimensionamento do mapa
+        // Força o redimensionamento
         setTimeout(() => {
-          if (this.map) {
-            this.map.resize();
-          }
+          if (this.map) this.map.resize();
         }, 500);
       }
 
       // =========================================================
-      // DESENHAR ROTAS
+      // MARCADORES FIXOS - OTIMIZADO
+      // =========================================================
+      renderizarMarcadores(itens) {
+        // Gera uma string com os IDs dos itens para comparar
+        const newIds = itens.map(i => i.nome).sort().join('|');
+        
+        // Se os dados são os mesmos e já temos marcadores, não recria
+        if (newIds === this._lastMarkerIds && this.markerInstances.length > 0) {
+          console.log('ℹ️ Marcadores já estão atualizados, mantendo fixos.');
+          return;
+        }
+
+        // Remove marcadores antigos
+        this.markerInstances.forEach(m => m.remove());
+        this.markerInstances = [];
+        this.markerData = itens.slice();
+        this._lastMarkerIds = newIds;
+
+        // Adiciona novos marcadores
+        itens.forEach(item => {
+          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
+          
+          const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
+          
+          const el = document.createElement('div');
+          el.className = 'marker-container';
+          el.style.setProperty('--marker-color', cor);
+
+          const pulse = document.createElement('div');
+          pulse.className = 'marker-pulse';
+          const pin = document.createElement('div');
+          pin.className = 'marker-pin';
+
+          el.appendChild(pulse);
+          el.appendChild(pin);
+
+          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
+            .setHTML(`
+              <div style="font-family:'Inter',sans-serif; padding:4px;">
+                <strong style="color:#1a73e8; font-size:0.9rem;">${item.nome}</strong>
+                <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
+                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
+                        style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
+                  <i class="fa-solid fa-circle-info"></i> Detalhes
+                </button>
+              </div>
+            `);
+
+          const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([item.lon, item.lat])
+            .setPopup(popup)
+            .addTo(this.map);
+
+          this.markerInstances.push(marker);
+        });
+
+        console.log(`✅ ${this.markerInstances.length} marcadores fixos`);
+      }
+
+      // =========================================================
+      // ROTAS
       // =========================================================
       desenharRotas() {
         if (!this.map || !this.map.loaded()) {
-          console.warn('⚠️ Mapa não carregado, agendando...');
           if (!this._pendingDraw) {
             this._pendingDraw = true;
             this.map.once('load', () => {
@@ -2005,6 +2065,7 @@
           return;
         }
 
+        // Remove layers antigas
         if (this.routeLayers) {
           this.routeLayers.forEach(layer => {
             try {
@@ -2015,14 +2076,13 @@
         }
         this.routeLayers = [];
 
+        // Remove marcadores de pontos antigos
+        this.routePointMarkers.forEach(m => m.remove());
+        this.routePointMarkers = [];
+
         const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
         
-        if (rotas.length === 0) {
-          console.log('ℹ️ Nenhuma rota para desenhar');
-          return;
-        }
-
-        console.log(`🔄 Desenhando ${rotas.length} rotas...`);
+        if (rotas.length === 0) return;
 
         rotas.forEach((rota, index) => {
           const id = 'rota-' + index;
@@ -2078,15 +2138,14 @@
               el.style.border = '2px solid white';
               el.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
               
-              new maplibregl.Marker({ element: el })
+              const marker = new maplibregl.Marker({ element: el })
                 .setLngLat([ponto.lon, ponto.lat])
                 .addTo(this.map);
+              this.routePointMarkers.push(marker);
             });
 
-            console.log(`✅ Rota "${rota.nome}" desenhada`);
-
           } catch(e) {
-            console.warn(`❌ Erro ao desenhar rota:`, e.message);
+            console.warn('Erro ao desenhar rota:', e.message);
           }
         });
       }
@@ -2095,9 +2154,7 @@
         if (this.map && this.map.loaded()) {
           this.desenharRotas();
         } else {
-          this.map.once('load', () => {
-            this.desenharRotas();
-          });
+          this.map.once('load', () => this.desenharRotas());
         }
       }
 
@@ -2260,52 +2317,11 @@
           );
         }
 
+        // Atualiza marcadores de forma otimizada
         this.renderizarMarcadores(filtrados);
         this.renderizarTimeline(filtrados);
         this.atualizarContadores(filtrados);
         this.redesenharRotas();
-      }
-
-      renderizarMarcadores(itens) {
-        this.markers.forEach(m => m.remove());
-        this.markers = [];
-
-        itens.forEach(item => {
-          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
-          
-          const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-          
-          const el = document.createElement('div');
-          el.className = 'marker-container';
-          el.style.setProperty('--marker-color', cor);
-
-          const pulse = document.createElement('div');
-          pulse.className = 'marker-pulse';
-          const pin = document.createElement('div');
-          pin.className = 'marker-pin';
-
-          el.appendChild(pulse);
-          el.appendChild(pin);
-
-          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
-            .setHTML(`
-              <div style="font-family:'Inter',sans-serif; padding:4px;">
-                <strong style="color:#1a73e8; font-size:0.9rem;">${item.nome}</strong>
-                <p style="margin-top:4px; font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
-                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')" 
-                        style="margin-top:8px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; font-weight:600; cursor:pointer; width:100%;">
-                  <i class="fa-solid fa-circle-info"></i> Detalhes
-                </button>
-              </div>
-            `);
-
-          const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([item.lon, item.lat])
-            .setPopup(popup)
-            .addTo(this.map);
-
-          this.markers.push(marker);
-        });
       }
 
       renderizarTimeline(itens) {
