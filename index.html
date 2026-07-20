@@ -331,7 +331,7 @@
       flex: 1;
       width: 100%;
       height: 100%;
-      min-height: 500px;  /* ← GARANTE ALTURA VISÍVEL */
+      min-height: 500px; /* ← GARANTE ALTURA VISÍVEL */
     }
 
     .globe-controls {
@@ -1699,7 +1699,7 @@
     ];
 
     // =========================================================
-    // CLASSE ATLAS APP (CORRIGIDA)
+    // CLASSE ATLAS APP (CORRIGIDA - COM OPENSTREETMAP)
     // =========================================================
     class AtlasApp {
       constructor() {
@@ -1844,20 +1844,18 @@
       }
 
       // =========================================================
-      // MAPA (CORRIGIDO)
+      // MAPA (CORRIGIDO - USANDO OPENSTREETMAP)
       // =========================================================
       inicializarMapa() {
-        // Usando Stadia Maps (mais estável e com atribuição correta)
+        // Usando OpenStreetMap (sem problemas de CORS)
         const estiloRaster = {
           version: 8,
           sources: {
             'raster-tiles': {
               type: 'raster',
-              tiles: [
-                'https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png'
-              ],
+              tiles: ['https://tile.openstreetmap.org/{z}/{x}/{y}.png'],
               tileSize: 256,
-              attribution: '&copy; <a href="https://stadiamaps.com/">Stadia Maps</a>, &copy; <a href="https://openmaptiles.org/">OpenMapTiles</a>'
+              attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
             }
           },
           layers: [{
@@ -1865,7 +1863,7 @@
             type: 'raster',
             source: 'raster-tiles',
             minzoom: 0,
-            maxzoom: 20
+            maxzoom: 19
           }]
         };
 
@@ -1882,14 +1880,12 @@
 
           console.log('🗺️ Mapa inicializando...');
 
-          // Evento load – agora desenha rotas imediatamente
+          // Evento load – desenha rotas imediatamente
           this.map.on('load', () => {
             console.log('✅ Mapa carregado com sucesso!');
-            // Forçar resize extra
             setTimeout(() => {
               if (this.map) this.map.resize();
             }, 50);
-            // Desenhar rotas (já com mapa carregado)
             this.desenharRotas();
           });
 
@@ -1897,7 +1893,7 @@
             console.warn('⚠️ Erro no mapa:', e);
           });
 
-          // Redesenha rotas se o mapa já estiver carregado (fallback)
+          // Fallback: se o mapa já estiver carregado
           if (this.map.loaded()) {
             this.desenharRotas();
           }
@@ -1916,7 +1912,7 @@
           }
         });
 
-        // Redimensionamento forçado após um tempo
+        // Redimensionamento forçado
         setTimeout(() => {
           if (this.map) {
             this.map.resize();
@@ -1935,7 +1931,6 @@
           return;
         }
 
-        // Se o mapa não estiver carregado, aguarda o evento 'load'
         if (!this.map.loaded()) {
           console.warn('⏳ Mapa ainda não carregado, aguardando...');
           if (!this._pendingDraw) {
@@ -2042,7 +2037,7 @@
       }
 
       // =========================================================
-      // ADICIONAR ROTA
+      // ADICIONAR ROTA (igual ao original)
       // =========================================================
       adicionarPontoRota() {
         const lat = parseFloat(this.$('routePointLat').value);
@@ -2490,7 +2485,7 @@
       }
 
       // =========================================================
-      // RÁDIO
+      // RÁDIO (mantido)
       // =========================================================
       inicializarRadio() {
         this.renderizarEstacoes();
