@@ -2224,7 +2224,7 @@
         };
       }
 
-      async carregarDados() {
+    async carregarDados() {
   // 1. Tenta carregar do IndexedDB
   const stored = await this.db.getPoints();
   if (stored && stored.length > 0) {
@@ -2235,8 +2235,13 @@
 
   // 2. Tenta carregar do arquivo dados.json
   try {
-    console.log('📂 Carregando dados do arquivo dados.json...');
+    console.log('📂 Tentando carregar dados.json...');
     const response = await fetch('dados.json');
+    
+    if (!response.ok) {
+      throw new Error('Arquivo não encontrado');
+    }
+    
     const dados = await response.json();
     
     if (dados && dados.length > 0) {
@@ -2249,32 +2254,39 @@
       return;
     }
   } catch (e) {
-    console.log('📂 dados.json não encontrado, usando dados embutidos');
+    console.warn('⚠️ Erro ao carregar dados.json:', e.message);
   }
 
-  // 3. Fallback: dados embutidos no código
-  this.data = JSON.parse(JSON.stringify(DADOS_INICIAIS));
+  // 3. Fallback: cria dados mínimos para não quebrar
+  console.log('📂 Nenhum dado encontrado, criando registro de exemplo...');
+  this.data = [{
+    nome: "📌 Carregue o dados.json",
+    subtitulo: "Coloque o arquivo dados.json na mesma pasta",
+    lat: -23.5505,
+    lon: -46.6333,
+    pais: "Brasil",
+    continente: "América do Sul",
+    categoria: "porto",
+    tema: "Economia",
+    povo: "Brasileiros",
+    fundacao: 1892,
+    descricao: "Para carregar os dados, coloque o arquivo dados.json na mesma pasta do index.html e recarregue a página.",
+    coverImage: "",
+    fotos: [],
+    documentos: [],
+    author: "Atlas Digital",
+    institution: "",
+    doi: "",
+    license: "",
+    relations: [],
+    status: "Aprovado"
+  }];
+  
   for (const pt of this.data) {
-    pt.status = 'Aprovado';
     await this.db.savePoint(pt);
   }
-  console.log('✅ ' + this.data.length + ' registros carregados (fallback)');
+  console.log('✅ Registro de exemplo criado');
 }
-      async salvarPonto(point) {
-        await this.db.savePoint(point);
-        await this.db.addLog(this.activeUserRole, 'Inserção/Edição de Ponto', point.nome);
-        await this.carregarDados();
-        this.gerarFiltros();
-        this.aplicarFiltros();
-      }
-
-      async excluirPonto(nome) {
-        await this.db.deletePoint(nome);
-        await this.db.addLog(this.activeUserRole, 'Remoção de Ponto', nome);
-        await this.carregarDados();
-        this.gerarFiltros();
-        this.aplicarFiltros();
-      }
 
       // PARTÍCULAS BACKGROUND
       inicializarParticulas() {
