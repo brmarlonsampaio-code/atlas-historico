@@ -4,87 +4,48 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Atlas Atlantes – Atlas Histórico Digital</title>
-
-  <!-- Maplibre GL -->
   <link href="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.css" rel="stylesheet" />
   <script src="https://unpkg.com/maplibre-gl@4.5.0/dist/maplibre-gl.js"></script>
-
-  <!-- FontAwesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
   <style>
+    /* (mesmo CSS que antes - não mudei) */
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: 'Segoe UI', system-ui, sans-serif; background: #f0f2f5; color: #202124; height: 100vh; overflow: hidden; }
     #app { display: flex; flex-direction: column; height: 100vh; }
-
-    .header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 8px 20px; height: 60px; background: #fff; border-bottom: 1px solid #e0e0e0;
-      flex-shrink: 0; z-index: 10;
-    }
+    .header { display: flex; align-items: center; justify-content: space-between; padding: 8px 20px; height: 60px; background: #fff; border-bottom: 1px solid #e0e0e0; flex-shrink: 0; z-index: 10; }
     .header-logo { font-weight: 800; font-size: 1.3rem; color: #1a73e8; text-decoration: none; display: flex; align-items: center; gap: 10px; }
     .header-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .btn {
-      padding: 6px 14px; border-radius: 20px; border: 1px solid #d0d0d0;
-      background: #f8f9fa; color: #202124; font-size: 0.8rem; font-weight: 500;
-      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s;
-    }
+    .btn { padding: 6px 14px; border-radius: 20px; border: 1px solid #d0d0d0; background: #f8f9fa; color: #202124; font-size: 0.8rem; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 6px; transition: 0.2s; }
     .btn:hover { background: #e8eaed; border-color: #1a73e8; color: #1a73e8; }
     .btn-success { background: #27ae60; color: #fff; border-color: #27ae60; }
     .btn-success:hover { background: #2ecc71; border-color: #2ecc71; color: #fff; }
-
     .search-wrapper { position: relative; }
     .search-wrapper i { position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: #777; font-size: 0.8rem; }
-    #searchInput {
-      padding: 6px 12px 6px 30px; border-radius: 20px; border: 1px solid #d0d0d0;
-      background: #f8f9fa; width: 200px; font-size: 0.8rem; transition: 0.3s;
-    }
+    #searchInput { padding: 6px 12px 6px 30px; border-radius: 20px; border: 1px solid #d0d0d0; background: #f8f9fa; width: 200px; font-size: 0.8rem; transition: 0.3s; }
     #searchInput:focus { outline: none; width: 260px; border-color: #1a73e8; background: #fff; box-shadow: 0 0 0 3px rgba(26,115,232,0.15); }
-
     .main-area { display: flex; flex: 1; overflow: hidden; position: relative; }
     #map-container { flex: 1; height: 100%; position: relative; background: #e8eaed; }
     #map { width: 100%; height: 100%; min-height: 400px; }
-
-    #sidebar {
-      width: 280px; background: #fff; border-right: 1px solid #e0e0e0;
-      padding: 16px; overflow-y: auto; transition: 0.3s; flex-shrink: 0;
-    }
+    #sidebar { width: 280px; background: #fff; border-right: 1px solid #e0e0e0; padding: 16px; overflow-y: auto; transition: 0.3s; flex-shrink: 0; }
     #sidebar.collapsed { width: 0; padding: 0; border: none; opacity: 0; pointer-events: none; }
     .sidebar-title { font-weight: 600; color: #1a73e8; border-bottom: 1px solid #e0e0e0; padding-bottom: 6px; margin-bottom: 12px; display: flex; justify-content: space-between; }
     .filter-group { margin-bottom: 12px; }
     .filter-header { display: flex; justify-content: space-between; cursor: pointer; padding: 4px 0; font-weight: 500; font-size: 0.85rem; }
     .filter-content { padding-left: 8px; display: flex; flex-direction: column; gap: 4px; }
-    .filter-btn {
-      display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: none;
-      background: transparent; color: #5f6368; font-size: 0.8rem; cursor: pointer;
-      border-radius: 4px; transition: 0.2s; width: 100%; text-align: left;
-    }
+    .filter-btn { display: flex; align-items: center; gap: 6px; padding: 4px 8px; border: none; background: transparent; color: #5f6368; font-size: 0.8rem; cursor: pointer; border-radius: 4px; transition: 0.2s; width: 100%; text-align: left; }
     .filter-btn:hover { background: #f1f3f4; }
     .filter-btn.active { background: #e8f0fe; color: #1a73e8; font-weight: 500; }
     .filter-btn .count { margin-left: auto; background: #e8eaed; padding: 0 8px; border-radius: 10px; font-size: 0.65rem; }
-
     .range-row { display: flex; gap: 8px; align-items: center; font-size: 0.8rem; margin-top: 6px; }
     .range-row input { width: 80px; padding: 4px 6px; border: 1px solid #d0d0d0; border-radius: 4px; text-align: center; }
     #count-visible { color: #1a73e8; font-weight: 700; }
-
-    .timeline-section {
-      position: absolute; bottom: 20px; left: 20px; right: 20px; height: 180px;
-      background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
-      border-radius: 12px; padding: 10px 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08);
-      transition: 0.4s; z-index: 4;
-    }
+    .timeline-section { position: absolute; bottom: 20px; left: 20px; right: 20px; height: 180px; background: rgba(255,255,255,0.92); backdrop-filter: blur(8px); border-radius: 12px; padding: 10px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid rgba(0,0,0,0.08); transition: 0.4s; z-index: 4; }
     .timeline-section.collapsed { transform: translateY(220px); opacity: 0; pointer-events: none; }
     .timeline-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #1a73e8; border-bottom: 1px solid #e0e0e0; padding-bottom: 4px; margin-bottom: 8px; }
     .timeline-wrapper { overflow-x: auto; height: calc(100% - 30px); display: flex; align-items: center; gap: 12px; padding-bottom: 4px; }
     .timeline-wrapper::-webkit-scrollbar { height: 4px; }
     .timeline-wrapper::-webkit-scrollbar-thumb { background: #1a73e8; border-radius: 4px; }
-    .event-card {
-      min-width: 180px; height: 90px; background: #fff; border-radius: 8px;
-      border-left: 4px solid var(--card-color, #1a73e8);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; overflow: hidden;
-      cursor: pointer; transition: 0.2s; flex-shrink: 0;
-    }
+    .event-card { min-width: 180px; height: 90px; background: #fff; border-radius: 8px; border-left: 4px solid var(--card-color, #1a73e8); box-shadow: 0 2px 6px rgba(0,0,0,0.06); display: flex; overflow: hidden; cursor: pointer; transition: 0.2s; flex-shrink: 0; }
     .event-card:hover { transform: translateY(-4px); box-shadow: 0 6px 16px rgba(0,0,0,0.12); }
     .event-card.highlight { border-color: #1a73e8; box-shadow: 0 0 0 3px rgba(26,115,232,0.25); }
     .event-cover { width: 60px; height: 100%; object-fit: cover; flex-shrink: 0; }
@@ -92,13 +53,7 @@
     .event-date { font-size: 0.6rem; color: #1a73e8; font-weight: 600; }
     .event-title { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .event-desc { font-size: 0.6rem; color: #5f6368; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-
-    #detail-panel {
-      position: absolute; top: 0; right: 0; bottom: 0; width: 400px;
-      background: #fff; border-left: 1px solid #e0e0e0;
-      transform: translateX(100%); transition: 0.35s cubic-bezier(0.4,0,0.2,1);
-      z-index: 15; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.08);
-    }
+    #detail-panel { position: absolute; top: 0; right: 0; bottom: 0; width: 400px; background: #fff; border-left: 1px solid #e0e0e0; transform: translateX(100%); transition: 0.35s cubic-bezier(0.4,0,0.2,1); z-index: 15; display: flex; flex-direction: column; box-shadow: -4px 0 20px rgba(0,0,0,0.08); }
     #detail-panel.open { transform: translateX(0); }
     .panel-cover { height: 140px; background: #e8eaed; position: relative; overflow: hidden; }
     .panel-cover img { width: 100%; height: 100%; object-fit: cover; }
@@ -117,40 +72,13 @@
     .panel-meta .label { font-size: 0.6rem; text-transform: uppercase; color: #5f6368; }
     .panel-meta .value { font-weight: 500; }
     .panel-desc { font-size: 0.85rem; line-height: 1.5; text-align: justify; }
-
-    #loading-overlay {
-      position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column;
-      align-items: center; justify-content: center; z-index: 9999; transition: 0.6s;
-    }
+    #loading-overlay { position: fixed; inset: 0; background: #fff; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; transition: 0.6s; }
     #loading-overlay.hide { opacity: 0; pointer-events: none; }
     .spinner { width: 50px; height: 50px; border: 4px solid #e0e0e0; border-top-color: #1a73e8; border-radius: 50%; animation: spin 0.8s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    .marker-container { width: 30px; height: 30px; position: relative; cursor: pointer; }
-    .marker-pin {
-      width: 16px; height: 16px; border-radius: 50% 50% 50% 0;
-      background: var(--marker-color, #1a73e8);
-      position: absolute; top: 50%; left: 50%; transform: translate(-50%, -100%) rotate(-45deg);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
-    }
-    .marker-pin::after { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #fff; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); }
-    .marker-pulse {
-      width: 30px; height: 30px; border-radius: 50%; background: var(--marker-color, #1a73e8);
-      opacity: 0.15; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse { 0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0.4; } 100% { transform: translate(-50%, -50%) scale(1.2); opacity: 0; } }
-
-    .modal-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px);
-      z-index: 999; display: none; align-items: center; justify-content: center;
-    }
+    .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 999; display: none; align-items: center; justify-content: center; }
     .modal-overlay.open { display: flex; }
-    .modal-box {
-      background: #fff; border-radius: 16px; padding: 24px;
-      max-width: 640px; width: 90%; max-height: 90vh; overflow-y: auto;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.2);
-    }
+    .modal-box { background: #fff; border-radius: 16px; padding: 24px; max-width: 640px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
     .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; padding-bottom: 12px; margin-bottom: 16px; }
     .modal-header h3 { color: #1a73e8; }
     .modal-close { cursor: pointer; font-size: 1.4rem; color: #5f6368; }
@@ -163,159 +91,64 @@
     .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
     .btn-submit { width: 100%; padding: 12px; background: #1a73e8; color: #fff; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: 0.2s; }
     .btn-submit:hover { background: #1557b0; }
-
-    @media (max-width: 768px) {
-      .header { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 6px; }
-      .header-logo { font-size: 1rem; }
-      #searchInput { width: 120px; }
-      #searchInput:focus { width: 160px; }
-      #sidebar { width: 220px; }
-      #detail-panel { width: 100%; }
-      .timeline-section { height: 150px; bottom: 10px; left: 10px; right: 10px; }
-      .event-card { min-width: 140px; height: 70px; }
-      .form-row { grid-template-columns: 1fr; }
-      .form-row-3 { grid-template-columns: 1fr 1fr; }
-    }
+    @media (max-width: 768px) { .header { flex-wrap: wrap; height: auto; padding: 8px 12px; gap: 6px; } .header-logo { font-size: 1rem; } #searchInput { width: 120px; } #searchInput:focus { width: 160px; } #sidebar { width: 220px; } #detail-panel { width: 100%; } .timeline-section { height: 150px; bottom: 10px; left: 10px; right: 10px; } .event-card { min-width: 140px; height: 70px; } .form-row { grid-template-columns: 1fr; } .form-row-3 { grid-template-columns: 1fr 1fr; } }
   </style>
 </head>
 <body>
-
-  <div id="loading-overlay">
-    <div class="spinner"></div>
-    <p style="margin-top:20px; font-weight:500; color:#1a73e8;">Carregando Atlas...</p>
-  </div>
-
+  <div id="loading-overlay"><div class="spinner"></div><p style="margin-top:20px; font-weight:500; color:#1a73e8;">Carregando Atlas...</p></div>
   <div id="app">
     <header class="header">
       <a href="#" class="header-logo" id="logoReset"><i class="fa-solid fa-compass"></i> Atlas Atlantes</a>
       <div class="header-controls">
-        <div class="search-wrapper">
-          <i class="fa-solid fa-magnifying-glass"></i>
-          <input type="text" id="searchInput" placeholder="Buscar..." />
-        </div>
+        <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Buscar..." /></div>
         <button class="btn" id="btnToggleFilters"><i class="fa-solid fa-filter"></i> Filtros</button>
         <button class="btn" id="btnToggleTimeline"><i class="fa-solid fa-timeline"></i> Linha do Tempo</button>
         <button class="btn btn-success" id="btnAddRoute"><i class="fa-solid fa-route"></i> Nova Rota</button>
       </div>
     </header>
-
     <div class="main-area">
       <aside id="sidebar">
         <div class="sidebar-title"><span>Período</span> <i class="fa-regular fa-calendar"></i></div>
-        <div class="range-row">
-          <input type="number" id="inputStartYear" value="-2000" />
-          <span>até</span>
-          <input type="number" id="inputEndYear" value="2026" />
-        </div>
-
+        <div class="range-row"><input type="number" id="inputStartYear" value="-2000" /><span>até</span><input type="number" id="inputEndYear" value="2026" /></div>
         <div class="sidebar-title" style="margin-top:16px;"><span>Filtros</span> <i class="fa-solid fa-sliders"></i></div>
-
-        <div class="filter-group">
-          <div class="filter-header" data-target="cat">Categoria <i class="fa-solid fa-chevron-down"></i></div>
-          <div class="filter-content" id="categoria-filtros"></div>
-        </div>
-        <div class="filter-group">
-          <div class="filter-header" data-target="tema">Tema <i class="fa-solid fa-chevron-down"></i></div>
-          <div class="filter-content" id="tema-filtros"></div>
-        </div>
-        <div class="filter-group">
-          <div class="filter-header" data-target="povo">Cultura <i class="fa-solid fa-chevron-down"></i></div>
-          <div class="filter-content" id="povo-filtros"></div>
-        </div>
-
-        <button class="btn" style="width:100%; justify-content:center; margin-top:12px;" id="reset-filtros">
-          <i class="fa-solid fa-rotate-left"></i> Limpar Filtros
-        </button>
-
-        <div style="margin-top:20px; border-top:1px solid #e0e0e0; padding-top:12px; font-size:0.8rem; color:#5f6368; display:flex; justify-content:space-between;">
-          <span>Registros:</span> <strong id="count-visible">0</strong>
-        </div>
+        <div class="filter-group"><div class="filter-header" data-target="cat">Categoria <i class="fa-solid fa-chevron-down"></i></div><div class="filter-content" id="categoria-filtros"></div></div>
+        <div class="filter-group"><div class="filter-header" data-target="tema">Tema <i class="fa-solid fa-chevron-down"></i></div><div class="filter-content" id="tema-filtros"></div></div>
+        <div class="filter-group"><div class="filter-header" data-target="povo">Cultura <i class="fa-solid fa-chevron-down"></i></div><div class="filter-content" id="povo-filtros"></div></div>
+        <button class="btn" style="width:100%; justify-content:center; margin-top:12px;" id="reset-filtros"><i class="fa-solid fa-rotate-left"></i> Limpar Filtros</button>
+        <div style="margin-top:20px; border-top:1px solid #e0e0e0; padding-top:12px; font-size:0.8rem; color:#5f6368; display:flex; justify-content:space-between;"><span>Registros:</span> <strong id="count-visible">0</strong></div>
       </aside>
-
       <div id="map-container">
         <div id="map"></div>
-
         <div class="timeline-section" id="timelineSection">
-          <div class="timeline-header">
-            <span><i class="fa-regular fa-clock"></i> Linha do Tempo</span>
-            <button class="btn" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 10px;">Ocultar</button>
-          </div>
-          <div class="timeline-wrapper">
-            <div id="timelineContainer" style="display:flex; gap:12px; height:100%; align-items:center;"></div>
-          </div>
+          <div class="timeline-header"><span><i class="fa-regular fa-clock"></i> Linha do Tempo</span><button class="btn" id="timelineCloseBtn" style="font-size:0.7rem; padding:2px 10px;">Ocultar</button></div>
+          <div class="timeline-wrapper"><div id="timelineContainer" style="display:flex; gap:12px; height:100%; align-items:center;"></div></div>
         </div>
       </div>
-
       <aside id="detail-panel">
-        <div class="panel-cover">
-          <img id="detailCover" src="" alt="capa" />
-          <div class="overlay"></div>
-          <button class="panel-close" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button>
-        </div>
-        <div class="panel-tabs">
-          <button class="active" data-tab="tab-narrativa">Narrativa</button>
-          <button data-tab="tab-multimidia">Mídia</button>
-          <button data-tab="tab-documentos">Documentos</button>
-        </div>
+        <div class="panel-cover"><img id="detailCover" src="" alt="capa" /><div class="overlay"></div><button class="panel-close" id="btnCloseDetail"><i class="fa-solid fa-xmark"></i></button></div>
+        <div class="panel-tabs"><button class="active" data-tab="tab-narrativa">Narrativa</button><button data-tab="tab-multimidia">Mídia</button><button data-tab="tab-documentos">Documentos</button></div>
         <div class="panel-body">
           <div class="tab-content active" id="tab-narrativa">
             <span class="panel-category-badge" id="detailCategoryBadge" style="background:#e8eaed; padding:2px 10px; border-radius:12px; font-size:0.7rem;">Categoria</span>
-            <h2 class="panel-title" id="detailTitle">Título</h2>
-            <div class="panel-sub" id="detailSubtitle">Subtítulo</div>
-            <div class="panel-meta">
-              <div><div class="label">Ano</div><div class="value" id="detailMetaDate">-</div></div>
-              <div><div class="label">Local</div><div class="value" id="detailMetaLocation">-</div></div>
-              <div><div class="label">Coordenadas</div><div class="value" id="detailMetaCoords">-</div></div>
-              <div><div class="label">Cultura</div><div class="value" id="detailMetaPovo">-</div></div>
-            </div>
+            <h2 class="panel-title" id="detailTitle">Título</h2><div class="panel-sub" id="detailSubtitle">Subtítulo</div>
+            <div class="panel-meta"><div><div class="label">Ano</div><div class="value" id="detailMetaDate">-</div></div><div><div class="label">Local</div><div class="value" id="detailMetaLocation">-</div></div><div><div class="label">Coordenadas</div><div class="value" id="detailMetaCoords">-</div></div><div><div class="label">Cultura</div><div class="value" id="detailMetaPovo">-</div></div></div>
             <p class="panel-desc" id="detailDescription">Descrição</p>
           </div>
-          <div class="tab-content" id="tab-multimidia">
-            <h4>Galeria</h4>
-            <div id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div>
-          </div>
-          <div class="tab-content" id="tab-documentos">
-            <h4>Documentos</h4>
-            <div id="detailDocuments"></div>
-          </div>
+          <div class="tab-content" id="tab-multimidia"><h4>Galeria</h4><div id="detailGallery" style="display:grid; grid-template-columns:repeat(4,1fr); gap:6px;"></div></div>
+          <div class="tab-content" id="tab-documentos"><h4>Documentos</h4><div id="detailDocuments"></div></div>
         </div>
       </aside>
     </div>
   </div>
-
-  <!-- MODAL NOVA ROTA -->
   <div class="modal-overlay" id="modalAddRoute">
     <div class="modal-box">
-      <div class="modal-header">
-        <h3><i class="fa-solid fa-route" style="color:#1a73e8;"></i> Nova Rota</h3>
-        <span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span>
-      </div>
+      <div class="modal-header"><h3><i class="fa-solid fa-route" style="color:#1a73e8;"></i> Nova Rota</h3><span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span></div>
       <form id="addRouteForm">
-        <div class="form-row">
-          <div class="form-group"><label>Nome *</label><input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required /></div>
-          <div class="form-group"><label>Subtítulo</label><input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" /></div>
-        </div>
-        <div class="form-row-3">
-          <div class="form-group"><label>Ano *</label><input type="number" id="routeYear" class="form-control" placeholder="1500" required /></div>
-          <div class="form-group"><label>Cor</label><input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" /></div>
-          <div class="form-group"><label>Tema</label><select id="routeCategory" class="form-control"><option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option></select></div>
-        </div>
-        <div class="form-row">
-          <div class="form-group"><label>Países</label><input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" /></div>
-          <div class="form-group"><label>Continentes</label><input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" /></div>
-        </div>
-        <div class="form-group">
-          <label>Pontos da Rota (clique no mapa)</label>
-          <div style="display:flex; gap:6px; flex-wrap:wrap;">
-            <input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:70px;" />
-            <input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:70px;" />
-            <button type="button" class="btn" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar</button>
-          </div>
-          <div style="font-size:0.7rem; color:#5f6368; margin-top:4px;">💡 Clique no mapa para preencher as coordenadas</div>
-        </div>
-        <div id="routePointsList" style="max-height:100px; overflow-y:auto; background:#f8f9fa; border-radius:6px; padding:4px; border:1px solid #e0e0e0; margin-bottom:10px;">
-          <div style="text-align:center; color:#777; font-size:0.8rem; padding:6px;">Nenhum ponto</div>
-        </div>
+        <div class="form-row"><div class="form-group"><label>Nome *</label><input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required /></div><div class="form-group"><label>Subtítulo</label><input type="text" id="routeSubtitle" class="form-control" placeholder="Breve descrição" /></div></div>
+        <div class="form-row-3"><div class="form-group"><label>Ano *</label><input type="number" id="routeYear" class="form-control" placeholder="1500" required /></div><div class="form-group"><label>Cor</label><input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:38px;" /></div><div class="form-group"><label>Tema</label><select id="routeCategory" class="form-control"><option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option></select></div></div>
+        <div class="form-row"><div class="form-group"><label>Países</label><input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" /></div><div class="form-group"><label>Continentes</label><input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" /></div></div>
+        <div class="form-group"><label>Pontos da Rota (clique no mapa)</label><div style="display:flex; gap:6px; flex-wrap:wrap;"><input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:70px;" /><input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:70px;" /><button type="button" class="btn" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i> Adicionar</button></div><div style="font-size:0.7rem; color:#5f6368; margin-top:4px;">💡 Clique no mapa para preencher as coordenadas</div></div>
+        <div id="routePointsList" style="max-height:100px; overflow-y:auto; background:#f8f9fa; border-radius:6px; padding:4px; border:1px solid #e0e0e0; margin-bottom:10px;"><div style="text-align:center; color:#777; font-size:0.8rem; padding:6px;">Nenhum ponto</div></div>
         <div class="form-group"><label>Descrição *</label><textarea id="routeDescription" class="form-control" rows="3" placeholder="Descreva a rota..." required></textarea></div>
         <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota</button>
       </form>
@@ -324,297 +157,48 @@
 
   <script>
     // =========================================================
-    // DADOS COMPLETOS
+    // DADOS (COMPLETOS)
     // =========================================================
     const CORES_CATEGORIA = { mapa: '#1a73e8', porto: '#0d9488', rota: '#d4af37' };
     const NOMES_CATEGORIA = { mapa: 'Mapa', porto: 'Porto', rota: 'Rota Comercial' };
 
     const DADOS_INICIAIS = [
       // MAPAS
-      {
-        nome: "Carta de Piri Reis (1513)",
-        subtitulo: "Mapa-múndi Otomano",
-        lat: 41.0082, lon: 28.9784,
-        pais: "Turquia", continente: "Europa/Ásia",
-        categoria: "mapa", tema: "Cultura", povo: "Otomanos",
-        fundacao: 1513,
-        descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul com notável precisão.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Mapa de Cantino (1502)",
-        subtitulo: "Planisfério português",
-        lat: 38.7071, lon: -9.1355,
-        pais: "Portugal", continente: "Europa",
-        categoria: "mapa", tema: "Cultura", povo: "Portugueses",
-        fundacao: 1502,
-        descricao: "O mais antigo mapa a retratar a costa do Brasil.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg",
-        fotos: [], documentos: []
-      },
-      // PORTOS - AMÉRICA DO NORTE
-      {
-        nome: "Veracruz (México)",
-        subtitulo: "O porto mais antigo do México continental",
-        lat: 19.2029, lon: -96.1382,
-        pais: "México", continente: "América do Norte",
-        categoria: "porto", tema: "Colonização", povo: "Espanhóis e Nahuas",
-        fundacao: 1519,
-        descricao: "Fundado por Hernán Cortés em 1519, foi a principal porta de entrada de mercadorias e escravizados durante o período colonial.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Havana (Cuba)",
-        subtitulo: "O coração do império espanhol no Caribe",
-        lat: 23.1136, lon: -82.3666,
-        pais: "Cuba", continente: "América do Norte",
-        categoria: "porto", tema: "Comércio e Defesa", povo: "Espanhóis e Cubanos",
-        fundacao: 1515,
-        descricao: "Porto estratégico do Caribe, ponto de encontro da Frota das Índias.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Nova Orleans (EUA)",
-        subtitulo: "A porta de entrada do Mississippi",
-        lat: 29.9511, lon: -90.0715,
-        pais: "Estados Unidos", continente: "América do Norte",
-        categoria: "porto", tema: "Comércio Fluvial", povo: "Franceses, Africanos e Americanos",
-        fundacao: 1718,
-        descricao: "Crucial para o comércio de algodão e escravizados no século XIX.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg",
-        fotos: [], documentos: []
-      },
-      // PORTOS - AMÉRICA CENTRAL
-      {
-        nome: "Porto Bello (Panamá)",
-        subtitulo: "O porto das feiras de ouro",
-        lat: 9.5533, lon: -79.6531,
-        pais: "Panamá", continente: "América Central",
-        categoria: "porto", tema: "Comércio Colonial", povo: "Espanhóis e Emberá",
-        fundacao: 1597,
-        descricao: "Principal porto espanhol no Caribe para o comércio de ouro e prata.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg",
-        fotos: [], documentos: []
-      },
-      // PORTOS - AMÉRICA DO SUL
-      {
-        nome: "Recife (Brasil)",
-        subtitulo: "O 'Veneza Brasileira' e porto do açúcar",
-        lat: -8.0476, lon: -34.8770,
-        pais: "Brasil", continente: "América do Sul",
-        categoria: "porto", tema: "Economia Colonial", povo: "Portugueses, Holandeses e Africanos",
-        fundacao: 1537,
-        descricao: "Centro da economia açucareira do Nordeste brasileiro, ocupado pelos holandeses entre 1630-1654.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Cartagena (Colômbia)",
-        subtitulo: "A fortaleza do Caribe",
-        lat: 10.3910, lon: -75.4824,
-        pais: "Colômbia", continente: "América do Sul",
-        categoria: "porto", tema: "Defesa e Comércio", povo: "Espanhóis, Africanos e Indígenas",
-        fundacao: 1533,
-        descricao: "Principal porto para o comércio de escravizados e ouro, fortificado contra piratas.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Buenos Aires (Argentina)",
-        subtitulo: "A porta do Prata",
-        lat: -34.6037, lon: -58.3816,
-        pais: "Argentina", continente: "América do Sul",
-        categoria: "porto", tema: "Comércio e Imigração", povo: "Espanhóis, Italianos e Argentinos",
-        fundacao: 1536,
-        descricao: "Principal escoadouro da prata de Potosí e centro da imigração europeia no século XIX.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Callao (Peru)",
-        subtitulo: "O porto do Vice-Reino do Peru",
-        lat: -12.0658, lon: -77.1500,
-        pais: "Peru", continente: "América do Sul",
-        categoria: "porto", tema: "Comércio de Prata", povo: "Espanhóis, Quechuas e Africanos",
-        fundacao: 1537,
-        descricao: "Principal porto do Vice-Reino do Peru, escoando a prata de Potosí.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg",
-        fotos: [], documentos: []
-      },
+      { nome: "Carta de Piri Reis (1513)", subtitulo: "Mapa-múndi Otomano", lat: 41.0082, lon: 28.9784, pais: "Turquia", continente: "Europa/Ásia", categoria: "mapa", tema: "Cultura", povo: "Otomanos", fundacao: 1513, descricao: "Um dos mapas mais antigos a mostrar a costa da América do Sul.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a3/Piri_Reis_1513_world_map.jpg/400px-Piri_Reis_1513_world_map.jpg", fotos: [], documentos: [] },
+      { nome: "Mapa de Cantino (1502)", subtitulo: "Planisfério português", lat: 38.7071, lon: -9.1355, pais: "Portugal", continente: "Europa", categoria: "mapa", tema: "Cultura", povo: "Portugueses", fundacao: 1502, descricao: "O mais antigo mapa a retratar a costa do Brasil.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Cantino_Planisphere_%281502%29.jpg/400px-Cantino_Planisphere_%281502%29.jpg", fotos: [], documentos: [] },
+      // PORTOS - AMÉRICA
+      { nome: "Veracruz (México)", subtitulo: "O porto mais antigo do México", lat: 19.2029, lon: -96.1382, pais: "México", continente: "América do Norte", categoria: "porto", tema: "Colonização", povo: "Espanhóis e Nahuas", fundacao: 1519, descricao: "Fundado por Hernán Cortés em 1519.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Puerto_de_Veracruz.jpg/400px-Puerto_de_Veracruz.jpg", fotos: [], documentos: [] },
+      { nome: "Havana (Cuba)", subtitulo: "Coração do império espanhol no Caribe", lat: 23.1136, lon: -82.3666, pais: "Cuba", continente: "América do Norte", categoria: "porto", tema: "Comércio e Defesa", povo: "Espanhóis e Cubanos", fundacao: 1515, descricao: "Porto estratégico do Caribe.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/Havana_harbor.jpg/400px-Havana_harbor.jpg", fotos: [], documentos: [] },
+      { nome: "Nova Orleans (EUA)", subtitulo: "Porta de entrada do Mississippi", lat: 29.9511, lon: -90.0715, pais: "Estados Unidos", continente: "América do Norte", categoria: "porto", tema: "Comércio Fluvial", povo: "Franceses, Africanos e Americanos", fundacao: 1718, descricao: "Crucial para o comércio de algodão.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1e/New_Orleans_harbor.jpg/400px-New_Orleans_harbor.jpg", fotos: [], documentos: [] },
+      { nome: "Porto Bello (Panamá)", subtitulo: "O porto das feiras de ouro", lat: 9.5533, lon: -79.6531, pais: "Panamá", continente: "América Central", categoria: "porto", tema: "Comércio Colonial", povo: "Espanhóis e Emberá", fundacao: 1597, descricao: "Principal porto espanhol no Caribe.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4e/Portobelo_Panama.jpg/400px-Portobelo_Panama.jpg", fotos: [], documentos: [] },
+      { nome: "Recife (Brasil)", subtitulo: "Veneza Brasileira", lat: -8.0476, lon: -34.8770, pais: "Brasil", continente: "América do Sul", categoria: "porto", tema: "Economia Colonial", povo: "Portugueses, Holandeses e Africanos", fundacao: 1537, descricao: "Centro da economia açucareira.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9e/Recife_port.jpg/400px-Recife_port.jpg", fotos: [], documentos: [] },
+      { nome: "Cartagena (Colômbia)", subtitulo: "Fortaleza do Caribe", lat: 10.3910, lon: -75.4824, pais: "Colômbia", continente: "América do Sul", categoria: "porto", tema: "Defesa e Comércio", povo: "Espanhóis, Africanos e Indígenas", fundacao: 1533, descricao: "Principal porto para escravizados e ouro.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Cartagena_harbor.jpg/400px-Cartagena_harbor.jpg", fotos: [], documentos: [] },
+      { nome: "Buenos Aires (Argentina)", subtitulo: "A porta do Prata", lat: -34.6037, lon: -58.3816, pais: "Argentina", continente: "América do Sul", categoria: "porto", tema: "Comércio e Imigração", povo: "Espanhóis, Italianos e Argentinos", fundacao: 1536, descricao: "Principal escoadouro da prata de Potosí.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Buenos_Aires_port.jpg/400px-Buenos_Aires_port.jpg", fotos: [], documentos: [] },
+      { nome: "Callao (Peru)", subtitulo: "Porto do Vice-Reino do Peru", lat: -12.0658, lon: -77.1500, pais: "Peru", continente: "América do Sul", categoria: "porto", tema: "Comércio de Prata", povo: "Espanhóis, Quechuas e Africanos", fundacao: 1537, descricao: "Principal porto do Vice-Reino do Peru.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Callao_port.jpg/400px-Callao_port.jpg", fotos: [], documentos: [] },
       // PORTOS - ÁFRICA
-      {
-        nome: "Alexandria (Egito)",
-        subtitulo: "O farol do mundo antigo",
-        lat: 31.2001, lon: 29.9187,
-        pais: "Egito", continente: "África",
-        categoria: "porto", tema: "Antiguidade", povo: "Gregos, Romanos e Egípcios",
-        fundacao: -331,
-        descricao: "Fundado por Alexandre, o Grande em 331 a.C., foi o maior porto do mundo antigo.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Tânger (Marrocos)",
-        subtitulo: "A porta entre dois continentes",
-        lat: 35.7595, lon: -5.8340,
-        pais: "Marrocos", continente: "África",
-        categoria: "porto", tema: "Comércio Mediterrâneo", povo: "Fenícios, Romanos, Árabes e Berberes",
-        fundacao: -500,
-        descricao: "Um dos portos mais antigos do mundo, fundado pelos fenícios.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Cidade do Cabo (África do Sul)",
-        subtitulo: "A rota do Cabo",
-        lat: -33.9249, lon: 18.4241,
-        pais: "África do Sul", continente: "África",
-        categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses, Malaios e Africanos",
-        fundacao: 1652,
-        descricao: "Posto de reabastecimento da Companhia Holandesa das Índias Orientais.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Elmina (Gana)",
-        subtitulo: "Primeiro entreposto europeu na África Subsaariana",
-        lat: 5.0877, lon: -1.3482,
-        pais: "Gana", continente: "África",
-        categoria: "porto", tema: "Comércio de Escravos", povo: "Portugueses, Holandeses e Africanos",
-        fundacao: 1482,
-        descricao: "Castelo de São Jorge da Mina, o mais importante centro de comércio de escravizados.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Lagos (Nigéria)",
-        subtitulo: "O gigante da África Ocidental",
-        lat: 6.5244, lon: 3.3792,
-        pais: "Nigéria", continente: "África",
-        categoria: "porto", tema: "Comércio Colonial", povo: "Iorubás, Europeus e Nigerianos",
-        fundacao: 1470,
-        descricao: "Principal porto da Nigéria durante o período colonial britânico.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Kilwa Kisiwani (Tanzânia)",
-        subtitulo: "A pérola da costa swahili",
-        lat: -8.9583, lon: 39.5167,
-        pais: "Tanzânia", continente: "África",
-        categoria: "porto", tema: "Comércio no Oceano Índico", povo: "Suaílis, Árabes e Africanos",
-        fundacao: 900,
-        descricao: "Importante porto da costa swahili entre os séculos IX e XVI.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Mombaça (Quênia)",
-        subtitulo: "A fortaleza portuguesa no Índico",
-        lat: -4.0435, lon: 39.6682,
-        pais: "Quênia", continente: "África",
-        categoria: "porto", tema: "Conflito Colonial", povo: "Suaílis, Portugueses, Árabes e Africanos",
-        fundacao: 900,
-        descricao: "Forte Jesus, disputado entre portugueses, árabes e britânicos.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Zanzibar (Tanzânia)",
-        subtitulo: "A ilha das especiarias",
-        lat: -6.1631, lon: 39.1912,
-        pais: "Tanzânia", continente: "África",
-        categoria: "porto", tema: "Comércio de Especiarias", povo: "Árabes, Suaílis, Indianos e Africanos",
-        fundacao: 1000,
-        descricao: "Centro do comércio de especiarias, especialmente cravo.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Santos (Brasil)",
-        subtitulo: "O maior complexo portuário da América Latina",
-        lat: -23.9608, lon: -46.3350,
-        pais: "Brasil", continente: "América do Sul",
-        categoria: "porto", tema: "Economia", povo: "Brasileiros",
-        fundacao: 1892,
-        descricao: "Maior complexo portuário da América Latina, fundamental para a economia cafeeira.",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
-        fotos: [], documentos: []
-      },
+      { nome: "Alexandria (Egito)", subtitulo: "Farol do mundo antigo", lat: 31.2001, lon: 29.9187, pais: "Egito", continente: "África", categoria: "porto", tema: "Antiguidade", povo: "Gregos, Romanos e Egípcios", fundacao: -331, descricao: "Fundado por Alexandre, o Grande.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg", fotos: [], documentos: [] },
+      { nome: "Tânger (Marrocos)", subtitulo: "Porta entre dois continentes", lat: 35.7595, lon: -5.8340, pais: "Marrocos", continente: "África", categoria: "porto", tema: "Comércio Mediterrâneo", povo: "Fenícios, Romanos, Árabes e Berberes", fundacao: -500, descricao: "Um dos portos mais antigos do mundo.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Tangier_port.jpg/400px-Tangier_port.jpg", fotos: [], documentos: [] },
+      { nome: "Cidade do Cabo (África do Sul)", subtitulo: "Rota do Cabo", lat: -33.9249, lon: 18.4241, pais: "África do Sul", continente: "África", categoria: "porto", tema: "Rota Marítima", povo: "Holandeses, Ingleses, Malaios e Africanos", fundacao: 1652, descricao: "Posto de reabastecimento holandês.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5d/Cape_Town_harbor.jpg/400px-Cape_Town_harbor.jpg", fotos: [], documentos: [] },
+      { nome: "Elmina (Gana)", subtitulo: "Primeiro entreposto europeu na África Subsaariana", lat: 5.0877, lon: -1.3482, pais: "Gana", continente: "África", categoria: "porto", tema: "Comércio de Escravos", povo: "Portugueses, Holandeses e Africanos", fundacao: 1482, descricao: "Castelo de São Jorge da Mina.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Elmina_Castle.jpg/400px-Elmina_Castle.jpg", fotos: [], documentos: [] },
+      { nome: "Lagos (Nigéria)", subtitulo: "Gigante da África Ocidental", lat: 6.5244, lon: 3.3792, pais: "Nigéria", continente: "África", categoria: "porto", tema: "Comércio Colonial", povo: "Iorubás, Europeus e Nigerianos", fundacao: 1470, descricao: "Principal porto da Nigéria colonial.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Lagos_port.jpg/400px-Lagos_port.jpg", fotos: [], documentos: [] },
+      { nome: "Kilwa Kisiwani (Tanzânia)", subtitulo: "Pérola da costa swahili", lat: -8.9583, lon: 39.5167, pais: "Tanzânia", continente: "África", categoria: "porto", tema: "Comércio no Oceano Índico", povo: "Suaílis, Árabes e Africanos", fundacao: 900, descricao: "Importante porto da costa swahili.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5e/Kilwa_ruins.jpg/400px-Kilwa_ruins.jpg", fotos: [], documentos: [] },
+      { nome: "Mombaça (Quênia)", subtitulo: "Fortaleza portuguesa no Índico", lat: -4.0435, lon: 39.6682, pais: "Quênia", continente: "África", categoria: "porto", tema: "Conflito Colonial", povo: "Suaílis, Portugueses, Árabes e Africanos", fundacao: 900, descricao: "Forte Jesus.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Mombasa_port.jpg/400px-Mombasa_port.jpg", fotos: [], documentos: [] },
+      { nome: "Zanzibar (Tanzânia)", subtitulo: "Ilha das especiarias", lat: -6.1631, lon: 39.1912, pais: "Tanzânia", continente: "África", categoria: "porto", tema: "Comércio de Especiarias", povo: "Árabes, Suaílis, Indianos e Africanos", fundacao: 1000, descricao: "Centro do comércio de especiarias.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Zanzibar_harbor.jpg/400px-Zanzibar_harbor.jpg", fotos: [], documentos: [] },
+      { nome: "Santos (Brasil)", subtitulo: "Maior porto da América Latina", lat: -23.9608, lon: -46.3350, pais: "Brasil", continente: "América do Sul", categoria: "porto", tema: "Economia", povo: "Brasileiros", fundacao: 1892, descricao: "Maior complexo portuário da América Latina.", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg", fotos: [], documentos: [] },
       // ROTAS
-      {
-        nome: "Rota do Atlântico Sul",
-        subtitulo: "Lisboa ↔ Santos",
-        tipo: "rota",
-        pontos: [
-          { lat: 38.7071, lon: -9.1355 },
-          { lat: 28.9784, lon: -13.0 },
-          { lat: -23.9608, lon: -46.3350 }
-        ],
-        cor: "#d4af37",
-        descricao: "Principal rota comercial entre Portugal e o Brasil colonial.",
-        fundacao: 1500,
-        pais: "Portugal/Brasil",
-        continente: "Europa/América do Sul",
-        categoria: "rota",
-        tema: "Comércio",
-        povo: "Portugueses e Brasileiros",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Rota do Pacífico",
-        subtitulo: "Panamá ↔ Santos",
-        tipo: "rota",
-        pontos: [
-          { lat: 9.3598, lon: -79.9012 },
-          { lat: -23.9608, lon: -46.3350 }
-        ],
-        cor: "#2ecc71",
-        descricao: "Conexão entre os oceanos Pacífico e Atlântico via Canal do Panamá.",
-        fundacao: 1914,
-        pais: "Panamá/Brasil",
-        continente: "América Central/América do Sul",
-        categoria: "rota",
-        tema: "Comércio",
-        povo: "Panamenhos e Brasileiros",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg",
-        fotos: [], documentos: []
-      },
-      {
-        nome: "Rota do Mediterrâneo",
-        subtitulo: "Tânger ↔ Alexandria",
-        tipo: "rota",
-        pontos: [
-          { lat: 35.7595, lon: -5.8340 },
-          { lat: 36.0, lon: 0.0 },
-          { lat: 31.2001, lon: 29.9187 }
-        ],
-        cor: "#3498db",
-        descricao: "Conexão entre o Atlântico e o Mar Vermelho via Mediterrâneo.",
-        fundacao: -500,
-        pais: "Marrocos/Egito",
-        continente: "África",
-        categoria: "rota",
-        tema: "Comércio",
-        povo: "Fenícios, Romanos, Árabes",
-        coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg",
-        fotos: [], documentos: []
-      }
+      { nome: "Rota do Atlântico Sul", subtitulo: "Lisboa ↔ Santos", tipo: "rota", pontos: [ { lat: 38.7071, lon: -9.1355 }, { lat: 28.9784, lon: -13.0 }, { lat: -23.9608, lon: -46.3350 } ], cor: "#d4af37", descricao: "Principal rota comercial entre Portugal e o Brasil colonial.", fundacao: 1500, pais: "Portugal/Brasil", continente: "Europa/América do Sul", categoria: "rota", tema: "Comércio", povo: "Portugueses e Brasileiros", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8a/Porto_de_Santos_a%C3%A9reo.jpg/400px-Porto_de_Santos_a%C3%A9reo.jpg", fotos: [], documentos: [] },
+      { nome: "Rota do Pacífico", subtitulo: "Panamá ↔ Santos", tipo: "rota", pontos: [ { lat: 9.3598, lon: -79.9012 }, { lat: -23.9608, lon: -46.3350 } ], cor: "#2ecc71", descricao: "Conexão entre Pacífico e Atlântico via Canal do Panamá.", fundacao: 1914, pais: "Panamá/Brasil", continente: "América Central/América do Sul", categoria: "rota", tema: "Comércio", povo: "Panamenhos e Brasileiros", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2a/Panama_Canal_Gatun_Locks.jpg/400px-Panama_Canal_Gatun_Locks.jpg", fotos: [], documentos: [] },
+      { nome: "Rota do Mediterrâneo", subtitulo: "Tânger ↔ Alexandria", tipo: "rota", pontos: [ { lat: 35.7595, lon: -5.8340 }, { lat: 36.0, lon: 0.0 }, { lat: 31.2001, lon: 29.9187 } ], cor: "#3498db", descricao: "Conexão entre Atlântico e Mar Vermelho via Mediterrâneo.", fundacao: -500, pais: "Marrocos/Egito", continente: "África", categoria: "rota", tema: "Comércio", povo: "Fenícios, Romanos, Árabes", coverImage: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/77/Alexandria_port.jpg/400px-Alexandria_port.jpg", fotos: [], documentos: [] }
     ];
 
     // =========================================================
-    // APLICAÇÃO PRINCIPAL
+    // APLICAÇÃO
     // =========================================================
     class AtlasApp {
       constructor() {
         this.data = [];
         this.map = null;
-        this.markers = [];
-        this.markerData = [];
+        this.markerLayerId = null;
         this.routeLayers = [];
         this.routePointMarkers = [];
         this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos' };
@@ -623,6 +207,7 @@
         this.endYear = 2026;
         this.routePoints = [];
         this._pending = false;
+        this._popup = null;
       }
 
       async start() {
@@ -704,9 +289,6 @@
         localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
       }
 
-      // =========================================================
-      // MAPA - CORRIGIDO (projeção mercator + resize)
-      // =========================================================
       inicializarMapa() {
         const style = {
           version: 8,
@@ -733,10 +315,9 @@
           center: [-10, 10],
           zoom: 2.0,
           pitch: 0,
-          projection: 'mercator'  // <--- FORÇA PROJEÇÃO PLANA (MARCADORES FICAM FIXOS)
+          projection: 'mercator'
         });
 
-        // Redimensiona o mapa quando a janela muda
         window.addEventListener('resize', () => {
           if (this.map) this.map.resize();
         });
@@ -764,7 +345,107 @@
       }
 
       // =========================================================
-      // ROTAS
+      // MARCADORES FIXOS USANDO CIRCLELAYER (NOVO)
+      // =========================================================
+      renderizarMarcadores(itens) {
+        // Remove camada anterior
+        if (this.markerLayerId) {
+          try {
+            if (this.map.getLayer(this.markerLayerId)) this.map.removeLayer(this.markerLayerId);
+            if (this.map.getLayer('markers-glow')) this.map.removeLayer('markers-glow');
+            if (this.map.getSource('markers-source')) this.map.removeSource('markers-source');
+          } catch(e) {}
+          this.markerLayerId = null;
+        }
+        if (this._popup) {
+          this._popup.remove();
+          this._popup = null;
+        }
+
+        const pontos = itens.filter(d => d.tipo !== 'rota' && d.lat && d.lon);
+        if (!pontos.length) return;
+
+        const geojson = {
+          type: 'FeatureCollection',
+          features: pontos.map(p => ({
+            type: 'Feature',
+            geometry: {
+              type: 'Point',
+              coordinates: [p.lon, p.lat]
+            },
+            properties: {
+              nome: p.nome,
+              subtitulo: p.subtitulo || '',
+              categoria: p.categoria || 'porto',
+              cor: CORES_CATEGORIA[p.categoria] || '#1a73e8'
+            }
+          }))
+        };
+
+        this.map.addSource('markers-source', {
+          type: 'geojson',
+          data: geojson
+        });
+
+        // Camada principal
+        this.markerLayerId = 'markers-layer';
+        this.map.addLayer({
+          id: this.markerLayerId,
+          type: 'circle',
+          source: 'markers-source',
+          paint: {
+            'circle-radius': 8,
+            'circle-color': ['get', 'cor'],
+            'circle-stroke-width': 2,
+            'circle-stroke-color': '#ffffff',
+            'circle-opacity': 0.9
+          }
+        });
+
+        // Glow
+        this.map.addLayer({
+          id: 'markers-glow',
+          type: 'circle',
+          source: 'markers-source',
+          paint: {
+            'circle-radius': 14,
+            'circle-color': ['get', 'cor'],
+            'circle-opacity': 0.15
+          }
+        });
+
+        // Popup ao clicar
+        this.map.on('click', this.markerLayerId, (e) => {
+          const features = e.features;
+          if (!features || !features.length) return;
+          const props = features[0].properties;
+          const nome = props.nome;
+          if (this._popup) this._popup.remove();
+          this._popup = new maplibregl.Popup({ offset: 15 })
+            .setLngLat(e.lngLat)
+            .setHTML(`
+              <div style="padding:4px; font-family:sans-serif;">
+                <strong style="color:#1a73e8;">${nome}</strong>
+                <p style="font-size:0.75rem; color:#5f6368;">${props.subtitulo || ''}</p>
+                <button onclick="window.atlasApp.abrirDetalhes('${nome.replace(/'/g, "\\'")}')"
+                  style="margin-top:6px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; cursor:pointer; width:100%;">
+                  <i class="fa-regular fa-circle-info"></i> Detalhes
+                </button>
+              </div>
+            `)
+            .addTo(this.map);
+        });
+
+        this.map.on('mouseenter', this.markerLayerId, () => {
+          this.map.getCanvas().style.cursor = 'pointer';
+        });
+        this.map.on('mouseleave', this.markerLayerId, () => {
+          this.map.getCanvas().style.cursor = '';
+        });
+      }
+
+      // =========================================================
+      // ROTAS (MANTIDO)
       // =========================================================
       desenharRotas() {
         if (!this.map || !this.map.loaded()) {
@@ -857,52 +538,6 @@
         } else {
           this.map.once('load', () => this.desenharRotas());
         }
-      }
-
-      // =========================================================
-      // MARCADORES FIXOS
-      // =========================================================
-      renderizarMarcadores(itens) {
-        const newIds = itens.map(i => i.nome).sort().join(',');
-        const oldIds = this.markerData.map(i => i.nome).sort().join(',');
-        if (newIds === oldIds && this.markers.length > 0) return;
-
-        this.markers.forEach(m => m.remove());
-        this.markers = [];
-        this.markerData = itens.slice();
-
-        itens.forEach(item => {
-          if (item.tipo === 'rota' || !item.lat || !item.lon) return;
-          const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
-
-          const el = document.createElement('div');
-          el.className = 'marker-container';
-          el.style.setProperty('--marker-color', cor);
-
-          const pulse = document.createElement('div');
-          pulse.className = 'marker-pulse';
-          const pin = document.createElement('div');
-          pin.className = 'marker-pin';
-          el.append(pulse, pin);
-
-          const popup = new maplibregl.Popup({ offset: 15, closeButton: true })
-            .setHTML(`
-              <div style="padding:4px; font-family:sans-serif;">
-                <strong style="color:#1a73e8;">${item.nome}</strong>
-                <p style="font-size:0.75rem; color:#5f6368;">${item.subtitulo || ''}</p>
-                <button onclick="window.atlasApp.abrirDetalhes('${item.nome.replace(/'/g, "\\'")}')"
-                  style="margin-top:6px; background:#1a73e8; border:none; border-radius:4px; color:#fff; padding:4px 8px; font-size:0.7rem; cursor:pointer; width:100%;">
-                  <i class="fa-regular fa-circle-info"></i> Detalhes
-                </button>
-              </div>
-            `);
-
-          const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([item.lon, item.lat])
-            .setPopup(popup)
-            .addTo(this.map);
-          this.markers.push(marker);
-        });
       }
 
       // =========================================================
