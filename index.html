@@ -841,7 +841,6 @@
       <i class="fa-solid fa-compass"></i><span>Atlas Atlantes</span>
     </a>
     <div class="header-controls">
-      <!-- Rádio removido -->
       <div class="search-wrapper">
         <i class="fa-solid fa-magnifying-glass"></i>
         <input type="text" id="searchInput" placeholder="Buscar..." autocomplete="off" />
@@ -888,7 +887,6 @@
         </div>
         <div class="filter-accordion-content" id="povo-filtros"></div>
 
-        <!-- NOVO FILTRO: PRODUTO -->
         <div class="filter-accordion-header" data-target="produto-content">
           <span>Produto</span> <i class="fa-solid fa-chevron-down"></i>
         </div>
@@ -1278,6 +1276,7 @@ class AtlasApp {
     this.map = null;
     this.markers = [];
     this.routeLayers = [];
+    // Filtros ativos (incluindo produto)
     this.activeFilters = { categoria: 'todos', tema: 'todos', povo: 'todos', produto: 'todos' };
     this.searchQuery = '';
     this.selectedItemName = null;
@@ -1286,7 +1285,6 @@ class AtlasApp {
     this.sidebarVisible = false;
     this.timelineVisible = true;
     this.isGlobeMode = false;
-    this._pendingDraw = false;
     this.threeScene = null;
     this.threeCamera = null;
     this.threeRenderer = null;
@@ -1305,15 +1303,20 @@ class AtlasApp {
   }
 
   async start() {
-    this.initDOMRefs();
-    await this.carregarDados();
-    this.inicializarMapa();
-    this.inicializarComponentes();
-    this.bindEventos();
-    this.aplicarFiltros();
-    setTimeout(() => {
-      if (this.dom.loading) this.dom.loading.classList.add('hide');
-    }, 600);
+    try {
+      this.initDOMRefs();
+      await this.carregarDados();
+      this.inicializarMapa();
+      this.inicializarComponentes();
+      this.bindEventos();
+      this.aplicarFiltros(); // chama a lógica de renderização
+      setTimeout(() => {
+        if (this.dom.loading) this.dom.loading.classList.add('hide');
+      }, 600);
+    } catch (err) {
+      console.error('Erro na inicialização:', err);
+      alert('Houve um erro ao carregar o atlas. Veja o console para mais detalhes.');
+    }
   }
 
   initDOMRefs() {
@@ -1435,8 +1438,19 @@ class AtlasApp {
       this.map.on('error', (e) => console.warn('⚠️ Erro no mapa:', e));
     } catch (e) {
       console.error('❌ Erro ao inicializar mapa:', e);
+      // Fallback para mapa básico se o estilo falhar
+      try {
+        this.map = new maplibregl.Map({
+          container: 'map',
+          style: 'https://demotiles.maplibre.org/style.json',
+          center: [-10, 10],
+          zoom: 2
+        });
+      } catch (e2) {
+        console.error('Falha total no mapa:', e2);
+      }
     }
-    setTimeout(() => { if (this.map) { this.map.resize(); } }, 200);
+    setTimeout(() => { if (this.map) this.map.resize(); }, 200);
   }
 
   // ================================================================
@@ -1448,15 +1462,26 @@ class AtlasApp {
       setTimeout(() => this.desenharRotas(), 500);
       return;
     }
+    // Remove layers anteriores
     this.routeLayers.forEach(layer => {
       try { if (this.map.getLayer(layer)) this.map.removeLayer(layer); if (this.map.getSource(layer)) this.map.removeSource(layer); } catch(e) {}
     });
     this.routeLayers = [];
 
-    const rotas = this.data.filter(item => item.tipo === 'rota' && item.pontos && item.pontos.length >= 2);
-    if (rotas.length === 0) return;
+    // Aplica filtros (incluindo produto) para selecionar quais rotas desenhar
+    const rotasFiltradas = this.data.filter(item => {
+      if (item.tipo !== 'rota') return false;
+      const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
+      const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
+      const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
+      const matchProduto = this.activeFilters.produto === 'todos' || item.produto === this.activeFilters.produto;
+      const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
+      return matchCat && matchTema && matchPovo && matchProduto && anoValido;
+    });
 
-    rotas.forEach((rota, index) => {
+    if (!rotasFiltradas.length) return;
+
+    rotasFiltradas.forEach((rota, index) => {
       const id = 'rota-' + index;
       const coordinates = rota.pontos.map(p => [p.lon, p.lat]);
       try {
@@ -1531,6 +1556,7 @@ class AtlasApp {
     const produtos = ['todos', ...new Set(this.data.map(d => d.produto).filter(Boolean))];
 
     const popularContainer = (container, itens, chave, labelMap = {}) => {
+      if (!container) return;
       container.innerHTML = itens.map(item => {
         const label = item === 'todos' ? 'Todos' : (labelMap[item] || item);
         return `
@@ -1563,37 +1589,57 @@ class AtlasApp {
   }
 
   aplicarFiltros() {
-    let filtrados = this.data.filter(item => {
+    // 1. FILTRO PARA MARCADORES (NÃO usa produto) - apenas categoria, tema, povo, ano
+    const marcadores = this.data.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
+    const marcadoresFiltrados = marcadores.filter(item => {
+      const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
+      const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
+      const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
+      const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
+      return matchCat && matchTema && matchPovo && anoValido;
+    });
+
+    // 2. FILTRO PARA TIMELINE (usa todos os filtros, incluindo produto)
+    const timelineItens = this.data.filter(item => {
       const matchCat = this.activeFilters.categoria === 'todos' || item.categoria === this.activeFilters.categoria;
       const matchTema = this.activeFilters.tema === 'todos' || item.tema === this.activeFilters.tema;
       const matchPovo = this.activeFilters.povo === 'todos' || item.povo === this.activeFilters.povo;
       const matchProduto = this.activeFilters.produto === 'todos' || item.produto === this.activeFilters.produto;
       const anoValido = item.fundacao >= this.startYear && item.fundacao <= this.endYear;
+      // busca textual (se houver)
+      if (this.searchQuery) {
+        const q = this.searchQuery.toLowerCase();
+        const textMatch = 
+          (item.nome && item.nome.toLowerCase().includes(q)) ||
+          (item.subtitulo && item.subtitulo.toLowerCase().includes(q)) ||
+          (item.descricao && item.descricao.toLowerCase().includes(q)) ||
+          (item.povo && item.povo.toLowerCase().includes(q)) ||
+          (item.pais && item.pais.toLowerCase().includes(q)) ||
+          (item.produto && item.produto.toLowerCase().includes(q));
+        return matchCat && matchTema && matchPovo && matchProduto && anoValido && textMatch;
+      }
       return matchCat && matchTema && matchPovo && matchProduto && anoValido;
     });
 
-    if (this.searchQuery) {
-      const q = this.searchQuery.toLowerCase();
-      filtrados = filtrados.filter(item => 
-        (item.nome && item.nome.toLowerCase().includes(q)) ||
-        (item.subtitulo && item.subtitulo.toLowerCase().includes(q)) ||
-        (item.descricao && item.descricao.toLowerCase().includes(q)) ||
-        (item.povo && item.povo.toLowerCase().includes(q)) ||
-        (item.pais && item.pais.toLowerCase().includes(q)) ||
-        (item.produto && item.produto.toLowerCase().includes(q))
-      );
-    }
+    // Renderizar marcadores (fixos, sem filtro de produto)
+    this.renderizarMarcadores(marcadoresFiltrados);
+    // Renderizar timeline (com todos os filtros)
+    this.renderizarTimeline(timelineItens);
+    // Atualizar contador na sidebar (mostra quantos itens na timeline)
+    this.atualizarContadores(timelineItens);
 
-    this.renderizarMarcadores(filtrados);
-    this.renderizarTimeline(filtrados);
-    this.atualizarContadores(filtrados);
+    // Se as rotas estiverem visíveis, redesenhá-las (aplica todos os filtros, inclusive produto)
+    if (this.routesVisible) {
+      this.desenharRotas();
+    }
   }
 
   renderizarMarcadores(itens) {
+    // Remove marcadores antigos
     this.markers.forEach(m => m.remove());
     this.markers = [];
-    const pontos = itens.filter(item => item.tipo !== 'rota' && item.lat && item.lon);
-    pontos.forEach(item => {
+    // itens já são os marcadores filtrados (sem produto)
+    itens.forEach(item => {
       const cor = CORES_CATEGORIA[item.categoria] || '#1a73e8';
       const el = document.createElement('div');
       el.className = 'marker-container';
@@ -1752,6 +1798,7 @@ class AtlasApp {
     const container = this.$('threeReplicaViewport');
     const canvas = this.$('three-canvas');
     if (this.threeRenderer) return;
+    if (!container) return;
     this.threeScene = new THREE.Scene();
     this.threeScene.background = new THREE.Color('#f0f2f5');
     this.threeCamera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
@@ -1784,6 +1831,7 @@ class AtlasApp {
     const container = this.$('panoramaViewport');
     const canvas = this.$('panorama-canvas');
     if (this.panoramaRenderer) return;
+    if (!container) return;
     this.panoramaScene = new THREE.Scene();
     this.panoramaCamera = new THREE.PerspectiveCamera(75, container.clientWidth / container.clientHeight, 1, 1000);
     this.panoramaCamera.position.set(0, 0, 0.1);
