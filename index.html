@@ -113,7 +113,7 @@
         <div class="search-wrapper"><i class="fa-solid fa-magnifying-glass"></i><input type="text" id="searchInput" placeholder="Buscar..." /></div>
         <button class="btn" id="btnToggleFilters"><i class="fa-solid fa-filter"></i></button>
         <button class="btn" id="btnToggleTimeline"><i class="fa-solid fa-timeline"></i></button>
-        <button class="btn btn-success" id="btnAddRoute"><i class="fa-solid fa-route"></i> Rota</button>
+        <!-- Botão de adicionar rota removido -->
       </div>
     </header>
 
@@ -155,21 +155,7 @@
     </div>
   </div>
 
-  <!-- MODAL NOVA ROTA -->
-  <div class="modal-overlay" id="modalAddRoute">
-    <div class="modal-box">
-      <div class="modal-header"><h3><i class="fa-solid fa-route" style="color:#1a73e8;"></i> Nova Rota</h3><span class="modal-close" id="btnCloseAddRoute"><i class="fa-solid fa-xmark"></i></span></div>
-      <form id="addRouteForm">
-        <div class="form-row"><div class="form-group"><label>Nome *</label><input type="text" id="routeName" class="form-control" placeholder="Ex: Rota do Cabo" required /></div><div class="form-group"><label>Subtítulo</label><input type="text" id="routeSubtitle" class="form-control" placeholder="Breve" /></div></div>
-        <div class="form-row-3"><div class="form-group"><label>Ano *</label><input type="number" id="routeYear" class="form-control" placeholder="1500" required /></div><div class="form-group"><label>Cor</label><input type="color" id="routeColor" class="form-control" value="#d4af37" style="padding:2px; height:34px;" /></div><div class="form-group"><label>Tema</label><select id="routeCategory" class="form-control"><option>Comércio</option><option>Cultura</option><option>Política</option><option>Religião</option></select></div></div>
-        <div class="form-row"><div class="form-group"><label>Países</label><input type="text" id="routeCountries" class="form-control" placeholder="Ex: Portugal/Brasil" /></div><div class="form-group"><label>Continentes</label><input type="text" id="routeContinents" class="form-control" placeholder="Ex: Europa/América" /></div></div>
-        <div class="form-group"><label>Pontos (clique no mapa)</label><div style="display:flex; gap:4px; flex-wrap:wrap;"><input type="number" step="any" id="routePointLat" class="form-control" placeholder="Lat" style="flex:1; min-width:60px;" /><input type="number" step="any" id="routePointLon" class="form-control" placeholder="Lon" style="flex:1; min-width:60px;" /><button type="button" class="btn" id="btnAddRoutePoint"><i class="fa-solid fa-plus"></i></button></div><div style="font-size:0.6rem; color:#5f6368; margin-top:2px;">💡 Clique no mapa para preencher</div></div>
-        <div id="routePointsList" style="max-height:80px; overflow-y:auto; background:#f8f9fa; border-radius:4px; padding:4px; border:1px solid #e0e0e0; margin-bottom:6px; font-size:0.7rem;"><div style="text-align:center; color:#777; padding:4px;">Nenhum ponto</div></div>
-        <div class="form-group"><label>Descrição *</label><textarea id="routeDescription" class="form-control" rows="2" placeholder="Descreva a rota..." required></textarea></div>
-        <button type="submit" class="btn-submit"><i class="fa-solid fa-route"></i> Adicionar Rota</button>
-      </form>
-    </div>
-  </div>
+  <!-- Modal de adicionar rota removido (não é mais usado) -->
 
   <script>
     // =========================================================
@@ -507,7 +493,6 @@
         this.searchQuery = '';
         this.startYear = -2000;
         this.endYear = 2026;
-        this.routePoints = [];
         this._popup = null;
         this._styleReady = false;
       }
@@ -518,7 +503,6 @@
         this.inicializarMapa();
         this.inicializarFiltros();
         this.bindEventos();
-        // Aguarda o estilo ficar pronto antes de aplicar filtros
         this.waitForStyle(() => {
           this.aplicarFiltros();
         });
@@ -558,23 +542,8 @@
           btnResetFilters: this.$('reset-filtros'),
           inputStart: this.$('inputStartYear'),
           inputEnd: this.$('inputEndYear'),
-          logoReset: this.$('logoReset'),
-          modalAddRoute: this.$('modalAddRoute'),
-          btnCloseAddRoute: this.$('btnCloseAddRoute'),
-          btnAddRoute: this.$('btnAddRoute'),
-          addRouteForm: this.$('addRouteForm'),
-          routeName: this.$('routeName'),
-          routeSubtitle: this.$('routeSubtitle'),
-          routeYear: this.$('routeYear'),
-          routeColor: this.$('routeColor'),
-          routeCategory: this.$('routeCategory'),
-          routeCountries: this.$('routeCountries'),
-          routeContinents: this.$('routeContinents'),
-          routePointLat: this.$('routePointLat'),
-          routePointLon: this.$('routePointLon'),
-          btnAddRoutePoint: this.$('btnAddRoutePoint'),
-          routePointsList: this.$('routePointsList'),
-          routeDescription: this.$('routeDescription')
+          logoReset: this.$('logoReset')
+          // btnAddRoute removido
         };
       }
 
@@ -594,14 +563,12 @@
         localStorage.setItem('atlas_data_completo', JSON.stringify(this.data));
       }
 
-      // Aguarda o estilo do mapa carregar
       waitForStyle(callback) {
         if (!this.map) return;
         if (this.map.isStyleLoaded()) {
           callback();
           return;
         }
-        // Evento styledata é o mais confiável
         const onStyle = () => {
           if (this.map.isStyleLoaded()) {
             this.map.off('styledata', onStyle);
@@ -610,7 +577,6 @@
           }
         };
         this.map.on('styledata', onStyle);
-        // Fallback timeout
         setTimeout(() => {
           if (!this._styleReady) {
             console.warn('⏳ Forçando callback após timeout');
@@ -621,9 +587,6 @@
         }, 5000);
       }
 
-      // =========================================================
-      // MAPA
-      // =========================================================
       inicializarMapa() {
         const style = {
           version: 8,
@@ -655,7 +618,6 @@
           dragRotate: false
         });
 
-        // Redimensionamento
         const resizeMap = () => {
           if (this.map) {
             try { this.map.resize(); } catch(e) {}
@@ -663,19 +625,10 @@
         };
         window.addEventListener('resize', resizeMap);
         window.addEventListener('orientationchange', () => setTimeout(resizeMap, 300));
-
-        // Clique para ponto
-        this.map.on('click', (e) => {
-          if (this.dom.modalAddRoute.classList.contains('open')) {
-            const { lng, lat } = e.lngLat;
-            this.dom.routePointLat.value = lat.toFixed(6);
-            this.dom.routePointLon.value = lng.toFixed(6);
-          }
-        });
       }
 
       // =========================================================
-      // MARCADORES COM CIRCLELAYER (FIXOS E SEM ERRORS)
+      // MARCADORES
       // =========================================================
       renderizarMarcadores(itens) {
         if (!this.map || !this.map.isStyleLoaded()) {
@@ -1026,76 +979,6 @@
       }
 
       // =========================================================
-      // ADICIONAR ROTA
-      // =========================================================
-      adicionarPontoRota() {
-        const lat = parseFloat(this.dom.routePointLat.value);
-        const lon = parseFloat(this.dom.routePointLon.value);
-        if (isNaN(lat) || isNaN(lon)) { alert('Coordenadas inválidas'); return; }
-        this.routePoints.push({ lat, lon });
-        this.renderizarPontosRota();
-        this.dom.routePointLat.value = '';
-        this.dom.routePointLon.value = '';
-      }
-
-      removerPontoRota(idx) {
-        this.routePoints.splice(idx, 1);
-        this.renderizarPontosRota();
-      }
-
-      renderizarPontosRota() {
-        if (!this.routePoints.length) {
-          this.dom.routePointsList.innerHTML = '<div style="text-align:center;color:#777;padding:4px;">Nenhum ponto</div>';
-          return;
-        }
-        this.dom.routePointsList.innerHTML = this.routePoints.map((p, i) =>
-          `<div style="display:flex;justify-content:space-between;align-items:center;padding:2px 6px;background:#fff;border:1px solid #e0e0e0;border-radius:4px;margin-bottom:2px;font-size:0.7rem;">
-            <span>${i+1}. ${p.lat.toFixed(4)}, ${p.lon.toFixed(4)}</span>
-            <button class="btn" style="padding:0 4px;color:#e74c3c;border-color:#e74c3c;" onclick="window.atlasApp.removerPontoRota(${i})"><i class="fa-solid fa-xmark"></i></button>
-          </div>`
-        ).join('');
-      }
-
-      async adicionarRota(e) {
-        e.preventDefault();
-        const nome = this.dom.routeName.value.trim();
-        const year = parseInt(this.dom.routeYear.value);
-        const desc = this.dom.routeDescription.value.trim();
-        if (!nome || isNaN(year) || !desc || this.routePoints.length < 2) {
-          alert('Preencha todos os campos e adicione pelo menos 2 pontos.');
-          return;
-        }
-
-        const nova = {
-          nome,
-          subtitulo: this.dom.routeSubtitle.value.trim(),
-          tipo: 'rota',
-          pontos: [...this.routePoints],
-          cor: this.dom.routeColor.value,
-          descricao: desc,
-          fundacao: year,
-          pais: this.dom.routeCountries.value.trim() || 'Não especificado',
-          continente: this.dom.routeContinents.value.trim() || 'Não especificado',
-          categoria: 'rota',
-          tema: this.dom.routeCategory.value,
-          povo: 'Diversos',
-          coverImage: '',
-          fotos: [],
-          documentos: []
-        };
-
-        this.data.push(nova);
-        this.salvarDados();
-        this.dom.modalAddRoute.classList.remove('open');
-        this.dom.addRouteForm.reset();
-        this.routePoints = [];
-        this.renderizarPontosRota();
-        this.inicializarFiltros();
-        this.aplicarFiltros();
-        alert(`✅ Rota "${nome}" adicionada!`);
-      }
-
-      // =========================================================
       // LIGHTBOX / PDF
       // =========================================================
       abrirLightbox(url) {
@@ -1225,20 +1108,9 @@
           this.dom.detailPanel.classList.remove('open');
         });
 
-        this.dom.btnAddRoute.addEventListener('click', () => {
-          this.dom.modalAddRoute.classList.add('open');
-          this.routePoints = [];
-          this.renderizarPontosRota();
-        });
-        this.dom.btnCloseAddRoute.addEventListener('click', () => {
-          this.dom.modalAddRoute.classList.remove('open');
-        });
-        this.dom.addRouteForm.addEventListener('submit', (e) => this.adicionarRota(e));
-        this.dom.btnAddRoutePoint.addEventListener('click', () => this.adicionarPontoRota());
-
+        // Evento de adicionar rota foi removido
         document.addEventListener('keydown', (e) => {
           if (e.key === 'Escape') {
-            this.dom.modalAddRoute.classList.remove('open');
             this.dom.detailPanel.classList.remove('open');
             this.dom.sidebar.classList.remove('open');
           }
